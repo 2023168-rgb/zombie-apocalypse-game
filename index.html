@@ -50,7 +50,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
  </div></div>
 <section id="lobby" class="view active">
  <div class="panel"><h2>🏠 로비</h2><p>일반/하드 30웨이브 또는 인세인 40웨이브를 버티고 남은 인게임 코인을 로비 보상으로 가져가자!</p><div class="bar"><i id="xpBar"></i></div><div class="muted" id="xpLabel">스테이지 레벨 진행도 1 / 1000</div>
- <div class="buttons" style="margin-top:14px"><button id="playBtn">▶ 일반 모드</button><button class="gold" id="hardPlayBtn">☠ 하드 모드</button><button class="danger" id="insanePlayBtn">💀 인세인 모드</button><button class="secondary" id="shopBtn">🛒 상점</button><button class="secondary" id="jobGachaBtn">🎭 직업 뽑기</button><button class="secondary" id="equipBtn">⚔ 무기 장착</button><button class="secondary" id="armorBtn">🛡 방어구</button><button class="secondary" id="titleBtn">🏅 칭호</button><button class="secondary" id="infiniteBtn">♾ 무한 생존</button><button class="gold" id="friendPlayBtn">👥 친구와 하기</button><button class="secondary" id="fogBtn">🌫 안개 모드</button></div></div>
+ <div class="buttons" style="margin-top:14px"><button id="playBtn">▶ 일반 모드</button><button class="gold" id="hardPlayBtn">☠ 하드 모드</button><button class="danger" id="insanePlayBtn">💀 인세인 모드</button><button class="secondary" id="shopBtn">🛒 상점</button><button class="secondary" id="jobGachaBtn">🎭 직업 뽑기</button><button class="secondary" id="equipBtn">⚔ 장착</button><button class="secondary" id="armorBtn">🛡 방어구</button><button class="secondary" id="titleBtn">🏅 칭호</button><button class="secondary" id="infiniteBtn">♾ 무한 생존</button><button class="gold" id="friendPlayBtn">👥 친구와 하기</button><button class="secondary" id="fogBtn">🌫 안개 모드</button></div></div>
  <div class="panel"><h3>게임 안내</h3><div class="muted">WASD / 방향키 이동 · 스페이스 공격(근접 무기는 휘두르기) · P 무기 스킬 · O 직업 스킬(각 30초 쿨타임) · 인세인 모드는 스페이스를 한 번씩 눌러야 공격<br>선택한 모드의 모든 웨이브를 클리어하면 스테이지 레벨이 1 오르고, 남은 코인이 로비 코인으로 지급돼. 스테이지 레벨이 오를수록 다음 판 좀비가 더 강해져. 보스를 잡으면 상자가 나오고 E 키로 열면 인게임 코인 10개를 얻어. 빨간 자폭 좀비는 가까이 오면 폭발해. 샤이니스타와 적월선은 좀비 처치 시 각각 0.0001% 확률로 획득할 수 있어. 모바일은 화면 아래 조작 버튼으로 이동·공격·스킬을 사용할 수 있어.</div></div>
 </section>
 <section id="shop" class="view">
@@ -65,8 +65,11 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 </section>
 <section id="equip" class="view">
  <div class="panel"><div class="row"><h2 style="margin-right:auto">⚔ 장착 메뉴</h2><button class="secondary" data-back>로비로</button></div>
- <p class="muted">아래에서 무기를 눌러 선택한 다음, 장착 슬롯을 눌러 장착해. 장착 슬롯은 1개야.</p>
- <div class="slot" id="equipSlot">장착 슬롯 1개 — 여기를 눌러 선택한 무기를 장착</div>
+ <p class="muted">무기와 직업을 각각 선택한 뒤 해당 장착 슬롯을 눌러 장착할 수 있어.</p>
+ <h3>⚔ 무기 장착</h3><div class="slot" id="equipSlot">무기 장착 슬롯 — 무기를 선택하고 여기를 눌러 장착</div>
+ <p id="equipMessage" class="muted"></p>
+ <h3>🎭 직업 장착</h3><div class="slot" id="jobEquipSlot">직업 장착 슬롯 — 직업을 선택하고 여기를 눌러 장착</div>
+ <p id="jobEquipMessage" class="muted"></p>
  <h3>보유 직업</h3><div class="grid" id="jobInventory"></div><h3>무기 합성 / 승급</h3><p class="muted">같은 무기 3개를 모으면 1회 합성해 한 단계 높은 등급으로 승급시킬 수 있어. 합성할 무기를 목록에서 선택해.</p><div class="buttons"><button class="gold" id="fuseWeapon">선택한 무기 3개 합성</button></div><p id="fuseMessage" class="muted"></p><h3>내가 뽑은 무기</h3><p class="muted">삭제 버튼을 누르면 해당 무기가 영구 삭제돼. 마지막으로 남은 무기는 삭제할 수 없어.</p><div class="grid" id="inventory"></div><p id="equipMessage" class="muted"></p></div>
 </section>
 <section id="armor" class="view"><div class="panel"><div class="row"><h2 style="margin-right:auto">🛡 방어구 시스템</h2><button class="secondary" data-back>로비로</button></div><p class="muted">방어구는 총 30종이며 헬멧·조끼·장갑 슬롯에 각각 하나씩 장착할 수 있어. 장착하면 방어력 감소 대신 최대 체력과 시작 체력이 증가해. 방어구 뽑기 확률은 기존 무기 뽑기와 같아.</p><div class="buttons"><button class="gold" id="armorRoll">🛡 방어구 1회 뽑기 (50코인)</button></div><p id="armorResult" class="muted"></p><h3>📊 방어구 등급별 뽑기 확률</h3><p class="muted">일반 무기 뽑기와 동일한 확률이 적용돼.</p><div id="armorOdds" class="armor-odds"></div><div class="slot" id="armorSlots"></div><h3>보유 방어구</h3><div class="grid" id="armorInventory"></div></div></section>
