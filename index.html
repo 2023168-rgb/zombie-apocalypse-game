@@ -643,10 +643,53 @@ $('joystickSize').addEventListener('input',e=>{uiSettings.joystickSize=Number(e.
 $('joystickMoveMode').onclick=()=>{joystickMoveEditing=!joystickMoveEditing;const j=$('moveJoystick');if(joystickMoveEditing){const touchUI=window.matchMedia('(max-width:900px), (pointer:coarse)').matches;if(touchUI)mobileControls.style.display='flex';mobileControls.classList.add('joystick-edit-layer');const r=j.getBoundingClientRect();j.style.position='fixed';j.style.left=r.left+'px';j.style.bottom=(window.innerHeight-r.bottom)+'px';j.style.right='auto';j.style.touchAction='none';j.classList.add('joystick-editing');}else{j.classList.remove('joystick-editing');mobileControls.classList.remove('joystick-edit-layer');saveUiSettings();setMobileControls(mobileControlsOn);}renderSettings();};
 $('joystickReset').onclick=()=>{uiSettings.joystickSize=184;uiSettings.joystickLeft=null;uiSettings.joystickBottom=null;const j=$('moveJoystick');j.style.position='';j.style.left='';j.style.bottom='';j.style.right='';j.classList.remove('joystick-editing');mobileControls.classList.remove('joystick-edit-layer');joystickMoveEditing=false;applyJoystickSettings();saveUiSettings();renderSettings();};
 // Original procedural ambient BGM; starts only after the user enables it.
-let bgmContext=null,bgmTimer=null,bgmNodes=[];function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}for(const n of bgmNodes){try{n.stop();}catch(e){}try{n.disconnect();}catch(e){}}bgmNodes=[];if(bgmContext){try{bgmContext.close();}catch(e){}bgmContext=null;}}
-function startBgm(){if(!uiSettings.bgm)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;bgmContext=new AC();const master=bgmContext.createGain();master.gain.value=.035;master.connect(bgmContext.destination);const notes=[110,146.83,164.81,130.81,98,130.81,146.83,110];let step=0;const play=()=>{if(!bgmContext)return;const osc=bgmContext.createOscillator(),gain=bgmContext.createGain();osc.type='triangle';osc.frequency.value=notes[step%notes.length];gain.gain.setValueAtTime(.0001,bgmContext.currentTime);gain.gain.exponentialRampToValueAtTime(.22,bgmContext.currentTime+.08);gain.gain.exponentialRampToValueAtTime(.0001,bgmContext.currentTime+1.05);osc.connect(gain);gain.connect(master);osc.start();osc.stop(bgmContext.currentTime+1.1);bgmNodes.push(osc);if(bgmNodes.length>12)bgmNodes.shift();step++;};play();bgmTimer=setInterval(play,1050);if(bgmContext.state==='suspended')bgmContext.resume();}catch(e){say('이 기기에서는 배경음을 재생할 수 없어.');}}
-$('bgmToggle').onclick=()=>{uiSettings.bgm=!uiSettings.bgm;saveUiSettings();if(uiSettings.bgm)startBgm();else stopBgm();renderSettings();};$('zombieQualityToggle').onclick=()=>{uiSettings.zombieQuality=!uiSettings.zombieQuality;saveUiSettings();renderSettings();};
-applyJoystickSettings();renderSettings();if(uiSettings.bgm){/* browser audio policy: wait for the first user gesture */const unlock=()=>{if(uiSettings.bgm&&!bgmContext)startBgm();window.removeEventListener('pointerdown',unlock);window.removeEventListener('keydown',unlock);};window.addEventListener('pointerdown',unlock,{once:true});window.addEventListener('keydown',unlock,{once:true});}
+let bgmContext=null,bgmTimer=null,bgmMaster=null,bgmNodes=[],bgmStep=0,bgmStarting=false;
+function stopBgm(){
+ if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}
+ bgmNodes.forEach(n=>{try{n.stop();}catch(e){}try{n.disconnect();}catch(e){}});
+ bgmNodes=[];
+ if(bgmContext){try{bgmContext.close();}catch(e){}}
+ bgmContext=null;bgmMaster=null;bgmStarting=false;
+}
+async function startBgm(){
+ if(!uiSettings.bgm||bgmStarting)return;
+ bgmStarting=true;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){say('이 브라우저는 배경음 재생을 지원하지 않아.');return;}
+  if(!bgmContext||bgmContext.state==='closed'){
+   bgmContext=new AC();bgmMaster=bgmContext.createGain();bgmMaster.gain.value=.22;bgmMaster.connect(bgmContext.destination);
+  }
+  if(bgmContext.state==='suspended')await bgmContext.resume();
+  if(!uiSettings.bgm||bgmContext.state!=='running'||bgmTimer)return;
+  const melody=[110,146.83,164.81,130.81,98,130.81,146.83,110,164.81,196,174.61,146.83,130.81,146.83,110,98];
+  const bass=[55,73.42,82.41,65.41,49,65.41,73.42,55];
+  const play=(freq,duration,type,volume,delay=0)=>{
+   const osc=bgmContext.createOscillator(),gain=bgmContext.createGain(),now=bgmContext.currentTime+delay;
+   osc.type=type;osc.frequency.setValueAtTime(freq,now);gain.gain.setValueAtTime(.0001,now);
+   gain.gain.exponentialRampToValueAtTime(volume,now+.06);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+   osc.connect(gain);gain.connect(bgmMaster);osc.start(now);osc.stop(now+duration+.03);
+   osc.onended=()=>{try{osc.disconnect();gain.disconnect();}catch(e){}};
+   bgmNodes.push(osc);if(bgmNodes.length>32)bgmNodes.shift();
+  };
+  const tick=()=>{
+   if(!bgmContext||bgmContext.state!=='running'||!uiSettings.bgm)return;
+   const i=bgmStep%melody.length;
+   play(melody[i],.72,'triangle',.12);play(bass[i%bass.length],.9,'sine',.075);
+   if(i%4===0)play(melody[i]*2,.22,'sine',.035,.08);
+   bgmStep++;
+  };
+  tick();bgmTimer=setInterval(tick,520);
+ }catch(e){say('BGM을 시작하지 못했어. 설정에서 다시 켜 봐.');}
+ finally{bgmStarting=false;}
+}
+$('bgmToggle').onclick=()=>{uiSettings.bgm=!uiSettings.bgm;saveUiSettings();if(uiSettings.bgm)startBgm();else stopBgm();renderSettings();};
+$('zombieQualityToggle').onclick=()=>{uiSettings.zombieQuality=!uiSettings.zombieQuality;saveUiSettings();renderSettings();};
+applyJoystickSettings();renderSettings();
+// 자동 시작 시 브라우저가 오디오를 잠가 두더라도 첫 사용자 입력에서 반드시 재개한다.
+const unlockBgm=()=>{if(uiSettings.bgm)startBgm();};
+window.addEventListener('pointerdown',unlockBgm,{once:true});
+window.addEventListener('keydown',unlockBgm,{once:true});
 window.addEventListener('resize',()=>{if(uiSettings.joystickLeft!==null&&uiSettings.joystickBottom!==null)applyJoystickSettings();});
 
 refresh();loop();
