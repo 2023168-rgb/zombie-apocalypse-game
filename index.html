@@ -485,7 +485,7 @@ function fire(){
  let w=getWeapon(),boosted=Date.now()<shinyBoostUntil,delay=Math.max(1,Math.floor((w.cooldown-fireBoost*2)/(boosted?2.5:1)));
  if(!running||paused||frame-lastShot<delay)return;lastShot=frame;
  if(w.name==='적월선'){let reach=104,hit=(w.damage+damageBoost)*(boosted?2.5:1),hits=zombies.filter(z=>{let dx=z.x-player.x,dy=z.y-player.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx),diff=Math.atan2(Math.sin(a-player.angle),Math.cos(a-player.angle));return z.hp>0&&d<reach+z.r&&Math.abs(diff)<.78;});hits.forEach(z=>z.hp-=hit);player.swing=16;skillFx.push({x:player.x,y:player.y,angle:player.angle,type:'slash',color:'#ff263e',radius:reach,variant:2,age:0,duration:22,targets:[]});return;}
- if(w.melee||w.name.includes('대검')||w.name.includes('단검')||w.name.includes('방망이')||w.name.includes('창')||w.name.includes('도끼')||w.name.includes('낫')||w.name.includes('심판검')){let reach=82,arc=.95,hit=(w.damage+damageBoost)*3;player.swing=14;let hitTargets=zombies.filter(z=>{let dx=z.x-player.x,dy=z.y-player.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx),diff=Math.atan2(Math.sin(a-player.angle),Math.cos(a-player.angle));return z.hp>0&&d<reach+z.r&&Math.abs(diff)<arc;});hitTargets.forEach(z=>z.hp-=hit);skillFx.push({x:player.x,y:player.y,angle:player.angle,type:'slash',color:rarity(w.rarity).id==='godly'?'#fff27a':'#d7e8ff',radius:reach,variant:1,age:0,duration:18,targets:[]});say(`${w.name} 휘두르기! ${hitTargets.length}마리 적중`);return;}
+ if(w.melee||w.name.includes('대검')||w.name.includes('단검')||w.name.includes('방망이')||w.name.includes('창')||w.name.includes('도끼')||w.name.includes('낫')||w.name.includes('심판검')){let reach=82,arc=.95,hit=(w.damage+damageBoost)*3;player.swing=24;let hitTargets=zombies.filter(z=>{let dx=z.x-player.x,dy=z.y-player.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx),diff=Math.atan2(Math.sin(a-player.angle),Math.cos(a-player.angle));return z.hp>0&&d<reach+z.r&&Math.abs(diff)<arc;});hitTargets.forEach(z=>z.hp-=hit);skillFx.push({x:player.x,y:player.y,angle:player.angle,type:'slash',color:rarity(w.rarity).id==='godly'?'#fff27a':'#d7e8ff',radius:reach,variant:1,age:0,duration:18,targets:[]});say(`${w.name} 휘두르기! ${hitTargets.length}마리 적중`);return;}
  let baseDamage=(w.damage+damageBoost)*(boosted?2.5:1),spread=w.name==='폭발 샷건'?.19:(w.pellets>1?.16:0);
  for(let i=0;i<w.pellets;i++){let a=player.angle+(i-(w.pellets-1)/2)*spread;let color=w.rarity==='godly'?'#fff17a':w.rarity==='mythic'?'#d58cff':w.rarity==='legendary'?'#ff9a42':w.rarity==='epic'?'#62e8ff':'#ffe58a';bullets.push({x:player.x,y:player.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:80,dmg:baseDamage,color,shape:w.name.includes('샷건')?'wide':w.name.includes('저격')||w.name.includes('레일건')?'line':w.name.includes('플라즈마')||w.name.includes('분쇄기')?'orb':'bullet'});}
 }
@@ -881,7 +881,7 @@ function drawDistinctWeapon(w,pl){
  ctx.save();
  // 손잡이 부근을 회전축으로 잡아 모든 근접무기가 확실히 좌우로 휘둘러지게 한다.
  ctx.translate(12,5);
- const swingProgress=melee&&pl.swing>0?1-pl.swing/14:0;
+ const swingProgress=melee&&pl.swing>0?1-pl.swing/24:0;
  const swingAngle=melee&&pl.swing>0?(-1.3+2.6*swingProgress):0;
  if(melee&&pl.swing>0)ctx.rotate(swingAngle);
  ctx.translate(-12,-5);
@@ -928,7 +928,7 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
  const accent=w.rarity==='godly'?'#d8b64b':w.rarity==='mythic'?'#9b72c9':w.rarity==='legendary'?'#bd7540':w.rarity==='epic'?'#4e9ba8':w.rarity==='rare'?'#587aa2':'#65717b';
  ctx.save();
  if(melee){
-   const maxSwing=14,progress=pl.swing>0?1-pl.swing/maxSwing:0;
+   const maxSwing=24,progress=pl.swing>0?1-pl.swing/maxSwing:0;
    // 실제 휘두르는 느낌: 손잡이를 축으로 검이 한쪽에서 반대쪽으로 크게 회전
    const swingAngle=pl.swing>0?(-0.95+progress*1.9):0;
    ctx.translate(9,2);ctx.rotate(swingAngle);
