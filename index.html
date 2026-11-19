@@ -537,12 +537,84 @@ function gameUpdate(){
  if(spawnLeft===0&&zombies.length===0){waveDelay++;if(waveDelay>75)nextWave();}
  updateGameHud();
 }
+function drawWeaponSignature(n,c,metal,dark,wood){
+ const rect=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
+ const glow=(col,blur)=>{ctx.shadowColor=col;ctx.shadowBlur=blur;};
+ const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
+ const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
+ const melee=/방망이|단검|대검|창|도끼|낫|검|적월선/.test(n);
+ if(melee){
+  if(n==='낡은 야구방망이'){rect(8,-3,8,42,'#98633d');rect(6,-13,12,15,'#c18a53');rect(7,-12,10,3,'#e4c18b');rect(9,29,6,10,'#493326');for(let i=0;i<3;i++)rect(5,-8+i*5,14,2,'#68452f');}
+  else if(n==='전투 단검'){rect(8,1,7,15,wood);rect(4,-2,15,4,metal);ctx.fillStyle='#b9d4df';ctx.beginPath();ctx.moveTo(11,-4);ctx.lineTo(17,-13);ctx.lineTo(42,-20);ctx.lineTo(29,-2);ctx.closePath();ctx.fill();line([[17,-12],[35,-17],[26,-5]],'#fff',2);rect(8,14,7,4,dark);}
+  else if(n==='철제 대검'){rect(7,0,9,17,wood);rect(2,-4,20,5,metal);ctx.fillStyle='#aebdc8';ctx.beginPath();ctx.moveTo(12,-5);ctx.lineTo(21,-19);ctx.lineTo(63,-13);ctx.lineTo(51,5);ctx.lineTo(12,3);ctx.closePath();ctx.fill();line([[20,-14],[55,-11],[46,0]],'#f4fbff',3);rect(13,-7,42,2,'#657984');}
+  else if(n==='전기 창'){rect(10,-3,5,58,'#394b57');rect(8,12,9,3,'#9b7047');ctx.fillStyle='#74eaff';ctx.beginPath();ctx.moveTo(12,-34);ctx.lineTo(3,-8);ctx.lineTo(12,-13);ctx.lineTo(21,-8);ctx.closePath();ctx.fill();glow('#5ceaff',12);gem(12,-13,7,'#e4ffff');ctx.shadowBlur=0;line([[12,-30],[18,-21],[10,-14],[16,-6]],'#fff',2);}
+  else if(n==='화염 대검'){rect(9,-2,8,47,'#633d2b');rect(3,-6,19,5,'#a86c37');ctx.fillStyle='#a52b20';ctx.beginPath();ctx.moveTo(12,-6);ctx.lineTo(17,-40);ctx.lineTo(28,-28);ctx.lineTo(24,-14);ctx.lineTo(57,-20);ctx.lineTo(48,3);ctx.lineTo(12,4);ctx.closePath();ctx.fill();glow('#ff5528',13);line([[17,-13],[23,-29],[29,-15],[45,-16]],'#ffe17a',3);ctx.shadowBlur=0;}
+  else if(n==='빙결 전투도끼'){rect(10,-2,7,47,'#6b523b');rect(5,-5,17,4,metal);ctx.fillStyle='#8beaff';ctx.beginPath();ctx.moveTo(12,-8);ctx.lineTo(0,-20);ctx.lineTo(9,-36);ctx.lineTo(22,-27);ctx.lineTo(37,-31);ctx.lineTo(32,-12);ctx.lineTo(21,-5);ctx.closePath();ctx.fill();line([[8,-27],[17,-18],[28,-27]],'#efffff',3);gem(16,-18,5,'#fff');}
+  else if(n==='차원 낫'){rect(10,-1,6,49,'#392b50');rect(7,32,12,5,'#9570c7');ctx.strokeStyle='#b98cff';ctx.lineWidth=9;ctx.beginPath();ctx.arc(17,-16,27,-1.55,.72);ctx.stroke();ctx.strokeStyle='#f2dcff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(17,-16,27,-1.55,.72);ctx.stroke();glow('#a45cff',15);gem(16,-15,6,'#f0caff');ctx.shadowBlur=0;}
+  else if(n==='신의 심판검'||n==='갓슬레이어'||n==='적월선'){let red=n==='적월선',gold=n==='신의 심판검'||n==='갓슬레이어';rect(7,-2,9,18,red?'#641625':'#b38b3c');rect(1,-5,22,5,gold?'#ffe17a':red?'#ff526b':metal);ctx.fillStyle=red?'#a51f3b':gold?'#ffe17a':'#9bb1c8';ctx.beginPath();ctx.moveTo(12,-5);ctx.lineTo(red?70:62,-18);ctx.lineTo(red?60:50,5);ctx.lineTo(12,3);ctx.closePath();ctx.fill();line([[18,-7],[red?62:52,-15],[red?55:45,0]],red?'#ffb4c0':'#fff8c8',3);glow(red?'#ff315b':'#ffe17a',15);gem(13,-3,6,red?'#ff526b':'#fff0a1');ctx.shadowBlur=0;}
+  return true;
+ }
+ // 각 총기의 실루엣과 부품을 무기 이름에 맞춰 따로 구성
+ if(n==='기본 권총'||n==='낡은 권총'||n==='전술 권총'||n==='정밀 권총'){
+  let old=n==='낡은 권총',tac=n==='전술 권총',prec=n==='정밀 권총';
+  rect(4,-6,old?31:34,10,old?'#786b59':dark);rect(9,-9,prec?30:22,4,old?'#a18b69':metal);rect(13,3,9,15,old?'#72543c':wood);rect(31,-4,prec?26:13,5,old?'#51483e':metal);rect(6,-11,7,3,old?'#6b6256':c);
+  if(tac){rect(13,-13,18,4,'#283e50');rect(37,-2,10,3,'#61d9ff');rect(8,7,8,4,'#1d2b36');glow('#5ce5ff',9);gem(24,-4,4,'#8df5ff');ctx.shadowBlur=0;}
+  if(prec){rect(17,-16,20,5,'#202b34');rect(22,-14,10,2,c);rect(51,-3,9,3,'#b8d8e8');}
+  if(old){rect(18,-3,7,5,'#b29a75');rect(10,12,8,3,'#3d3026');}
+  return true;
+ }
+ if(n==='경비용 리볼버'){rect(4,-6,40,9,'#46535b');rect(12,-12,18,11,'#7d8b91');ctx.beginPath();ctx.arc(22,-1,8,0,Math.PI*2);ctx.fillStyle='#252d33';ctx.fill();ctx.strokeStyle='#b8c5ca';ctx.lineWidth=2;ctx.stroke();rect(13,7,10,13,'#76553b');rect(41,-4,15,4,c);return true;}
+ if(n==='구형 기관권총'){rect(0,-7,43,12,'#59616a');rect(5,-11,23,4,'#858d91');rect(36,-4,19,5,'#202a31');rect(17,5,9,18,'#3e4850');rect(8,7,7,5,wood);rect(25,-14,3,5,c);rect(31,-12,3,3,c);return true;}
+ if(n==='더블 배럴'||n==='펌프 샷건'||n==='폭발 샷건'||n==='황금 자동 샷건'){
+  let dbl=n==='더블 배럴',pump=n==='펌프 샷건',boom=n==='폭발 샷건',gold=n==='황금 자동 샷건';
+  rect(0,-7,38,13,gold?'#a77c24':boom?'#394a56':'#4d5961');rect(33,-8,dbl||boom?28:22,5,dark);rect(33,2,dbl||boom?28:22,5,dark);rect(5,-12,26,4,gold?'#ffe17a':metal);rect(12,6,11,14,gold?'#6c4c23':wood);
+  if(pump){rect(24,8,23,5,'#a4b1b7');rect(29,7,4,9,c);rect(9,-15,12,3,'#313b44');}
+  if(boom){rect(5,-16,9,7,'#b84b35');rect(17,-17,9,7,'#e2a24c');glow('#ff9a4e',12);gem(24,-13,5,'#ffe2a1');ctx.shadowBlur=0;}
+  if(gold){rect(5,-15,38,4,'#ffe88a');rect(40,-7,18,15,'#c18c2d');gem(48,-2,5,'#fff0a0');}
+  if(dbl){rect(2,8,25,4,'#75513b');rect(56,-6,5,10,'#a7b2b8');}
+  return true;
+ }
+ if(n==='경량 기관단총'||n==='돌격 소총'||n==='정찰용 카빈'){
+  let smg=n==='경량 기관단총',rifle=n==='돌격 소총',scout=n==='정찰용 카빈';
+  rect(0,-5,smg?38:47,11,smg?'#3e5660':rifle?'#46545d':'#536b72');rect(7,-10,smg?24:35,5,metal);rect(smg?35:44,-3,smg?19:25,5,dark);rect(13,5,9,15,wood);rect(smg?19:25,8,smg?8:10,16,'#27343d');
+  rect(4,-13,scout?22:14,3,scout?'#80d9ff':c);rect(2,3,9,4,'#202a31');
+  if(smg){rect(28,-13,8,4,'#a9c1ca');rect(31,-1,7,4,'#55d99a');}
+  if(rifle){rect(18,-15,14,5,'#1e2931');rect(21,-17,7,3,'#c2d4db');rect(41,-8,5,3,c);}
+  if(scout){rect(12,-18,25,5,'#263b4b');rect(17,-16,15,2,'#9feaff');rect(44,-8,5,5,'#b4c6c9');}
+  return true;
+ }
+ if(n==='독성 스프레이건'){rect(1,-8,34,17,'#1d5360');rect(7,-15,22,8,'#8af2c0');rect(12,-21,12,7,'#b8ffd8');rect(34,-5,17,10,'#4c7273');rect(5,9,12,10,'#24434a');rect(18,-4,9,7,'#c4ffd9');glow('#70f6a6',12);gem(27,-1,5,'#b8ffd8');ctx.shadowBlur=0;return true;}
+ if(n==='쌍권총'){rect(0,-12,34,7,'#485660');rect(0,5,34,7,'#485660');rect(28,-11,19,4,c);rect(28,6,19,4,c);rect(12,-4,8,9,wood);rect(12,-17,8,4,'#a8bac3');rect(12,12,8,4,'#a8bac3');glow(c,8);gem(34,-8,4,'#fff');gem(34,9,4,'#fff');ctx.shadowBlur=0;return true;}
+ if(n==='관통 저격총'||n==='번개 저격총'||n==='성운 레일건'){
+  let lightning=n==='번개 저격총',nebula=n==='성운 레일건';
+  rect(0,-5,48,11,nebula?'#322b50':'#46535f');rect(42,-3,36,5,nebula?'#b18aff':metal);rect(12,-10,35,4,dark);rect(17,-17,26,7,'#1e2a35');rect(21,-15,17,3,lightning?'#fff17a':nebula?'#d9aaff':'#a9c9e8');rect(9,5,10,13,wood);rect(30,5,9,7,dark);
+  if(lightning){line([[23,-20],[31,-27],[27,-19],[39,-25],[34,-15]],'#fff17a',3);glow('#ffe66d',12);ctx.shadowBlur=0;rect(53,-8,8,3,'#fff17a');}
+  if(nebula){glow('#b98aff',14);gem(61,0,7,'#d9baff');ctx.shadowBlur=0;for(let i=0;i<4;i++)gem(12+i*9,-21,2,'#f0dcff');}
+  if(n==='관통 저격총'){rect(44,-9,8,4,'#d2e7ff');rect(57,-1,17,2,'#dcecff');}
+  return true;
+ }
+ if(n==='용암 기관총'){rect(0,-8,46,17,'#452b29');rect(7,-12,35,5,'#82412d');rect(42,-5,23,10,'#292d32');rect(14,8,10,16,'#49372e');rect(10,-17,7,6,'#ff5b28');rect(25,-19,8,7,'#ff8a35');rect(37,-15,7,5,'#ffcf5a');glow('#ff572b',14);gem(51,0,5,'#ffcf5a');ctx.shadowBlur=0;return true;}
+ if(n==='플라즈마 라이플'||n==='샤이니스타'||n==='차원 분쇄기'||n==='차원 낫'||n==='갓슬레이어'||n==='종말의 포효'){
+  let shiny=n==='샤이니스타',rift=n==='차원 분쇄기',god=n==='갓슬레이어',end=n==='종말의 포효';
+  rect(0,-9,49,18,rift?'#29213f':god?'#6b5524':end?'#49252c':'#101c2b');rect(7,-13,31,4,metal);rect(8,10,32,4,dark);rect(11,-6,32,12,rift?'#664b91':god?'#c49b3d':end?'#b34251':'#24475a');
+  if(shiny){for(let i=0;i<5;i++){let x=12+i*7;line([[x,-12],[x+4,-18],[x+8,-12]],'#ffe66d',2);}glow('#fff08a',16);gem(59,0,10,'#fff1a0');ctx.shadowBlur=0;}
+  else if(rift){ctx.strokeStyle='#c18cff';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(58,0,10,15,.4,0,Math.PI*2);ctx.stroke();glow('#a95cff',16);gem(58,0,5,'#f0d7ff');ctx.shadowBlur=0;}
+  else if(god){rect(15,-17,24,4,'#fff0a0');rect(20,13,18,4,'#e5bd55');glow('#ffe66d',18);gem(60,0,9,'#fff3a6');ctx.shadowBlur=0;}
+  else if(end){rect(5,-17,8,5,'#ff593e');rect(5,12,8,5,'#ff593e');line([[45,-12],[55,-20],[65,-12]],'#ffb05e',3);glow('#ff3c55',15);gem(60,0,8,'#ff9c62');ctx.shadowBlur=0;}
+  else{rect(14,-5,27,10,'#5df4ff');glow('#48eaff',15);gem(61,0,7,'#e5ffff');ctx.shadowBlur=0;}
+  return true;
+ }
+ if(n==='기본 권총'||n==='낡은 권총')return true;
+ // 알려지지 않은 신규 무기는 기본 총기 실루엣으로 안전하게 표시
+ rect(0,-6,38,12,metal);rect(36,-3,19,5,dark);rect(11,5,9,13,wood);rect(15,-11,14,4,c);return true;
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d'};
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선/.test(n);
  ctx.save();ctx.translate(7,1);
+ if(drawWeaponSignature(n,c,metal,dark,wood)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
   const swing=pl.swing>0?(-.85+(1-pl.swing/14)*1.7):0;ctx.rotate(swing);
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
