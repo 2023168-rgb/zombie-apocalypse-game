@@ -199,7 +199,20 @@ const jobDefs=[
  ['심연의 왕','mythic','심연 폭주','abyss','#9e7aff'],['불멸자','mythic','불멸의 장벽','shield','#ffb8d1'],['창조신','godly','창세의 심판','nova','#fff27a']
 ].map((a,i)=>({id:0,name:a[0],rarity:a[1],skill:a[2],type:a[3],color:a[4],index:i}));
 function rollJob(){if(state.wallet<100){$('jobRollResult').textContent='코인이 부족해! 100코인이 필요해.';return;}state.wallet-=100;let n=Math.random()*100,acc=0,r=rarityInfo[0];for(const q of rarityInfo){acc+=q.chance;if(n<acc){r=q;break;}}let pool=jobDefs.filter(j=>j.rarity===r.id),def=pool[Math.floor(Math.random()*pool.length)];let job={...def,id:state.nextJobId++};state.jobInventory.push(job);save();refresh();$('jobRollResult').innerHTML=`<div class="item"><b class="${r.cls}">${r.name} · ${job.name}</b><small>직업 스킬: ${job.skill}</small></div>`;renderJobInventory();}
-function renderJobInventory(){const el=$('jobInventory');if(!el)return;el.innerHTML=state.jobInventory.map(j=>`<div class="item ${selectedJobId===j.id?'selected':''}" data-job-id="${j.id}"><b class="${rarity(j.rarity).cls}">${j.name}</b><small>${rarity(j.rarity).name} · O 스킬: ${j.skill}${state.equippedJob===j.id?' · 장착 중':''}</small></div>`).join('')||'<p class="muted">아직 얻은 직업이 없어. 직업 뽑기에서 뽑아봐!</p>';el.querySelectorAll('[data-job-id]').forEach(e=>e.onclick=()=>{selectedJobId=Number(e.dataset.jobId);renderJobInventory();$('jobEquipMessage').textContent='선택됨: '+state.jobInventory.find(j=>j.id===selectedJobId).name+' — 직업 장착 슬롯을 눌러 장착해!';});let j=state.jobInventory.find(x=>x.id===state.equippedJob);$('jobEquipSlot').innerHTML=j?`<b>직업 장착 슬롯</b><br><span class="${rarity(j.rarity).cls}">${j.name}</span><br><small>O 스킬: ${j.skill} · 현재 장착 중</small>`:'직업 장착 슬롯 — 장착한 직업 없음';$('jobEquipSlot').onclick=()=>{if(!selectedJobId){$('jobEquipMessage').textContent='먼저 직업을 선택해!';return;}state.equippedJob=selectedJobId;save();renderJobInventory();refresh();$('jobEquipMessage').textContent='직업 장착 완료! 플레이어 외형과 O 스킬이 변경됐어.';};}
+function renderJobInventory(){
+ const el=$('jobInventory');if(!el)return;
+ el.innerHTML=state.jobInventory.map(j=>`<div class="item ${selectedJobId===j.id?'selected':''}" data-job-id="${j.id}"><b class="${rarity(j.rarity).cls}">${j.name}</b><small>${rarity(j.rarity).name} · O 스킬: ${j.skill}${state.equippedJob===j.id?' · 장착 중':''}</small></div>`).join('')||'<p class="muted">아직 얻은 직업이 없어. 직업 뽑기에서 뽑아봐!</p>';
+ el.querySelectorAll('[data-job-id]').forEach(e=>e.onclick=()=>{
+   selectedJobId=Number(e.dataset.jobId);renderJobInventory();
+   const msg=$('jobEquipMessage');if(msg)msg.textContent='선택됨: '+state.jobInventory.find(j=>j.id===selectedJobId).name;
+ });
+ const j=state.jobInventory.find(x=>x.id===state.equippedJob),slot=$('jobEquipSlot');
+ if(slot){slot.innerHTML=j?`<b>직업 장착</b><br><span class="${rarity(j.rarity).cls}">${j.name}</span><br><small>O 스킬: ${j.skill} · 장착 중</small>`:'보유 직업';slot.onclick=()=>{
+   if(!selectedJobId){const msg=$('jobEquipMessage');if(msg)msg.textContent='먼저 직업을 선택해!';return;}
+   state.equippedJob=selectedJobId;save();renderJobInventory();refresh();
+   const msg=$('jobEquipMessage');if(msg)msg.textContent='직업 장착 완료!';
+ };}
+}
 let selectedJobId=null;
 function rollOne(){let r;if(state.pity>=9999){r=rarityInfo.find(x=>x.id==='godly');}else if(state.pity>=999){r=rarityInfo.find(x=>x.id==='mythic');}else{let n=Math.random()*100,acc=0;r=rarityInfo[0];for(let x of rarityInfo){acc+=x.chance;if(n<acc){r=x;break;}}}state.pity++;let w=makeWeapon(r);state.inventory.push(w);return {r,w};}
 function renderRollResults(results){$('crateResult').innerHTML=results.map(({r,w})=>`<div class="item"><b class="${r.cls}">${r.name} — ${w.name}</b><small>공격력 ${w.damage} · 발사 간격 ${w.cooldown}</small></div>`).join('');}
