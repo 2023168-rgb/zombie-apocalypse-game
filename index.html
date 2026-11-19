@@ -99,7 +99,41 @@ const pools={
 };
 let state={level:1,xp:0,wallet:0,clears:0,hasDoubleSpeed:false,hasDoubleCoins:false,pity:0,inventory:[{id:1,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3}],equipped:1,nextId:2,jobInventory:[],equippedJob:null,nextJobId:1,armorInventory:[],equippedArmor:{helmet:null,vest:null,gloves:null},nextArmorId:1,titles:[],equippedTitle:null,totalKills:0,bossKills:0,infiniteBest:0,dailyQuestKey:"",dailyQuests:[]};
 function save(){try{localStorage.setItem('zombieV4save',JSON.stringify(state));}catch(e){}}
-function load(){try{let x=JSON.parse(localStorage.getItem('zombieV4save'));if(x&&Array.isArray(x.inventory))state={...state,...x,level:Math.min(1000,Math.max(1,Number(x.level)||1)),clears:Number(x.clears)||0,hasDoubleSpeed:!!x.hasDoubleSpeed,hasDoubleCoins:!!x.hasDoubleCoins,pity:Number(x.pity)||0,jobInventory:Array.isArray(x.jobInventory)?x.jobInventory:[],equippedJob:x.equippedJob??null,nextJobId:Number(x.nextJobId)||1};}catch(e){}state.armorInventory=Array.isArray(state.armorInventory)?state.armorInventory:[];const godlyArmorDefense={'신의 투구':27,'신의 갑옷':30,'신의 건틀릿':24};state.armorInventory=state.armorInventory.map(a=>godlyArmorDefense[a.name]?{...a,defense:godlyArmorDefense[a.name]}:a);state.equippedArmor=state.equippedArmor||{helmet:null,vest:null,gloves:null};state.titles=Array.isArray(state.titles)?state.titles:[];state.totalKills=Number(state.totalKills)||0;state.bossKills=Number(state.bossKills)||0;state.infiniteBest=Number(state.infiniteBest)||0;state.nextArmorId=Number(state.nextArmorId)||1;state.inventory=state.inventory.map(w=>{if(!w||typeof w!=='object')return w;const item=w.name==='폭발 샷건'?{...w,pellets:7}:w;try{return balanceWeapon(item);}catch(e){return item;}});}
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem('zombieV4save'));
+    if(x&&Array.isArray(x.inventory)){
+      state={...state,...x,
+        level:Math.min(1000,Math.max(1,Number(x.level)||1)),
+        clears:Number(x.clears)||0,
+        hasDoubleSpeed:!!x.hasDoubleSpeed,
+        hasDoubleCoins:!!x.hasDoubleCoins,
+        pity:Number(x.pity)||0,
+        jobInventory:Array.isArray(x.jobInventory)?x.jobInventory:[],
+        equippedJob:x.equippedJob??null,
+        nextJobId:Number(x.nextJobId)||1
+      };
+    }
+  }catch(e){}
+  state.inventory=(Array.isArray(state.inventory)?state.inventory:[])
+    .filter(w=>w&&typeof w==='object'&&Number.isFinite(Number(w.id))&&typeof w.name==='string')
+    .map(w=>{const item=w.name==='폭발 샷건'?{...w,pellets:7}:{...w};try{return balanceWeapon(item);}catch(e){return item;}});
+  if(!state.inventory.length){
+    state.inventory=[{id:1,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3}];
+    state.equipped=1;
+  }
+  if(!state.inventory.some(w=>w.id===state.equipped))state.equipped=state.inventory[0].id;
+  state.nextId=Math.max(Number(state.nextId)||1,...state.inventory.map(w=>Number(w.id)||0))+1;
+  state.armorInventory=Array.isArray(state.armorInventory)?state.armorInventory:[];
+  const godlyArmorDefense={'신의 투구':27,'신의 갑옷':30,'신의 건틀릿':24};
+  state.armorInventory=state.armorInventory.filter(a=>a&&typeof a==='object').map(a=>godlyArmorDefense[a.name]?{...a,defense:godlyArmorDefense[a.name]}:a);
+  state.equippedArmor=state.equippedArmor&&typeof state.equippedArmor==='object'?state.equippedArmor:{helmet:null,vest:null,gloves:null};
+  state.titles=Array.isArray(state.titles)?state.titles:[];
+  state.totalKills=Number(state.totalKills)||0;
+  state.bossKills=Number(state.bossKills)||0;
+  state.infiniteBest=Number(state.infiniteBest)||0;
+  state.nextArmorId=Number(state.nextArmorId)||1;
+}
 
 const uiSettings={bgm:false,zombieQuality:true,joystickSize:184,joystickLeft:null,joystickBottom:null};
 try{const savedUi=JSON.parse(localStorage.getItem('zombieV810Settings')||'{}');Object.assign(uiSettings,savedUi||{});}catch(e){}
@@ -113,7 +147,7 @@ function openQuests(){ensureDailyQuests();renderQuests();$('questModal').style.d
 function closeQuests(){$('questModal').style.display='none';}
 setInterval(()=>{const before=state.dailyQuestKey;ensureDailyQuests();if(before!==state.dailyQuestKey&&$('questModal').style.display==='flex')renderQuests();},30000);
 function rarity(id){return rarityInfo.find(r=>r.id===id)||rarityInfo[0]}
-function getWeapon(){return state.inventory.find(w=>w.id===state.equipped)||state.inventory[0]}
+function getWeapon(){return state.inventory.find(w=>w&&w.id===state.equipped)||state.inventory.find(Boolean)||{id:1,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3}}
 function isMeleeWeapon(w){return !!(w&&(w.melee||/대검|단검|방망이|창|도끼|낫|심판검|검|칼/.test(w.name||'')));}
 function show(view){if(mobileControls){const touchUI=window.matchMedia('(max-width:900px), (pointer:coarse)').matches;mobileControls.style.display=view==='gameView'&&touchUI&&mobileControlsOn?'flex':'none';}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(view).classList.add('active');if(view==='equip'){renderInventory();renderJobInventory();}if(view==='jobGacha')renderJobInventory();if(view==='armor')renderArmor();if(view==='titles')renderTitles();refresh();}
 function refresh(){
