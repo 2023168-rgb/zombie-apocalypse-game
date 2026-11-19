@@ -576,13 +576,17 @@ function drawWeaponSignature(n,c,metal,dark,wood){
   return true;
  }
  if(n==='전술 권총'){
-  // 짧은 권총 슬라이드, 비스듬한 권총 손잡이, 방아쇠 가드가 보이는 컴팩트 권총
-  ctx.fillStyle='#27343d';ctx.beginPath();ctx.moveTo(2,-7);ctx.lineTo(29,-7);ctx.lineTo(34,-3);ctx.lineTo(33,2);ctx.lineTo(7,2);ctx.lineTo(3,-1);ctx.closePath();ctx.fill();
-  rect(5,-11,23,4,'#788891');rect(8,-13,16,2,'#c1cbd0');rect(29,-5,7,4,'#3d4b55');
-  ctx.fillStyle='#26313a';ctx.beginPath();ctx.moveTo(8,1);ctx.lineTo(19,1);ctx.lineTo(23,17);ctx.lineTo(18,20);ctx.lineTo(11,17);ctx.closePath();ctx.fill();
-  rect(13,6,8,2,'#65727a');rect(15,11,7,2,'#65727a');
-  ctx.strokeStyle='#aebbc1';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(10,2);ctx.quadraticCurveTo(8,10,14,12);ctx.stroke();
-  rect(7,-12,3,2,'#e1e8eb');rect(24,-12,3,2,'#e1e8eb');rect(17,3,10,2,'#111a20');rect(29,2,5,2,'#9beaff');
+  // 이미지 참고: 짧은 금속 슬라이드, 각진 프레임, 아래로 기울어진 두꺼운 권총 손잡이
+  ctx.fillStyle='#252c32';ctx.beginPath();ctx.moveTo(3,-10);ctx.lineTo(39,-10);ctx.lineTo(43,-6);ctx.lineTo(41,1);ctx.lineTo(5,1);ctx.lineTo(2,-3);ctx.closePath();ctx.fill();
+  rect(5,-13,34,5,'#68737a');rect(8,-15,28,2,'#aeb7bc');rect(10,-12,23,2,'#89969d');
+  for(let i=0;i<7;i++)rect(29+i*1.5,-12,1,9,'#3c464d');
+  rect(1,-8,5,8,'#171e23');rect(40,-7,5,5,'#20282e');
+  ctx.fillStyle='#252d33';ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(25,0);ctx.lineTo(36,28);ctx.lineTo(31,32);ctx.lineTo(17,29);ctx.lineTo(10,7);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#343e45';ctx.beginPath();ctx.moveTo(12,5);ctx.lineTo(25,7);ctx.lineTo(31,25);ctx.lineTo(21,26);ctx.closePath();ctx.fill();
+  for(let i=0;i<5;i++)rect(17+i*.9,10+i*2.7,9,1,'#59656c');
+  ctx.strokeStyle='#151c21';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(13,1);ctx.quadraticCurveTo(10,10,20,12);ctx.stroke();
+  ctx.strokeStyle='#9ba6ac';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(14,2);ctx.quadraticCurveTo(12,8,19,10);ctx.stroke();
+  rect(7,-14,4,2,'#d5dde1');rect(36,-14,3,2,'#d5dde1');rect(22,1,11,2,'#151c21');rect(4,1,6,2,'#11171b');
   return true;
  }
  if(n==='기본 권총'){rect(3,-6,34,10,'#697983');rect(8,-10,22,4,'#aab7bd');rect(13,3,9,15,'#6d5038');rect(34,-4,12,5,'#394650');rect(8,-13,5,3,'#d3dce0');return true;}
@@ -710,7 +714,20 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
    const metal='#394650',metal2='#596873',black='#202a31',grip='#493d32',sight='#aab5bd';
    const isShot=name.includes('샷건'),isSniper=name.includes('저격')||name.includes('레일건'),isPistol=name.includes('권총')||name.includes('리볼버')||name.includes('쌍권총'),isEnergy=/플라즈마|성운|차원|샤이니스타|갓슬레이어|포효/.test(name);
    ctx.translate(5,0);
-   if(isPistol){
+   if(name==='전술 권총'){
+     // 실제 폴리머 프레임 권총처럼 짧은 슬라이드와 뒤로 기울어진 그립을 표현
+     ctx.fillStyle='#252d33';ctx.beginPath();ctx.moveTo(3,-8);ctx.lineTo(39,-8);ctx.lineTo(43,-4);ctx.lineTo(41,2);ctx.lineTo(5,2);ctx.lineTo(2,-2);ctx.closePath();ctx.fill();
+     ctx.fillStyle='#69757d';ctx.fillRect(5,-11,34,4);ctx.fillStyle='#aeb9c0';ctx.fillRect(8,-13,27,2);
+     for(let i=0;i<7;i++){ctx.fillStyle='#3a454d';ctx.fillRect(29+i*1.4,-10,1,8);}
+     ctx.fillStyle='#20282e';ctx.fillRect(1,-7,5,8);ctx.fillRect(39,-6,5,5);
+     ctx.fillStyle='#252e35';ctx.beginPath();ctx.moveTo(8,1);ctx.lineTo(24,1);ctx.lineTo(35,27);ctx.lineTo(31,31);ctx.lineTo(17,28);ctx.lineTo(10,7);ctx.closePath();ctx.fill();
+     ctx.fillStyle='#3a454d';ctx.beginPath();ctx.moveTo(12,6);ctx.lineTo(24,7);ctx.lineTo(30,25);ctx.lineTo(21,26);ctx.closePath();ctx.fill();
+     for(let i=0;i<5;i++){ctx.fillStyle='#66737b';ctx.fillRect(17+i,10+i*2.5,8,1);}
+     ctx.strokeStyle='#10171c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(13,2);ctx.quadraticCurveTo(10,10,20,12);ctx.stroke();
+     ctx.strokeStyle='#aab5bc';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(14,3);ctx.quadraticCurveTo(12,8,19,10);ctx.stroke();
+     ctx.fillStyle='#c6d0d5';ctx.fillRect(7,-12,4,2);ctx.fillRect(35,-12,3,2);
+     ctx.fillStyle='#151d22';ctx.fillRect(22,2,11,2);ctx.fillRect(4,2,6,2);
+   }else if(isPistol){
      ctx.fillStyle=metal;ctx.fillRect(5,-5,23,9);ctx.fillStyle=metal2;ctx.fillRect(8,-7,15,3);ctx.fillStyle=black;ctx.fillRect(25,-3,11,4);ctx.fillStyle=grip;ctx.fillRect(12,3,8,11);ctx.fillStyle=black;ctx.fillRect(13,10,6,3);ctx.fillStyle=sight;ctx.fillRect(8,-8,3,2);ctx.fillRect(25,-6,3,2);
      if(name.includes('리볼버')){ctx.fillStyle='#252d33';ctx.fillRect(16,-1,7,6);ctx.fillStyle=metal2;ctx.fillRect(17,0,5,4);}
    }else{
