@@ -752,13 +752,30 @@ function drawWeaponFinish(n,c,melee){
  }
  ctx.restore();
 }
+function drawRemainingWeaponDetail(n,c){
+ const L=(x,y,X,Y,col,w=1)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(X,Y);ctx.stroke();};
+ const R=(x,y,col='#dce6eb')=>{ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,1.4,0,Math.PI*2);ctx.fill();};
+ if(n==='낡은 야구방망이'){for(let k=0;k<5;k++)L(7,-10+k*5,18,-8+k*5,'#d2a16d');L(7,-14,17,-14,'#f0d1a2',1.5);R(11,20);}
+ else if(n==='전투 단검'||n==='철제 대검'){L(17,-11,n==='전투 단검'?36:55,-17,'#f3f7fa',1.5);for(let k=0;k<4;k++)L(8+k*2,5,12+k*2,9,'#c9a875');R(11,0);R(11,13);}
+ else if(n==='전기 창'){L(12,-30,12,-9,'#eaffff',1.5);L(5,-13,19,-13,'#56eaff',1.2);for(let k=0;k<5;k++)L(10,-2+k*10,15,1+k*10,'#a7c6d1');R(12,17,'#b7f8ff');}
+ else if(n==='화염 대검'){L(17,-33,23,-20,'#fff0a6',2);L(23,-20,18,-9,'#ff9a38',1.5);R(13,10,'#ffbd62');}
+ else if(n==='빙결 전투도끼'){L(7,-25,16,-17,'#f4ffff',2);L(16,-17,26,-26,'#d9faff',1.5);L(12,-4,12,35,'#b4d7e3');R(15,-14,'#fff');}
+ else if(n==='차원 낫'){L(17,-41,29,-30,'#f5dcff',1.5);L(29,-30,38,-14,'#c99aff');for(let k=0;k<4;k++)R(10+k*2,8+k*7,'#edcaff');}
+ else if(n==='신의 심판검'||n==='갓슬레이어'||n==='적월선'){const a=n==='적월선'?'#ff8ca0':'#fff0a4';L(17,-8,52,-17,a,2);L(20,-3,47,-12,'#fff');R(12,4,a);R(12,10,a);}
+ else if(n==='독성 스프레이건'){L(8,-17,26,-17,'#d2f4d8',2);ctx.shadowColor='#69f6a5';ctx.shadowBlur=9;ctx.fillStyle='#b6ffd0';ctx.beginPath();ctx.arc(17,-12,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;L(29,-5,42,-5,'#b2c7c9');R(10,5,'#d5ffe7');}
+ else if(n==='쌍권총'){for(const y of [-8,8]){L(4,y-5,29,y-5,'#d8e2e7',1.3);L(6,y+2,20,y+2,'#111a20');R(12,y);R(24,y);}}
+ else if(n==='성운 레일건'){for(let k=0;k<4;k++){ctx.strokeStyle='#d9baff';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(22+k*7,0,3,9,0,0,Math.PI*2);ctx.stroke();}ctx.shadowColor='#bd8cff';ctx.shadowBlur=13;ctx.fillStyle='#f0dcff';ctx.beginPath();ctx.arc(58,0,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+ else if(n==='차원 분쇄기'){for(let k=0;k<3;k++){ctx.strokeStyle=['#e7caff','#b98cff','#7653a6'][k];ctx.lineWidth=1.3+k*.5;ctx.beginPath();ctx.ellipse(57,0,7+k*3,12+k*2,.2,0,Math.PI*2);ctx.stroke();}L(9,-12,35,-12,'#d9c2ff',1.5);}
+ else if(n==='샤이니스타'){for(let k=0;k<5;k++){const x=12+k*8;L(x,-15,x+2,-20,'#fff8c8',1.4);L(x+2,-20,x+4,-15,'#fff8c8',1.4);}ctx.shadowColor='#fff0a1';ctx.shadowBlur=15;ctx.fillStyle='#fff8d0';ctx.beginPath();ctx.arc(60,0,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+ else if(n==='종말의 포효'){L(5,-14,14,-20,'#ff8b60',2);L(5,12,14,18,'#ff8b60',2);L(44,-9,58,-15,'#ffb16b',1.8);L(44,9,58,15,'#ff684e',1.8);R(18,0,'#ffc18a');}
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d'};
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선/.test(n);
  ctx.save();ctx.translate(7,1);
- if(drawWeaponSignature(n,c,metal,dark,wood)){drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
   const swing=pl.swing>0?(-.85+(1-pl.swing/14)*1.7):0;ctx.rotate(swing);
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
