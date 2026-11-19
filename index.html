@@ -769,12 +769,61 @@ function drawRemainingWeaponDetail(n,c){
  else if(n==='샤이니스타'){for(let k=0;k<5;k++){const x=12+k*8;L(x,-15,x+2,-20,'#fff8c8',1.4);L(x+2,-20,x+4,-15,'#fff8c8',1.4);}ctx.shadowColor='#fff0a1';ctx.shadowBlur=15;ctx.fillStyle='#fff8d0';ctx.beginPath();ctx.arc(60,0,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
  else if(n==='종말의 포효'){L(5,-14,14,-20,'#ff8b60',2);L(5,12,14,18,'#ff8b60',2);L(44,-9,58,-15,'#ffb16b',1.8);L(44,9,58,15,'#ff684e',1.8);R(18,0,'#ffc18a');}
 }
+function drawRedesignedWeapon(n,c){
+ const P=(a,f,st='#111a20',w=2)=>{ctx.beginPath();ctx.moveTo(...a[0]);for(let i=1;i<a.length;i++)ctx.lineTo(...a[i]);ctx.closePath();ctx.fillStyle=f;ctx.fill();if(st){ctx.strokeStyle=st;ctx.lineWidth=w;ctx.stroke();}};
+ const L=(x,y,X,Y,col='#dce6eb',w=1)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(X,Y);ctx.stroke();};
+ const C=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
+ const M=ctx.createLinearGradient(0,-16,0,16);M.addColorStop(0,'#d5e0e5');M.addColorStop(.2,'#788b96');M.addColorStop(.5,'#3c4b55');M.addColorStop(1,'#17232b');
+ const G=ctx.createLinearGradient(0,0,0,28);G.addColorStop(0,'#bd8b59');G.addColorStop(1,'#543725');
+ const screw=(x,y)=>{C(x,y,1.3,'#e1e9ed');L(x-.6,y,x+.6,y,'#26343c',.5);};
+ const glow=k=>{ctx.shadowColor=k;ctx.shadowBlur=12;};
+ const melee=/방망이|단검|대검|창|도끼|낫|검|적월선/.test(n);
+ if(melee){
+  if(n.includes('방망이')){P([[9,2],[17,0],[24,32],[18,37],[12,34]],G);P([[5,-18],[19,-21],[25,-12],[21,4],[9,7],[4,-5]],'#9b7048');for(let k=0;k<4;k++)L(7,-14+k*5,21,-12+k*5,'#e0bb8a');}
+  else if(n.includes('단검')){P([[9,5],[16,2],[20,18],[14,21]],G);P([[5,-1],[21,-4],[24,0],[7,4]],M);P([[13,-5],[18,-25],[31,-42],[29,-20],[20,-3]],'#a9c5d1');L(18,-24,29,-39,'#fff',2);screw(13,10);}
+  else if(n.includes('창')){P([[10,3],[15,2],[18,42],[12,44]],'#35434c');L(13,-14,13,40,'#a8c6d2',2);P([[13,-45],[4,-19],[13,-25],[22,-19]],'#69eaff');glow('#55eaff');C(13,-25,5,'#eaffff');ctx.shadowBlur=0;}
+  else if(n.includes('도끼')){P([[11,4],[17,2],[20,40],[13,42]],G);P([[13,-9],[0,-27],[9,-43],[23,-32],[40,-39],[35,-17],[22,-7]],'#8adcf1');P([[10,-28],[20,-33],[34,-35],[27,-20],[16,-17]],'#e7fbff');L(13,-30,28,-36,'#fff',2);}
+  else if(n.includes('낫')){P([[10,5],[17,1],[20,42],[13,45]],'#332744');L(13,-8,13,40,'#ad8be0',3);ctx.strokeStyle='#9b65d8';ctx.lineWidth=9;ctx.beginPath();ctx.arc(19,-23,30,-1.55,.78);ctx.stroke();ctx.strokeStyle='#f3dcff';ctx.lineWidth=2;ctx.stroke();glow('#a85cff');C(15,-17,5,'#f5dfff');ctx.shadowBlur=0;}
+  else if(n.includes('화염')){P([[9,4],[19,0],[22,32],[13,35]],'#5c3928');P([[2,-5],[26,-9],[30,-3],[3,2]],'#b27b43');P([[14,-8],[20,-49],[34,-31],[30,-17],[66,-28],[56,3],[22,3]],'#9e3425');L(20,-17,27,-37,'#ffe58b',3);glow('#ff562e');C(27,-17,3,'#fff0a0');ctx.shadowBlur=0;}
+  else if(n.includes('빙결')){P([[11,4],[17,2],[20,39],[13,42]],G);P([[13,-9],[0,-27],[9,-43],[23,-32],[40,-39],[35,-17],[22,-7]],'#8adcf1');P([[10,-28],[20,-33],[34,-35],[27,-20],[16,-17]],'#e7fbff');C(20,-19,4,'#fff');}
+  else{const red=n==='적월선',a=red?'#ff5573':'#ffe28a';P([[8,4],[17,1],[21,23],[12,26]],red?'#692033':'#9a7938');P([[1,-5],[27,-9],[29,-3],[2,2]],a);P([[14,-8],[35,-18],[74,-34],[61,-7],[21,3]],red?'#9d2340':'#d4b65f');P([[20,-10],[66,-30],[57,-10],[22,-1]],red?'#ff8da0':'#fff1ad');L(21,-9,63,-28,'#fff',2);C(14,-3,5,a);if(n==='갓슬레이어'){glow(a);C(52,-18,3,'#fff');ctx.shadowBlur=0;}}
+  return true;
+ }
+ const isPistol=/권총/.test(n)||n==='기본 권총'||n==='경비용 리볼버'||n==='쌍권총';
+ if(isPistol){
+  const rev=n.includes('리볼버'),dual=n==='쌍권총';
+  const one=dy=>{ctx.save();ctx.translate(0,dy);P([[3,-10],[32,-10],[38,-6],[38,0],[7,1],[3,-3]],M);P([[7,-13],[29,-13],[35,-10],[34,-7],[6,-7]],'#8799a3');for(let k=0;k<5;k++)L(25+k*1.7,-12,24+k*1.7,-7,'#25343d',1);P([[7,0],[23,0],[34,25],[29,29],[17,26],[9,6]],'#303b42');for(let k=0;k<5;k++)L(14+k,8+k*2,22+k,11+k*2,'#89969d',.8);ctx.strokeStyle='#111a20';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(14,1);ctx.quadraticCurveTo(10,11,21,12);ctx.stroke();if(rev){C(23,0,7,'#27343d');ctx.strokeStyle='#bac6cc';ctx.lineWidth=1.5;ctx.stroke();for(let k=0;k<6;k++){let a=k*Math.PI/3;C(23+Math.cos(a)*4,Math.sin(a)*4,1.5,'#111b22');}P([[29,-4],[49,-4],[53,0],[50,2],[29,1]],M);}else P([[33,-5],[49,-5],[52,-2],[50,1],[34,1]],M);L(8,-14,12,-14,'#fff',1.5);screw(11,-4);screw(30,-4);ctx.restore();};
+  if(dual){one(-8);one(9);}else one(0);
+  if(n==='전술 권총'){P([[4,-15],[32,-15],[38,-11],[36,-8],[5,-8]],'#758b97');L(8,-17,30,-17,'#9ceaff',2);}
+  if(n==='정밀 권총'){P([[12,-19],[31,-19],[35,-14],[13,-14]],'#202d36');L(15,-20,30,-20,c,2);}
+  return true;
+ }
+ if(n==='더블 배럴'||n==='펌프 샷건'||n==='폭발 샷건'||n==='황금 자동 샷건'){
+  const dbl=n==='더블 배럴',pump=n==='펌프 샷건',boom=n==='폭발 샷건',gold=n==='황금 자동 샷건';
+  P([[-9,-5],[5,-9],[24,-8],[37,-5],[65,-5],[68,-2],[67,2],[38,2],[29,5],[12,4],[-8,1]],M);P([[-9,-7],[8,-10],[16,-5],[11,3],[-8,3]],G);P([[11,3],[24,4],[29,19],[22,22],[15,18]],G);P([[25,4],[45,4],[48,9],[27,9]],pump?'#92714f':'#303b42');L(37,-9,66,-9,gold?'#ffe59a':'#dce6eb',2);if(dbl){L(39,-4,67,-4,'#f4f7f8',2);L(39,0,67,0,'#83939b',1.5);}if(pump){P([[26,4],[46,4],[47,11],[27,11]],'#806143');for(let k=0;k<4;k++)L(29+k*4,5,29+k*4,10,'#d5b28b');}if(boom){glow('#ff7542');C(21,-8,4,'#ffb26a');ctx.shadowBlur=0;}if(gold)L(7,-12,47,-12,'#fff0a8',2);return true;
+ }
+ if(/기관권총|기관단총/.test(n)){P([[-7,-5],[8,-8],[36,-8],[43,-4],[61,-4],[63,1],[41,2],[35,6],[10,4],[-7,2]],M);P([[-6,-8],[8,-10],[15,-4],[11,5],[-6,4]],'#303b42');P([[20,4],[29,4],[27,22],[21,22]],'#202b33');P([[32,-3],[43,-3],[42,13],[35,13]],'#26343c');L(17,-12,34,-12,'#e1ebef',1.5);return true;}
+ if(/소총|카빈|저격총|기관총|라이플|레일건/.test(n)){
+  const sniper=/저격총|레일건/.test(n),plasma=n==='플라즈마 라이플',rail=n==='성운 레일건',lmg=n==='용암 기관총';
+  P([[-10,-5],[3,-9],[17,-8],[24,-6],[45,-6],[50,-4],[73,-4],[77,0],[73,4],[48,4],[41,7],[19,5],[8,4],[-10,2]],M);P([[-12,-8],[7,-9],[15,-5],[12,4],[-12,4]],n==='정찰용 카빈'?G:'#303b42');P([[21,4],[30,4],[29,20],[23,22],[19,7]],'#202b33');P([[34,3],[42,3],[44,14],[35,14]],'#222e36');P([[17,-9],[43,-9],[46,-5],[18,-4]],'#84949c');L(21,-11,44,-11,'#dfe8ec',1.5);
+  if(sniper){P([[19,-17],[43,-17],[47,-12],[18,-12]],'#1d2932');P([[24,-21],[37,-21],[39,-17],[23,-17]],'#738995');L(25,-19,37,-19,rail?'#d7baff':'#c8e7f5',2);L(47,-6,75,-6,'#dbe6eb',1.5);}
+  else if(plasma||rail){P([[16,-15],[45,-15],[49,-10],[17,-10]],plasma?'#1b3d52':'#382b50');for(let k=0;k<4;k++){ctx.strokeStyle=plasma?'#63efff':'#d4aaff';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(25+k*6,0,2.5,8,0,0,Math.PI*2);ctx.stroke();}glow(plasma?'#48eaff':'#b98aff');C(73,0,4,plasma?'#d8ffff':'#f1dfff');ctx.shadowBlur=0;}
+  if(lmg){glow('#ff6a32');for(let k=0;k<3;k++)C(22+k*8,-12,2,['#ff552b','#ff9a39','#ffe16b'][k]);ctx.shadowBlur=0;}
+  if(n==='번개 저격총'){L(24,-22,32,-29,'#fff17a',2);L(32,-29,30,-20,'#fff17a',2);glow('#ffe66d');C(62,-4,3,'#fff17a');ctx.shadowBlur=0;}screw(18,0);screw(39,0);return true;
+ }
+ if(n==='독성 스프레이건'){P([[4,-14],[30,-14],[34,-9],[10,-8]],'#c8e9d5');P([[7,-8],[35,-8],[38,8],[11,11],[5,4]],'#286c63');P([[12,10],[23,10],[25,23],[16,24]],'#303b42');C(21,-3,5,'#b8ffd8');glow('#67f2a3');C(21,-3,2,'#fff');ctx.shadowBlur=0;P([[34,-5],[52,-5],[56,-1],[52,3],[35,2]],M);return true;}
+ if(n==='샤이니스타'){P([[0,-8],[40,-12],[48,-6],[44,5],[8,9]],'#64572d');P([[8,-15],[35,-18],[42,-11],[12,-8]],'#d3b65a');for(let k=0;k<5;k++){let x=13+k*7;L(x,-14,x+3,-21,'#fff2a8',2);L(x+3,-21,x+6,-14,'#fff2a8',2);}glow('#fff0a0');C(62,0,8,'#fff4c4');ctx.shadowBlur=0;return true;}
+ if(n==='차원 분쇄기'){P([[0,-10],[39,-13],[47,-6],[43,7],[5,9]],'#35264e');P([[8,-16],[40,-18],[46,-11],[13,-8]],'#7959a7');for(let k=0;k<3;k++){ctx.strokeStyle=['#e7caff','#b98cff','#7653a6'][k];ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(61,0,7+k*4,12+k*3,.2,0,Math.PI*2);ctx.stroke();}glow('#a95cff');C(61,0,4,'#f2dfff');ctx.shadowBlur=0;return true;}
+ if(n==='종말의 포효'){P([[0,-9],[35,-15],[45,-8],[42,8],[6,13]],'#542832');P([[8,-17],[29,-22],[39,-14],[13,-9]],'#a73c4b');P([[39,-5],[66,-12],[73,-5],[72,5],[42,8]],'#71303b');L(42,-11,58,-19,'#ffb06a',2);L(42,11,58,19,'#ff684e',2);glow('#ff4c4c');C(68,0,6,'#ffb16b');ctx.shadowBlur=0;return true;}
+ return false;
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d'};
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선/.test(n);
  ctx.save();ctx.translate(7,1);
+ if(drawRedesignedWeapon(n,c)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
   const swing=pl.swing>0?(-.85+(1-pl.swing/14)*1.7):0;ctx.rotate(swing);
