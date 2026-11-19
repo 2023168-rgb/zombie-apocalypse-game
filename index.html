@@ -726,11 +726,10 @@ function drawWeaponFinish(n,c,melee){
  ctx.save();
  ctx.lineJoin='round';ctx.lineCap='round';
  if(melee){
-  const g=ctx.createLinearGradient(8,-18,42,8);g.addColorStop(0,'#f4f8fb');g.addColorStop(.28,c);g.addColorStop(.62,'#566875');g.addColorStop(1,'#202a32');
-  ctx.strokeStyle='#17212a';ctx.lineWidth=2.2;ctx.strokeRect(9,-9,31,10);
-  ctx.strokeStyle=g;ctx.lineWidth=1.35;ctx.beginPath();ctx.moveTo(12,-7);ctx.lineTo(36,-13);ctx.stroke();
-  ctx.fillStyle='#e4edf2';ctx.globalAlpha=.75;ctx.fillRect(13,-8,Math.max(7,n.includes('대검')?28:16),1);ctx.globalAlpha=1;
-  ctx.fillStyle='#d5b16a';ctx.beginPath();ctx.arc(9,0,1.8,0,Math.PI*2);ctx.fill();
+  // 근접무기는 개별 칼날·가드·손잡이 디자인을 그대로 사용한다.
+  // 총기처럼 보이는 공통 몸통/레일/그립 장식은 추가하지 않는다.
+  ctx.restore();
+  return;
  }else{
   const body=ctx.createLinearGradient(0,-12,0,13);body.addColorStop(0,'#aebdc6');body.addColorStop(.16,'#667985');body.addColorStop(.48,'#354650');body.addColorStop(.82,'#202c34');body.addColorStop(1,'#101920');
   ctx.strokeStyle='#101920';ctx.lineWidth=2.4;ctx.strokeRect(2,-8,37,15);
