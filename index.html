@@ -506,6 +506,52 @@ function drawBlockWeapon(w,pl){
    else if(name.includes('갓슬레이어')){light(24,-5,31,7,'#fff0a1');part(44,-15,12,5,'#fff7c5');part(62,-13,6,6,'#ffe66d');}
    else if(name.includes('종말의 포효')){light(24,-5,29,7,'#ff594e');part(43,-14,12,5,'#ffb07b');part(59,-9,9,6,'#a83b3b');}
    else if(name.includes('샤이니스타')){light(20,-5,30,6,'#fff2a1');part(32,-15,5,5,'#fff');part(46,-10,10,4,'#ffe27a');}
+
+ }
+ // 무기 이름의 고유 해시로 파츠 조합을 결정해, 같은 등급이어도 외형이 겹치지 않게 한다.
+ let skinHash=0;for(let i=0;i<name.length;i++)skinHash=(skinHash*31+name.charCodeAt(i))>>>0;
+ const skinHue=skinHash%360,skinColor=`hsl(${skinHue} 82% 66%)`,skinDark=`hsl(${skinHue} 48% 25%)`;
+ const variantA=skinHash%7,variantB=(skinHash>>>3)%7,variantC=(skinHash>>>6)%6;
+ ctx.save();
+ if(melee){
+   // 검마다 다른 가드 모양, 칼날 문양, 보석과 톱니를 추가한다.
+   part(7,-4,variantA%2?17:11,3,skinDark);
+   if(variantA===0){part(5,-8,4,10,skinColor);part(21,-8,4,10,skinColor);}
+   else if(variantA===1){part(3,-5,7,3,skinColor);part(19,-5,7,3,skinColor);part(11,-9,7,3,skinColor);}
+   else if(variantA===2){part(7,-10,4,5,skinColor);part(20,-10,4,5,skinColor);part(12,-2,7,4,skinDark);}
+   else if(variantA===3){light(12,-10,7,4,skinColor);part(5,-4,5,3,skinColor);part(21,-4,5,3,skinColor);}
+   else if(variantA===4){part(4,-3,5,7,skinColor);part(20,-3,5,7,skinColor);part(11,-12,7,3,skinColor);}
+   else if(variantA===5){part(6,-8,4,9,skinColor);part(20,-8,4,9,skinColor);part(11,-5,8,3,skinDark);}
+   else{light(11,-13,8,5,skinColor);part(3,-4,8,3,skinColor);part(20,-4,8,3,skinColor);}
+   for(let k=0;k<2+(variantB%3);k++){part(18+k*5,-5-(k%2)*3,2,3,skinColor);}
+   if(variantC%2===0){part(8,7,4,3,skinColor);part(14,10,4,3,skinDark);}
+   else{light(12,8,5,4,skinColor);}
+   if(variantB%2){part(24,-8,3,2,'#ffffff');part(30,-8,3,2,skinColor);}
+ }else{
+   // 총기마다 탄창/조준경/총구/측면 장치를 다른 조합으로 만든다.
+   if(variantA===0){part(14,-13,15,3,skinColor);part(17,-16,8,3,skinDark);}
+   else if(variantA===1){part(12,-12,5,7,skinColor);part(20,-14,12,3,skinDark);part(24,-17,5,3,skinColor);}
+   else if(variantA===2){part(17,-14,4,8,skinDark);part(22,-15,12,4,skinColor);part(36,-12,4,3,'#ffffff');}
+   else if(variantA===3){light(18,-12,13,4,skinColor);part(31,-10,6,3,skinDark);}
+   else if(variantA===4){part(10,-11,8,3,skinColor);part(20,-16,4,8,skinDark);part(25,-14,10,3,skinColor);}
+   else if(variantA===5){part(15,-15,17,3,skinDark);light(25,-12,8,3,skinColor);part(35,-10,5,3,'#ffffff');}
+   else{part(12,-13,4,6,skinColor);part(19,-13,4,6,skinDark);part(26,-13,4,6,skinColor);}
+   // 총 아래쪽 탄창 형태를 7종으로 구분
+   if(variantB===0){part(17,7,5,12,skinDark);part(18,17,3,3,skinColor);}
+   else if(variantB===1){part(14,6,9,7,skinColor);part(16,13,5,8,skinDark);}
+   else if(variantB===2){part(19,6,4,16,skinDark);part(17,20,8,3,skinColor);}
+   else if(variantB===3){part(13,7,6,10,skinColor);part(19,10,5,8,skinDark);}
+   else if(variantB===4){part(18,7,10,5,skinDark);part(21,12,4,10,skinColor);}
+   else if(variantB===5){part(15,7,4,15,skinDark);part(19,14,7,4,skinColor);}
+   else{part(18,7,7,8,skinColor);part(20,15,4,7,skinDark);}
+   // 총구 장치와 옆면 고유 표시
+   if(variantC===0){part(48,-5,8,3,skinColor);part(52,-8,3,3,skinDark);}
+   else if(variantC===1){light(49,-4,8,4,skinColor);part(55,-8,3,5,skinDark);}
+   else if(variantC===2){part(47,-7,4,8,skinDark);part(51,-6,7,3,skinColor);}
+   else if(variantC===3){part(48,-3,9,5,skinDark);part(53,-9,3,4,skinColor);}
+   else if(variantC===4){light(50,-6,5,5,skinColor);part(55,-3,5,3,'#ffffff');}
+   else{part(48,-8,3,10,skinColor);part(52,-5,8,3,skinDark);}
+   part(29,1,4,3,skinColor);part(35,1,3,3,skinDark);
  }
  ctx.restore();
  ctx.restore();
