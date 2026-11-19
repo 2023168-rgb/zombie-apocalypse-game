@@ -554,12 +554,89 @@ function gameUpdate(){
  if(spawnLeft===0&&zombies.length===0){waveDelay++;if(waveDelay>75)nextWave();}
  updateGameHud();
 }
+function drawRealWorldGunSkin(n,c){
+ const path=(pts,fill,stroke='#111a20',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
+ const metal=ctx.createLinearGradient(0,-16,0,15);metal.addColorStop(0,'#aebbc2');metal.addColorStop(.18,'#667781');metal.addColorStop(.5,'#35434c');metal.addColorStop(1,'#18232b');
+ const polymer=ctx.createLinearGradient(0,0,0,30);polymer.addColorStop(0,'#46535a');polymer.addColorStop(1,'#151d22');
+ const wood=ctx.createLinearGradient(0,0,0,24);wood.addColorStop(0,'#a77a4e');wood.addColorStop(1,'#493323');
+ const line=(x1,y1,x2,y2,col='#d3dfe4',w=1)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
+ const screw=(x,y)=>{ctx.fillStyle='#c2cdd2';ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill();line(x-.6,y,x+.6,y,'#26343c',.6);};
+ const grip=(pts)=>{path(pts,polymer);for(let k=0;k<4;k++)line(pts[0][0]+k*2,pts[0][1]+4,pts[0][0]+k*2+5,pts[0][1]+12,'#87949a',.8);};
+ const pistol=/권총/.test(n);
+ const revolver=n.includes('리볼버');
+ const shotgun=/샷건|배럴/.test(n);
+ const rifle=/소총|카빈|기관단총|기관총|저격총/.test(n);
+ if(pistol||revolver){
+  // compact pistol profile, recognizable slide, frame, trigger guard and angled grip
+  path([[3,-9],[32,-9],[38,-6],[38,0],[8,1],[3,-2]],metal);
+  path([[7,-12],[30,-12],[35,-9],[34,-7],[6,-7]],'#87959d');
+  line(9,-10,29,-10,'#eef4f6',1.2);
+  for(let k=0;k<5;k++)line(26+k*1.4,-8,25+k*1.4,-2,'#27343c',1);
+  path([[5,-2],[39,-2],[42,2],[35,5],[22,4],[17,1],[8,2]],polymer);
+  grip([[10,2],[23,2],[34,25],[29,29],[17,26],[9,7]]);
+  path([[12,3],[22,3],[25,8],[15,8]],'#222d34');
+  ctx.strokeStyle='#c0cbd0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(15,2);ctx.quadraticCurveTo(11,10,21,11);ctx.stroke();
+  ctx.strokeStyle='#111a20';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(15,2);ctx.quadraticCurveTo(11,10,21,11);ctx.stroke();
+  line(6,-13,12,-13,'#dce7ec',1.5);line(29,-13,34,-13,'#dce7ec',1.5);
+  screw(11,-4);screw(30,-4);
+  if(revolver){
+   ctx.fillStyle='#27343b';ctx.beginPath();ctx.ellipse(23,0,7,7,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#aab8bf';ctx.lineWidth=1.5;ctx.stroke();
+   for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.fillStyle='#111b22';ctx.beginPath();ctx.arc(23+Math.cos(a)*4,Math.sin(a)*4,1.3,0,Math.PI*2);ctx.fill();}
+   path([[29,-3],[47,-3],[50,0],[30,1]],metal);
+   line(31,-4,45,-4,'#dce6ea',1);
+  }else{
+   path([[33,-5],[48,-5],[51,-2],[49,1],[34,1]],metal);
+   line(36,-7,47,-7,'#c9d5da',1);
+  }
+  if(n==='전술 권총'){path([[4,-13],[32,-13],[37,-10],[35,-8],[5,-8]],'#758c98');line(7,-15,28,-15,'#9deaff',1.8);}
+  if(n==='정밀 권총'){path([[9,-17],[30,-17],[34,-13],[12,-13]],'#1c2933');line(13,-18,30,-18,c,2);path([[37,-7],[45,-7],[45,-3],[37,-3]],'#b6c5cc');}
+  if(n==='낡은 권총'){line(6,-13,17,-13,'#7f705d',1.5);line(36,-5,48,-5,'#7f705d',1.5);}
+  return true;
+ }
+ if(shotgun){
+  // long sporting shotgun silhouette; twin barrel option gets a paired muzzle profile
+  path([[-2,-5],[12,-7],[33,-7],[43,-5],[65,-5],[68,-2],[65,1],[41,1],[34,4],[14,4],[4,1],[-2,0]],metal);
+  path([[0,-5],[14,-10],[26,-10],[30,-6],[13,-3]],wood);
+  path([[13,3],[25,3],[28,17],[23,20],[15,17]],wood);
+  path([[24,5],[44,5],[47,9],[27,9]],polymer);
+  line(39,-8,63,-8,'#cbd7dc',1.4);line(41,3,64,3,'#111b21',1.2);
+  if(n.includes('더블 배럴')){line(44,-5,67,-5,'#e0e7ea',1.4);line(44,-1,67,-1,'#9aaab2',1.4);}
+  if(n.includes('펌프')){path([[26,5],[44,5],[46,10],[27,10]],'#806044');for(let k=0;k<5;k++)line(29+k*3,6,29+k*3,9,'#d4b28a',.8);}
+  if(n.includes('폭발')){path([[7,-12],[22,-12],[25,-8],[8,-8]],'#984b36');ctx.fillStyle='#ff8b4a';ctx.shadowColor='#ff713b';ctx.shadowBlur=8;ctx.fillRect(17,-11,5,2);ctx.shadowBlur=0;}
+  if(n.includes('황금')){line(5,-11,43,-11,'#ffe18a',2);screw(48,-3);}
+  return true;
+ }
+ if(rifle){
+  // full-length rifle family with stock, receiver, handguard and distinct optics
+  const isSniper=n.includes('저격총'),smg=n.includes('기관단총'),lmg=n.includes('기관총'),carbine=n.includes('카빈');
+  path([[-5,-4],[8,-7],[19,-7],[23,-5],[43,-5],[47,-3],[66,-3],[69,0],[65,3],[43,3],[38,6],[19,5],[10,3],[0,4],[-5,1]],metal);
+  if(isSniper){path([[-7,-7],[9,-8],[15,-5],[12,2],[-7,3]],'#4a392e');path([[13,-9],[42,-9],[48,-6],[42,-4],[14,-4]],'#202b33');}
+  else if(smg){path([[-5,-7],[10,-7],[13,-3],[9,4],[-5,4]],polymer);path([[13,-6],[34,-6],[37,-3],[33,3],[13,3]],'#46555e');}
+  else if(carbine){path([[-4,-8],[12,-8],[15,-4],[12,4],[-4,3]],'#5d4936');}
+  else{path([[-6,-7],[12,-8],[16,-4],[12,4],[-6,3]],polymer);}
+  path([[17,-9],[40,-9],[43,-5],[18,-5]],'#87969e');
+  line(19,-10,39,-10,'#dce6ea',1.2);
+  path([[21,4],[30,4],[28,18],[23,19],[19,7]],polymer);
+  path([[31,4],[38,4],[39,12],[33,12]],'#222d34');
+  if(isSniper){path([[17,-15],[39,-15],[42,-11],[16,-11]],'#1b2831');path([[23,-19],[35,-19],[37,-15],[22,-15]],'#758a96');line(24,-17,35,-17,'#bde7fa',1.4);line(42,-5,66,-5,'#d3dfe4',1.5);}
+  else if(lmg){path([[24,-13],[31,-13],[31,-8],[24,-8]],'#303d45');path([[34,-4],[45,-4],[45,4],[34,4]],'#303d45');}
+  else if(smg){path([[26,-12],[35,-12],[36,-7],[26,-7]],'#222f38');}
+  else{path([[22,-14],[34,-14],[36,-9],[22,-9]],'#27343d');line(24,-15,33,-15,'#c5d4db',1.2);}
+  if(n.includes('번개')){line(23,-20,30,-25,'#fff17a',2);line(30,-25,33,-19,'#fff17a',2);}
+  if(n.includes('용암')){ctx.fillStyle='#ff6330';ctx.shadowColor='#ff6330';ctx.shadowBlur=7;ctx.fillRect(27,-7,5,2);ctx.shadowBlur=0;}
+  if(n.includes('정찰')){line(19,-13,31,-13,'#b7eaff',1.5);}
+  screw(19,0);screw(37,0);
+  return true;
+ }
+ return false;
+}
 function drawWeaponSignature(n,c,metal,dark,wood){
  const rect=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
  const glow=(col,blur)=>{ctx.shadowColor=col;ctx.shadowBlur=blur;};
  const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선/.test(n);
+ if(!melee&&drawRealWorldGunSkin(n,c))return true;
  if(melee){
   if(n==='낡은 야구방망이'){rect(8,-3,8,42,'#98633d');rect(6,-13,12,15,'#c18a53');rect(7,-12,10,3,'#e4c18b');rect(9,29,6,10,'#493326');for(let i=0;i<3;i++)rect(5,-8+i*5,14,2,'#68452f');}
   else if(n==='전투 단검'){rect(8,1,7,15,wood);rect(4,-2,15,4,metal);ctx.fillStyle='#b9d4df';ctx.beginPath();ctx.moveTo(11,-4);ctx.lineTo(17,-13);ctx.lineTo(42,-20);ctx.lineTo(29,-2);ctx.closePath();ctx.fill();line([[17,-12],[35,-17],[26,-5]],'#fff',2);rect(8,14,7,4,dark);}
