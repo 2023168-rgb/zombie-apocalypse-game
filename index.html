@@ -644,13 +644,44 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  // 알려지지 않은 신규 무기는 기본 총기 실루엣으로 안전하게 표시
  rect(0,-6,38,12,metal);rect(36,-3,19,5,dark);rect(11,5,9,13,wood);rect(15,-11,14,4,c);return true;
 }
+function drawWeaponFinish(n,c,melee){
+ // 공통 고급 마감: 금속 베벨, 깊이감 있는 외곽선, 나사·홈·그립 텍스처
+ ctx.save();
+ ctx.lineJoin='round';ctx.lineCap='round';
+ if(melee){
+  const g=ctx.createLinearGradient(8,-18,42,8);g.addColorStop(0,'#f4f8fb');g.addColorStop(.28,c);g.addColorStop(.62,'#566875');g.addColorStop(1,'#202a32');
+  ctx.strokeStyle='#17212a';ctx.lineWidth=2.2;ctx.strokeRect(9,-9,31,10);
+  ctx.strokeStyle=g;ctx.lineWidth=1.35;ctx.beginPath();ctx.moveTo(12,-7);ctx.lineTo(36,-13);ctx.stroke();
+  ctx.fillStyle='#e4edf2';ctx.globalAlpha=.75;ctx.fillRect(13,-8,Math.max(7,n.includes('대검')?28:16),1);ctx.globalAlpha=1;
+  ctx.fillStyle='#d5b16a';ctx.beginPath();ctx.arc(9,0,1.8,0,Math.PI*2);ctx.fill();
+ }else{
+  const body=ctx.createLinearGradient(0,-12,0,13);body.addColorStop(0,'#aebdc6');body.addColorStop(.16,'#667985');body.addColorStop(.48,'#354650');body.addColorStop(.82,'#202c34');body.addColorStop(1,'#101920');
+  ctx.strokeStyle='#101920';ctx.lineWidth=2.4;ctx.strokeRect(2,-8,37,15);
+  ctx.fillStyle=body;ctx.globalAlpha=.48;ctx.fillRect(3,-7,35,13);ctx.globalAlpha=1;
+  ctx.strokeStyle='#d6e3e9';ctx.globalAlpha=.72;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(7,-8);ctx.lineTo(32,-8);ctx.stroke();ctx.globalAlpha=1;
+  // 상단 피카티니 레일과 홈
+  ctx.fillStyle='#aab9c2';ctx.fillRect(9,-12,20,2);
+  ctx.fillStyle='#25343d';for(let k=0;k<5;k++)ctx.fillRect(11+k*3.5,-13,1.2,3);
+  // 몸통의 나사와 측면 패널
+  ctx.fillStyle='#d4e0e6';for(const x of [8,34]){ctx.beginPath();ctx.arc(x,1,1.05,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle='#9aabb5';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(12,-3);ctx.lineTo(27,-3);ctx.moveTo(12,3);ctx.lineTo(25,3);ctx.stroke();
+  // 그립의 미끄럼 방지 홈
+  ctx.strokeStyle='#89959b';ctx.globalAlpha=.7;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(6+k*2,7);ctx.lineTo(10+k*2,12);ctx.stroke();}ctx.globalAlpha=1;
+  // 총구의 금속 테두리
+  ctx.strokeStyle='#d5e1e7';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(52,-4);ctx.lineTo(57,-4);ctx.moveTo(52,3);ctx.lineTo(57,3);ctx.stroke();
+  // 등급 색상은 작은 상태 표시등으로만 사용
+  ctx.shadowColor=c;ctx.shadowBlur=7;ctx.fillStyle=c;ctx.fillRect(21,-5,5,1.5);ctx.shadowBlur=0;
+ }
+ ctx.restore();
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d'};
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선/.test(n);
  ctx.save();ctx.translate(7,1);
- if(drawWeaponSignature(n,c,metal,dark,wood)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ if(drawWeaponSignature(n,c,metal,dark,wood)){drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
   const swing=pl.swing>0?(-.85+(1-pl.swing/14)*1.7):0;ctx.rotate(swing);
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
@@ -684,6 +715,7 @@ function drawDistinctWeapon(w,pl){
   else{ctx.fillStyle=metal;ctx.fillRect(6,-8,34,15);ctx.fillStyle='#141d24';ctx.fillRect(38,-3,19,5);ctx.fillStyle=wood;ctx.fillRect(13,7,9,13);ctx.fillStyle=c;ctx.fillRect(19,-12,13,4);if(n.includes('용암')){ctx.fillStyle='#ff6330';ctx.fillRect(17,-15,5,4);ctx.fillRect(29,-15,5,4);}if(n.includes('번개')){ctx.strokeStyle='#fff080';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(24,-16);ctx.lineTo(31,-23);ctx.lineTo(36,-15);ctx.stroke();}}
   ctx.fillStyle=c;ctx.fillRect(30,2,4,3);
  }
+ drawWeaponFinish(n,c,melee);
  ctx.restore();return true;
 }
 function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
