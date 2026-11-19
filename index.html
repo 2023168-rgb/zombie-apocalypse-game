@@ -1171,11 +1171,81 @@ function drawMapZombieDetails(z){
  if(boss){ctx.strokeStyle='#ffe17a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,23,0,Math.PI*2);ctx.stroke();}
  ctx.restore();
 }
+function drawJobSkillVisual(fx,t,fade){
+ const v=Number(fx.variant);if(!Number.isFinite(v)||v<0||v>29)return false;
+ const p=Math.max(0,Math.min(1,t)),r=fx.radius,spin=p*Math.PI*2;
+ ctx.save();ctx.translate(fx.x,fx.y);ctx.rotate(fx.angle||0);ctx.globalAlpha=fade;ctx.strokeStyle=fx.color;ctx.fillStyle=fx.color;ctx.lineWidth=3+2*(1-p);ctx.shadowColor=fx.color;ctx.shadowBlur=12;
+ const ring=(rad,start=0,end=Math.PI*2)=>{ctx.beginPath();ctx.arc(0,0,Math.max(1,rad),start,end);ctx.stroke();};
+ const ray=(a,len,w=2)=>{ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(Math.cos(a)*8,Math.sin(a)*8);ctx.lineTo(Math.cos(a)*len,Math.sin(a)*len);ctx.stroke();};
+ switch(v){
+ case 0: // 응급 처치 십자
+   ctx.rotate(spin*.15);ctx.fillRect(-5,-r*.45,10,r*.9);ctx.fillRect(-r*.28,-5,r*.56,10);ring(r*.55*(.4+p));break;
+ case 1: // 정찰 질주 궤적
+   for(let i=0;i<4;i++){ctx.globalAlpha=fade*(1-i*.18);ctx.beginPath();ctx.ellipse(-i*13,0,r*(.25+p*.45),9+i*3,-.12,0,Math.PI*2);ctx.stroke();}break;
+ case 2: // 방패 육각 보호막
+   ctx.beginPath();for(let i=0;i<6;i++){let a=i*Math.PI/3;let x=Math.cos(a)*r*(.35+p*.4),y=Math.sin(a)*r*(.35+p*.4);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.stroke();ring(r*.32);break;
+ case 3: // 표적 조준
+   ring(r*(.25+p*.55));ring(r*(.12+p*.25));for(let i=0;i<4;i++)ray(i*Math.PI/2,r*(.8+p*.2),4);break;
+ case 4: // 지뢰 경고 원
+   ctx.setLineDash([7,5]);ring(r*(.2+p*.8));ctx.setLineDash([]);for(let i=0;i<8;i++)ray(i*Math.PI/4,r*(.25+p*.45));break;
+ case 5: // 회복 파동
+   for(let i=0;i<3;i++)ring(r*(.2+p*.75)-i*13);ctx.beginPath();ctx.moveTo(-r*.25,0);ctx.lineTo(r*.25,0);ctx.moveTo(0,-r*.25);ctx.lineTo(0,r*.25);ctx.stroke();break;
+ case 6: // 화염 폭발
+   for(let i=0;i<12;i++){let a=i*Math.PI/6;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.2,Math.sin(a)*r*.2);ctx.quadraticCurveTo(Math.cos(a+.15)*r*.65,Math.sin(a+.15)*r*.65,Math.cos(a)*r*p,Math.sin(a)*r*p);ctx.stroke();}ring(r*p*.72);break;
+ case 7: // 독 구름
+   for(let i=0;i<9;i++){let a=i*Math.PI*2/9+spin*.2,x=Math.cos(a)*r*p*.55,y=Math.sin(a)*r*p*.55;ctx.beginPath();ctx.arc(x,y,9+5*Math.sin(spin+i),0,Math.PI*2);ctx.stroke();}break;
+ case 8: // 검투사 검기
+   for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,0,r*(.3+i*.17)*p,-1.1+i*.18,1.1+i*.18);ctx.stroke();}break;
+ case 9: // 저격 관통선
+   ctx.fillRect(0,-3,r*p,6);for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(r*p*(i/5),-12);ctx.lineTo(r*p*(i/5),12);ctx.stroke();}break;
+ case 10: // 전류 고리
+   for(let i=0;i<3;i++){ctx.beginPath();for(let k=0;k<=24;k++){let a=k/24*Math.PI*2,x=Math.cos(a)*r*(.3+p*.5),y=Math.sin(a)*r*(.3+p*.5)+(k%2?7:-7);k?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}break;
+ case 11: // 광폭화 박동
+   ring(r*(.25+p*.7));for(let i=0;i<8;i++)ray(i*Math.PI/4+spin*.1,r*(.35+p*.55),5);break;
+ case 12: // 그림자 순간이동
+   for(let i=0;i<3;i++){ctx.globalAlpha=fade*(1-i*.25);ctx.beginPath();ctx.ellipse(-i*18,0,18+i*5,35+i*8,-.3,0,Math.PI*2);ctx.stroke();}break;
+ case 13: // 산성 방울
+   for(let i=0;i<10;i++){let a=i*2.4+spin,x=Math.cos(a)*r*p*.6,y=Math.sin(a)*r*p*.6;ctx.beginPath();ctx.arc(x,y,4+(i%3)*2,0,Math.PI*2);ctx.stroke();}ring(r*p*.7);break;
+ case 14: // 수호자 돔
+   ctx.beginPath();ctx.arc(0,0,r*(.35+p*.45),Math.PI,Math.PI*2);ctx.stroke();for(let i=0;i<7;i++)ray(Math.PI+i*Math.PI/6,r*(.45+p*.4));break;
+ case 15: // 사슬 번개
+   for(let i=0;i<7;i++){let a=i*Math.PI*2/7;ctx.beginPath();ctx.moveTo(0,0);for(let k=1;k<=5;k++){let d=r*p*k/5;ctx.lineTo(Math.cos(a)*d+(k%2?5:-5),Math.sin(a)*d);}ctx.stroke();}break;
+ case 16: // 용암 균열
+   for(let i=0;i<6;i++){let x=(i-2.5)*r*.18;ctx.beginPath();ctx.moveTo(x,-r*p);ctx.lineTo(x-10,0);ctx.lineTo(x+8,r*p);ctx.stroke();}break;
+ case 17: // 빙결 결정
+   for(let i=0;i<6;i++){let a=i*Math.PI/3;ray(a,r*p,4);ray(a+.18,r*p*.55,2);ray(a-.18,r*p*.55,2);}ring(r*p*.65);break;
+ case 18: // 낙뢰 기둥
+   for(let i=0;i<5;i++){let x=(i-2)*r*.22;ctx.beginPath();ctx.moveTo(x,-r*p);ctx.lineTo(x+12,0);ctx.lineTo(x-8,r*p);ctx.stroke();}break;
+ case 19: // 그림자 난무 회전 칼날
+   for(let i=0;i<4;i++){ctx.save();ctx.rotate(spin+i*Math.PI/2);ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(r*.35,-r*.35,r*p,0);ctx.quadraticCurveTo(r*.35,r*.35,0,0);ctx.stroke();ctx.restore();}break;
+ case 20: // 성역의 빛기둥
+   ring(r*(.25+p*.65));for(let i=0;i<8;i++){let a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.3,Math.sin(a)*r*.3);ctx.lineTo(Math.cos(a)*r*p,Math.sin(a)*r*p);ctx.stroke();}break;
+ case 21: // 플라즈마 구체
+   ring(r*(.18+p*.35));for(let i=0;i<3;i++){ctx.save();ctx.rotate(spin*(i%2?1:-1)+i*2);ctx.beginPath();ctx.ellipse(0,0,r*(.3+p*.35),r*.13,i*.7,0,Math.PI*2);ctx.stroke();ctx.restore();}break;
+ case 22: // 차원 균열
+   ctx.save();ctx.rotate(spin*.2);ctx.strokeRect(-r*p*.55,-r*p*.55,r*p*1.1,r*p*1.1);ctx.rotate(Math.PI/4);ctx.strokeRect(-r*p*.38,-r*p*.38,r*p*.76,r*p*.76);ctx.restore();break;
+ case 23: // 용의 숨결
+   ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*p,-r*.42);ctx.quadraticCurveTo(r*p*.7,0,r*p,r*.42);ctx.closePath();ctx.globalAlpha=fade*.22;ctx.fill();ctx.globalAlpha=fade;for(let i=0;i<8;i++)ray((i-3.5)*.13,r*p);break;
+ case 24: // 저주 문양
+   ring(r*p*.65);for(let i=0;i<5;i++){ctx.save();ctx.rotate(i*Math.PI*2/5+spin*.1);ctx.strokeRect(-9,-r*p*.5,18,r*p);ctx.restore();}break;
+ case 25: // 시간 정지 시계
+   ring(r*p*.65);for(let i=0;i<12;i++){let a=i*Math.PI/6;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.lineTo(Math.cos(a)*r*.65,Math.sin(a)*r*.65);ctx.stroke();}ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(-spin)*r*.35,Math.sin(-spin)*r*.35);ctx.stroke();break;
+ case 26: // 별빛 낙하
+   for(let i=0;i<7;i++){let a=i*Math.PI*2/7+spin*.12,x=Math.cos(a)*r*p*.65,y=Math.sin(a)*r*p*.65;ctx.beginPath();ctx.moveTo(x-7,y-7);ctx.lineTo(x+7,y+7);ctx.moveTo(x+7,y-7);ctx.lineTo(x-7,y+7);ctx.stroke();}ring(r*p*.55);break;
+ case 27: // 심연 소용돌이
+   for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(0,0,r*(.18+i*.14)*p,spin+i*Math.PI/2,spin+i*Math.PI/2+Math.PI*1.45);ctx.stroke();}break;
+ case 28: // 불멸 장벽
+   for(let i=0;i<5;i++){let x=(i-2)*r*.2;ctx.strokeRect(x-5,-r*p*.55,10,r*p*1.1);}break;
+ case 29: // 창세의 별
+   for(let i=0;i<12;i++){let a=i*Math.PI/6+spin*.08;ray(a,r*p,3);}ring(r*p*.4);break;
+ }
+ ctx.restore();return true;
+}
 function drawGame(){
  if(!$('gameView').classList.contains('active'))return;
  ctx.clearRect(0,0,W,H);drawMap();
  for(let ex of explosions){let t=ex.age/ex.maxAge;let radius=ex.radius*(.18+.82*t);ctx.save();ctx.globalAlpha=1-t;ctx.fillStyle='#ff6a21';ctx.beginPath();ctx.arc(ex.x,ex.y,radius*.58,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffe27a';ctx.lineWidth=7*(1-t)+1;ctx.beginPath();ctx.arc(ex.x,ex.y,radius,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#ff3b22';ctx.lineWidth=3;ctx.beginPath();ctx.arc(ex.x,ex.y,radius*.72,0,Math.PI*2);ctx.stroke();ctx.restore();}
- for(let fx of skillFx){let t=fx.age/fx.duration,fade=1-t;ctx.save();ctx.globalAlpha=fade;ctx.strokeStyle=fx.color;ctx.fillStyle=fx.color;ctx.lineWidth=4*(1-t)+1;ctx.translate(fx.x,fx.y);ctx.rotate(fx.angle);if(fx.type==='slash'){ctx.lineWidth=12;ctx.beginPath();ctx.arc(0,0,fx.radius*t*.9,-1.0,1.0);ctx.stroke();}else if(fx.type==='line'){ctx.shadowBlur=18;ctx.shadowColor=fx.color;ctx.fillRect(0,-9,fx.radius*t,18);ctx.strokeRect(0,-13,fx.radius*t,26);}else if(fx.type==='cone'){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,fx.radius*t,-.72,.72);ctx.closePath();ctx.globalAlpha=fade*.28;ctx.fill();ctx.globalAlpha=fade;ctx.stroke();for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(fx.radius*t,Math.tan(i*.18)*fx.radius*t*.45);ctx.stroke();}}else if(fx.type==='spin'||fx.type==='cross'){for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4+(fx.type==='spin'?t*5:0));ctx.fillRect(12,-3,fx.radius*t*.65,6);ctx.restore();}}else if(fx.type==='chain'){fx.targets.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x-fx.x,p.y-fx.y,12+8*Math.sin(t*8),0,Math.PI*2);ctx.stroke();if(i){let prev=fx.targets[i-1];ctx.beginPath();ctx.moveTo(prev.x-fx.x,prev.y-fx.y);ctx.lineTo(p.x-fx.x,p.y-fx.y);ctx.stroke();}});}else if(fx.type==='plasma'||fx.type==='nova'||fx.type==='rift'||fx.type==='wave'||fx.type==='poison'||fx.type==='lava'||fx.type==='mark'||fx.type==='burst'){ctx.beginPath();ctx.arc(0,0,fx.radius*(.2+.8*t),0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,fx.radius*(.12+.65*t),0,Math.PI*2);ctx.stroke();if(fx.type==='nova'||fx.type==='plasma'||fx.type==='lava'){for(let i=0;i<16;i++){let a=i*Math.PI/8;ctx.beginPath();ctx.moveTo(Math.cos(a)*fx.radius*.25*t,Math.sin(a)*fx.radius*.25*t);ctx.lineTo(Math.cos(a)*fx.radius*t,Math.sin(a)*fx.radius*t);ctx.stroke();}}}ctx.rotate(fx.variant*.11);ctx.globalAlpha=fade*.8;ctx.lineWidth=2;for(let k=0;k<3+(fx.variant%9);k++){ctx.save();ctx.rotate(k*Math.PI*2/(3+(fx.variant%9)));ctx.beginPath();ctx.moveTo(fx.radius*.18,0);ctx.lineTo(fx.radius*(.45+.05*(fx.variant%5)),(k%2?1:-1)*(5+fx.variant%8));ctx.stroke();ctx.restore();}ctx.restore();}
+ for(let fx of skillFx){let t=fx.age/fx.duration,fade=1-t;if(drawJobSkillVisual(fx,t,fade))continue;ctx.save();ctx.globalAlpha=fade;ctx.strokeStyle=fx.color;ctx.fillStyle=fx.color;ctx.lineWidth=4*(1-t)+1;ctx.translate(fx.x,fx.y);ctx.rotate(fx.angle);if(fx.type==='slash'){ctx.lineWidth=12;ctx.beginPath();ctx.arc(0,0,fx.radius*t*.9,-1.0,1.0);ctx.stroke();}else if(fx.type==='line'){ctx.shadowBlur=18;ctx.shadowColor=fx.color;ctx.fillRect(0,-9,fx.radius*t,18);ctx.strokeRect(0,-13,fx.radius*t,26);}else if(fx.type==='cone'){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,fx.radius*t,-.72,.72);ctx.closePath();ctx.globalAlpha=fade*.28;ctx.fill();ctx.globalAlpha=fade;ctx.stroke();for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(fx.radius*t,Math.tan(i*.18)*fx.radius*t*.45);ctx.stroke();}}else if(fx.type==='spin'||fx.type==='cross'){for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4+(fx.type==='spin'?t*5:0));ctx.fillRect(12,-3,fx.radius*t*.65,6);ctx.restore();}}else if(fx.type==='chain'){fx.targets.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x-fx.x,p.y-fx.y,12+8*Math.sin(t*8),0,Math.PI*2);ctx.stroke();if(i){let prev=fx.targets[i-1];ctx.beginPath();ctx.moveTo(prev.x-fx.x,prev.y-fx.y);ctx.lineTo(p.x-fx.x,p.y-fx.y);ctx.stroke();}});}else if(fx.type==='plasma'||fx.type==='nova'||fx.type==='rift'||fx.type==='wave'||fx.type==='poison'||fx.type==='lava'||fx.type==='mark'||fx.type==='burst'){ctx.beginPath();ctx.arc(0,0,fx.radius*(.2+.8*t),0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,fx.radius*(.12+.65*t),0,Math.PI*2);ctx.stroke();if(fx.type==='nova'||fx.type==='plasma'||fx.type==='lava'){for(let i=0;i<16;i++){let a=i*Math.PI/8;ctx.beginPath();ctx.moveTo(Math.cos(a)*fx.radius*.25*t,Math.sin(a)*fx.radius*.25*t);ctx.lineTo(Math.cos(a)*fx.radius*t,Math.sin(a)*fx.radius*t);ctx.stroke();}}}ctx.rotate(fx.variant*.11);ctx.globalAlpha=fade*.8;ctx.lineWidth=2;for(let k=0;k<3+(fx.variant%9);k++){ctx.save();ctx.rotate(k*Math.PI*2/(3+(fx.variant%9)));ctx.beginPath();ctx.moveTo(fx.radius*.18,0);ctx.lineTo(fx.radius*(.45+.05*(fx.variant%5)),(k%2?1:-1)*(5+fx.variant%8));ctx.stroke();ctx.restore();}ctx.restore();}
 
  for(let eb of enemyBullets){ctx.fillStyle='#ff5266';ctx.beginPath();ctx.arc(eb.x,eb.y,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffd1d8';ctx.stroke();}
  for(let b of bullets){ctx.fillStyle=b.color;if(b.shape==='line'){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillRect(-9,-2,18,4);ctx.restore();}else if(b.shape==='wide'){ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();}else if(b.shape==='orb'){ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();}else{ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();}}
