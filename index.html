@@ -880,10 +880,12 @@ function drawDistinctWeapon(w,pl){
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선/.test(n);
  ctx.save();ctx.translate(7,1);
+ // 모든 근접무기에 공통 좌우 휘두르기 애니메이션 적용
+ const swingAngle=melee&&pl.swing>0?(-0.95+(1-pl.swing/14)*1.9):0;
+ if(melee&&pl.swing>0)ctx.rotate(swingAngle);
  if(drawRedesignedWeapon(n,c)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
-  const swing=pl.swing>0?(-.85+(1-pl.swing/14)*1.7):0;ctx.rotate(swing);
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
   if(n.includes('방망이')){ctx.fillStyle='#b7834e';ctx.fillRect(8,-4,9,43);ctx.fillStyle='#e4c18b';ctx.fillRect(7,-12,11,14);ctx.fillStyle='#382b25';ctx.fillRect(9,31,8,5);}
   else if(n.includes('창')){ctx.fillStyle=wood;ctx.fillRect(10,-4,5,59);ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(12,-32);ctx.lineTo(4,-7);ctx.lineTo(20,-7);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(11,-27,2,18);}
