@@ -563,6 +563,11 @@ function drawWeaponSignature(n,c,metal,dark,wood){
   if(old){rect(18,-3,7,5,'#b29a75');rect(10,12,8,3,'#3d3026');}
   return true;
  }
+ if(n==='기본 권총'){rect(3,-6,34,10,'#697983');rect(8,-10,22,4,'#aab7bd');rect(13,3,9,15,'#6d5038');rect(34,-4,12,5,'#394650');rect(8,-13,5,3,'#d3dce0');return true;}
+ if(n==='폭발 샷건'||n==='황금 자동 샷건'){rect(0,-8,45,16,n==='폭발 샷건'?'#424f59':'#9a742b');rect(40,-8,25,5,'#202932');rect(40,2,25,5,'#202932');rect(8,-15,26,5,n==='폭발 샷건'?'#d05a3e':'#ffe17a');rect(14,8,11,16,wood);if(n==='폭발 샷건'){glow('#ff7047',13);gem(29,-4,6,'#ffd17b');ctx.shadowBlur=0;}else{rect(24,-18,20,4,'#fff0a0');gem(52,0,6,'#fff1a4');}return true;}
+ if(n==='차원 분쇄기'){rect(0,-8,46,16,'#2c2146');rect(8,-13,34,5,'#624a8a');rect(43,-5,19,10,'#392650');ctx.strokeStyle='#c18cff';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(60,0,9,15,.2,0,Math.PI*2);ctx.stroke();glow('#a95cff',16);gem(60,0,5,'#f2d7ff');ctx.shadowBlur=0;return true;}
+ if(n==='샤이니스타'){rect(0,-8,47,16,'#554c29');rect(9,-13,31,5,'#a58a37');rect(12,9,9,12,'#3e3522');for(let i=0;i<5;i++){let x=12+i*7;line([[x,-13],[x+3,-20],[x+7,-13]],'#fff0a1',2);}glow('#fff1a1',17);gem(61,0,9,'#fff4bb');ctx.shadowBlur=0;return true;}
+ if(n==='종말의 포효'){rect(0,-10,47,20,'#47262e');rect(7,-15,31,5,'#9e3c43');rect(13,9,12,15,'#2f272c');rect(43,-6,20,12,'#672c34');glow('#ff4c4c',15);gem(62,0,9,'#ffb16b');ctx.shadowBlur=0;line([[8,-16],[2,-23],[14,-19],[19,-26],[24,-17]],'#ff9b69',3);return true;}
  if(n==='경비용 리볼버'){rect(4,-6,40,9,'#46535b');rect(12,-12,18,11,'#7d8b91');ctx.beginPath();ctx.arc(22,-1,8,0,Math.PI*2);ctx.fillStyle='#252d33';ctx.fill();ctx.strokeStyle='#b8c5ca';ctx.lineWidth=2;ctx.stroke();rect(13,7,10,13,'#76553b');rect(41,-4,15,4,c);return true;}
  if(n==='구형 기관권총'){rect(0,-7,43,12,'#59616a');rect(5,-11,23,4,'#858d91');rect(36,-4,19,5,'#202a31');rect(17,5,9,18,'#3e4850');rect(8,7,7,5,wood);rect(25,-14,3,5,c);rect(31,-12,3,3,c);return true;}
  if(n==='더블 배럴'||n==='펌프 샷건'||n==='폭발 샷건'||n==='황금 자동 샷건'){
@@ -788,42 +793,84 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
  ctx.restore();
 }
 function drawMapZombieDetails(z){
- const map=currentMap.name,r=z.r;
- ctx.save();ctx.translate(z.x,z.y);
- const boss=!!(z.boss||z.midBoss),scale=Math.max(.75,Math.min(1.7,r/13));
- ctx.scale(scale,scale);
- // 맵마다 좀비의 복장·장비 실루엣을 다르게 표현
- if(map==='폐병원'){
-  ctx.fillStyle='#d8e5df';ctx.fillRect(-8,1,16,13);ctx.fillStyle='#5eaaa8';ctx.fillRect(-8,3,16,3);ctx.fillStyle='#e8ffff';ctx.fillRect(-2,4,4,9);
-  ctx.fillStyle='#b9d5d0';ctx.fillRect(-11,-9,5,5);ctx.fillRect(6,-9,5,5);
- }else if(map==='도시'){
-  ctx.fillStyle='#34404a';ctx.fillRect(-10,-2,20,15);ctx.fillStyle='#a84f46';ctx.fillRect(-9,0,18,4);ctx.fillStyle='#d8c8a7';ctx.fillRect(-8,-13,16,4);
-  ctx.fillStyle='#202a32';ctx.fillRect(-11,-14,22,4);ctx.fillStyle='#e4a34b';ctx.fillRect(-3,5,6,3);
- }else if(map==='어두운 숲'){
-  ctx.fillStyle='#345b37';ctx.fillRect(-10,-2,20,14);ctx.fillStyle='#68834a';ctx.fillRect(-9,0,18,4);
-  ctx.strokeStyle='#6c8d50';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-8,-7);ctx.lineTo(-17,-15);ctx.moveTo(8,-6);ctx.lineTo(16,-17);ctx.stroke();
-  ctx.fillStyle='#263f2b';ctx.beginPath();ctx.arc(0,-13,11,Math.PI,Math.PI*2);ctx.fill();
- }else if(map==='지하철역'){
-  ctx.fillStyle='#34434a';ctx.fillRect(-10,-1,20,14);ctx.fillStyle='#d7a94c';ctx.fillRect(-10,1,20,4);ctx.fillStyle='#e9e3c8';ctx.fillRect(-7,2,5,2);ctx.fillRect(3,2,5,2);
-  ctx.fillStyle='#596b72';ctx.fillRect(-8,-14,16,4);ctx.fillStyle='#b8c8c8';ctx.fillRect(-2,-14,4,4);
+ const map=currentMap.name,r=z.r,sc=Math.max(.8,Math.min(1.8,r/13));
+ const boss=!!(z.boss||z.midBoss),type=z.type||'normal';
+ const palette={
+ '폐병원':['#d8e5df','#4f7778','#b8d2ce'],'도시':['#66717b','#35404a','#a84f46'],
+ '어두운 숲':['#536b42','#293d2c','#87945a'],'지하철역':['#75818a','#303b43','#d1a84b'],
+ '폐공장':['#77745e','#3b4140','#c38b37'],'폐교':['#83795f','#3d4439','#a45f4c'],
+ '쇼핑몰':['#87738e','#443c4c','#c5a6c9'],'공동묘지':['#89948d','#414a47','#b7c5bd'],
+ '폐가':['#806247','#49392e','#a27b52'],'기본 생존 구역':['#77836a','#3d4a3b','#8f9b79']
+ };
+ const p=palette[map]||palette['기본 생존 구역'];
+ let skin=p[0],cloth=p[1],accent=p[2];
+ if(type==='tank'||boss){skin='#788078';cloth='#30383b';accent=boss?'#d4ae54':'#697b76';}
+ if(type==='fast'){skin='#9a9b75';cloth='#3b4538';accent='#b6b36b';}
+ if(type==='exploder'){skin='#a65b50';cloth='#532d2c';accent='#ff9a69';}
+ ctx.save();ctx.translate(z.x,z.y);ctx.scale(sc,sc);
+ ctx.shadowColor='#0009';ctx.shadowBlur=6;ctx.shadowOffsetY=3;
+ const ellipse=(x,y,rx,ry,col,rot=0)=>{ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot,0,Math.PI*2);ctx.fill();};
+ const poly=(pts,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fill();};
+ // 맵마다 몸의 형태 자체를 변경: 병원 환자형, 숲 야수형, 공장 중장갑형 등
+ if(map==='어두운 숲'){
+   ellipse(-8,2,8,16,cloth,-.35);ellipse(8,1,8,15,cloth,.35);poly([[-10,-9],[-17,-22],[-7,-16],[0,-26],[5,-14],[16,-22],[12,-7]],accent);
+   ellipse(0,-13,10,10,skin);poly([[-8,-18],[-15,-29],[-4,-24],[2,-31],[12,-19]],'#293b29');
+ }else if(map==='폐병원'){
+   ellipse(0,1,13,17,'#e1e8df');ctx.fillStyle=accent;ctx.fillRect(-11,-1,22,5);ctx.fillStyle='#f3f5ed';ctx.fillRect(-3,-1,6,14);
+   ellipse(-10,5,5,12,skin,-.3);ellipse(10,5,5,12,skin,.3);ellipse(0,-14,10,9,'#b9c8bd');
+   ctx.fillStyle='#4a8f91';ctx.fillRect(-5,-4,10,3);ctx.fillRect(-2,-1,4,9);
  }else if(map==='폐공장'){
-  ctx.fillStyle='#5b6254';ctx.fillRect(-11,-2,22,15);ctx.fillStyle='#d6a83c';ctx.fillRect(-10,0,20,4);ctx.fillStyle='#26343a';ctx.fillRect(-9,-14,18,5);
-  ctx.fillStyle='#9bb4a9';ctx.fillRect(-7,-12,14,3);ctx.fillStyle='#d5b24e';ctx.fillRect(-12,7,5,4);ctx.fillRect(7,7,5,4);
+   // 두꺼운 작업용 방진복, 각진 어깨, 헬멧과 금속 보호판
+   ctx.fillStyle=cloth;ctx.fillRect(-13,-5,26,22);ctx.fillStyle=accent;ctx.fillRect(-15,-7,30,7);ctx.fillStyle='#39464a';ctx.fillRect(-10,-17,20,8);ctx.fillStyle='#d6bd73';ctx.fillRect(-7,-15,14,3);
+   ellipse(-13,5,5,11,skin);ellipse(13,5,5,11,skin);ellipse(0,-14,10,9,skin);
+   ctx.fillStyle='#303a3e';ctx.fillRect(-8,0,16,9);ctx.fillStyle='#e5b84c';ctx.fillRect(-8,2,16,3);
+ }else if(map==='지하철역'){
+   ellipse(0,1,12,16,cloth);ellipse(-12,4,5,12,skin,-.4);ellipse(12,4,5,12,skin,.4);
+   ellipse(0,-14,10,9,skin);ctx.fillStyle='#46525a';ctx.fillRect(-12,-21,24,7);ctx.fillStyle=accent;ctx.fillRect(-8,-19,16,3);
+   ctx.fillStyle='#c5d1d2';ctx.fillRect(-3,-5,6,13);ctx.fillStyle='#d6a84b';ctx.fillRect(-11,3,22,3);
+ }else if(map==='도시'){
+   // 한쪽 어깨가 무너진 민간인/경찰 잔해 복장
+   ellipse(0,1,12,16,cloth);ellipse(-12,3,5,11,skin,-.45);ellipse(12,7,4,9,skin,.5);ellipse(0,-14,10,9,skin);
+   ctx.fillStyle=accent;ctx.fillRect(-10,-3,20,5);ctx.fillStyle='#29343c';ctx.fillRect(-8,-20,16,4);ctx.fillStyle='#b5c0c5';ctx.fillRect(4,-19,4,3);
  }else if(map==='폐교'){
-  ctx.fillStyle='#465044';ctx.fillRect(-9,-1,18,14);ctx.fillStyle='#8a574a';ctx.fillRect(-9,1,18,4);ctx.fillStyle='#b5a47a';ctx.fillRect(-8,-13,16,4);
-  ctx.fillStyle='#343b35';ctx.fillRect(-10,-15,20,3);ctx.fillRect(-7,11,4,4);ctx.fillRect(3,11,4,4);
+   ellipse(0,1,11,16,cloth);ellipse(-12,5,4,10,skin);ellipse(12,5,4,10,skin);ellipse(0,-14,9,9,skin);
+   ctx.fillStyle=accent;ctx.fillRect(-10,-5,20,4);ctx.fillStyle='#d0c39c';ctx.fillRect(-8,-20,16,5);ctx.fillStyle='#4a4438';ctx.fillRect(-3,-17,6,3);
  }else if(map==='쇼핑몰'){
-  ctx.fillStyle='#504653';ctx.fillRect(-10,-2,20,14);ctx.fillStyle='#9a779e';ctx.fillRect(-9,0,18,4);ctx.fillStyle='#d6c6d8';ctx.fillRect(-9,-14,18,4);
-  ctx.fillStyle='#725b76';ctx.fillRect(-12,-11,5,7);ctx.fillRect(7,-11,5,7);ctx.fillStyle='#e8d9ed';ctx.fillRect(-3,5,6,3);
+   ellipse(0,1,12,16,cloth);ellipse(-13,4,5,11,skin);ellipse(13,4,5,11,skin);ellipse(0,-14,10,9,skin);
+   ctx.fillStyle=accent;ctx.fillRect(-12,-6,24,5);ctx.fillStyle='#ded2dc';ctx.fillRect(-8,-20,16,5);ctx.fillStyle='#62536c';ctx.fillRect(-4,-15,8,3);
  }else if(map==='공동묘지'){
-  ctx.fillStyle='#777e78';ctx.fillRect(-10,-1,20,14);ctx.fillStyle='#4a514d';ctx.fillRect(-9,1,18,4);ctx.fillStyle='#b8c4bd';ctx.fillRect(-8,-14,16,4);
-  ctx.fillStyle='#c4d2ca';ctx.globalAlpha=.7;ctx.beginPath();ctx.arc(0,-13,11,Math.PI,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+   ellipse(0,2,10,17,'#626e68');ellipse(-13,7,4,12,skin);ellipse(13,7,4,12,skin);ellipse(0,-14,10,10,'#aab5ad');
+   poly([[-10,-13],[-8,-23],[0,-28],[8,-23],[10,-13]],'#626d67');ctx.fillStyle='#d5ddd5';ctx.fillRect(-7,0,14,3);
  }else if(map==='폐가'){
-  ctx.fillStyle='#6c5140';ctx.fillRect(-10,-1,20,14);ctx.fillStyle='#9b7958';ctx.fillRect(-9,1,18,4);ctx.strokeStyle='#3e3028';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-8,-9);ctx.lineTo(-14,-3);ctx.moveTo(8,-7);ctx.lineTo(14,-1);ctx.stroke();
+   ellipse(0,2,12,16,cloth,-.1);ellipse(-12,7,5,10,skin);ellipse(12,4,5,12,skin);ellipse(0,-14,10,9,skin);
+   ctx.strokeStyle='#4b382b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-9,-7);ctx.lineTo(-17,-15);ctx.moveTo(8,-6);ctx.lineTo(17,-13);ctx.stroke();
+   ctx.fillStyle=accent;ctx.fillRect(-9,-2,18,4);
  }else{
-  ctx.fillStyle='#4d624b';ctx.fillRect(-9,-1,18,13);ctx.fillStyle='#758d65';ctx.fillRect(-8,1,16,3);
+   ellipse(0,2,11,16,cloth);ellipse(-12,5,4,11,skin);ellipse(12,5,4,11,skin);ellipse(0,-14,10,9,skin);
+   ctx.fillStyle=accent;ctx.fillRect(-9,-5,18,4);
  }
- if(boss){ctx.strokeStyle='#ffe17a';ctx.lineWidth=2;ctx.strokeRect(-13,-17,26,33);ctx.fillStyle='#ffe17a';ctx.fillRect(-3,-20,6,3);}
+ // 몬스터 종류별 실루엣 차이도 적용
+ if(type==='tank'||boss){
+   ctx.shadowBlur=0;ctx.fillStyle='#3b4544';ctx.fillRect(-16,-4,32,9);ctx.fillRect(-14,5,28,12);
+   ctx.fillStyle=accent;ctx.fillRect(-17,-7,34,5);ellipse(0,-16,12,10,skin);
+   if(boss){ctx.fillStyle='#f4d36a';poly([[-9,-22],[-5,-31],[0,-24],[5,-31],[10,-22]],'#f4d36a');ctx.strokeStyle='#ffe89a';ctx.lineWidth=2;ctx.strokeRect(-19,-25,38,43);}
+ }else if(type==='fast'){
+   // 전방으로 숙인 네발 돌진형
+   ctx.save();ctx.rotate(.38);ellipse(0,3,16,9,cloth);ellipse(10,-8,9,7,skin);ellipse(-10,10,4,9,skin);ellipse(13,9,4,9,skin);poly([[12,-14],[20,-19],[17,-10]],accent);ctx.restore();
+ }else if(type==='exploder'){
+   ellipse(0,1,15,17,'#743b35');ctx.fillStyle='#ff9b62';ctx.beginPath();ctx.arc(0,2,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffc08a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,2,12,0,Math.PI*2);ctx.stroke();
+ }else{
+   // 기본 좀비는 얼굴, 찢어진 팔, 비대칭 어깨로 표현
+   ellipse(-12,4,5,12,skin,-.45);ellipse(12,5,5,12,skin,.4);ellipse(0,-14,10,9,skin);
+ }
+ ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+ // 눈과 입, 맵 고유 장비
+ ctx.fillStyle=map==='폐병원'?'#4bd4c6':type==='exploder'?'#ffdf8b':boss?'#ffdf78':'#f2d77c';
+ ctx.beginPath();ctx.arc(-4,-15,2.2,0,Math.PI*2);ctx.arc(4,-15,2.2,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#252322';ctx.fillRect(-4,-9,8,2);
+ if(map==='어두운 숲'){ctx.strokeStyle='#a4c56b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-8,-4);ctx.lineTo(-17,-12);ctx.moveTo(8,-4);ctx.lineTo(17,-13);ctx.stroke();}
+ if(map==='폐공장'){ctx.fillStyle='#e8bd54';ctx.fillRect(-5,-20,10,3);}
+ if(boss){ctx.strokeStyle='#ffe17a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,23,0,Math.PI*2);ctx.stroke();}
  ctx.restore();
 }
 function drawGame(){
@@ -836,8 +883,7 @@ function drawGame(){
  for(let b of bullets){ctx.fillStyle=b.color;if(b.shape==='line'){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillRect(-9,-2,18,4);ctx.restore();}else if(b.shape==='wide'){ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();}else if(b.shape==='orb'){ctx.beginPath();ctx.arc(b.x,b.y,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();}else{ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();}}
  if(chest){ctx.fillStyle='#8a4b18';ctx.fillRect(chest.x-16,chest.y-12,32,24);ctx.fillStyle='#f4c542';ctx.fillRect(chest.x-16,chest.y-12,32,6);ctx.fillRect(chest.x-3,chest.y-12,6,24);ctx.fillStyle='white';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('E 키',chest.x,chest.y-20);}
  for(let z of zombies){if(z.boss&&z.bossType==='charger'&&z.chargeState==='warning'){ctx.save();ctx.translate(z.x,z.y);ctx.rotate(z.chargeAngle||0);ctx.fillStyle='rgba(255,25,45,.28)';ctx.strokeStyle='rgba(255,70,80,.9)';ctx.lineWidth=3;ctx.fillRect(0,-28,Math.hypot((z.chargeX||z.x)-z.x,(z.chargeY||z.y)-z.y),56);ctx.strokeRect(0,-28,Math.hypot((z.chargeX||z.x)-z.x,(z.chargeY||z.y)-z.y),56);ctx.restore();ctx.fillStyle='#ff4658';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText('돌진 준비!',z.x,z.y-z.r-30);}}
- for(let z of zombies){let zombieColor=z.boss?(z.bossType==='ranged'?'#8c63d8':z.bossType==='speed'?'#e18a35':z.bossType==='summoner'?'#8b55c9':z.bossType==='charger'?'#e3293f':'#a51d2d'):z.midBoss?'#d46a9c':z.type==='exploder'?'#a94b43':z.type==='tank'?'#687c4c':z.type==='fast'?'#9a8a4d':'#667f58';
- if(uiSettings.zombieQuality){ctx.save();ctx.translate(z.x,z.y);ctx.shadowColor='#0009';ctx.shadowBlur=7;ctx.shadowOffsetY=4;let body=ctx.createRadialGradient(-z.r*.25,-z.r*.35,2,0,0,z.r*1.25);body.addColorStop(0,z.boss?'#c17b79':'#a8b18a');body.addColorStop(.55,zombieColor);body.addColorStop(1,'#26332d');ctx.fillStyle=body;ctx.beginPath();ctx.ellipse(0,0,z.r*.78,z.r*1.05,-.12,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.fillStyle=z.boss?'#353044':'#39433c';ctx.beginPath();ctx.ellipse(-z.r*.7,-z.r*.15,z.r*.32,z.r*.7,-.55,0,Math.PI*2);ctx.ellipse(z.r*.7,z.r*.12,z.r*.3,z.r*.68,.6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#b4a88a';ctx.beginPath();ctx.ellipse(0,-z.r*.72,z.r*.48,z.r*.43,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#222';ctx.beginPath();ctx.arc(-z.r*.18,-z.r*.78,Math.max(1.8,z.r*.09),0,Math.PI*2);ctx.arc(z.r*.18,-z.r*.78,Math.max(1.8,z.r*.09),0,Math.PI*2);ctx.fill();ctx.fillStyle='#d9d1b5';ctx.fillRect(-z.r*.18,-z.r*.56,z.r*.36,Math.max(2,z.r*.07));ctx.strokeStyle='#d5c3a0';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-z.r*.48,z.r*.18);ctx.lineTo(-z.r*.18,z.r*.36);ctx.moveTo(z.r*.22,-z.r*.1);ctx.lineTo(z.r*.48,z.r*.12);ctx.stroke();if(z.type==='tank'||z.boss||z.midBoss){ctx.fillStyle='#303a39';ctx.fillRect(-z.r*.5,z.r*.38,z.r,z.r*.26);}ctx.restore();}else{ctx.fillStyle=zombieColor;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(z.x-5,z.y-4,4,4);ctx.fillRect(z.x+3,z.y-4,4,4);}drawMapZombieDetails(z);if(z.boss||z.midBoss){ctx.fillStyle='white';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(z.bossType==='ranged'?'RANGE':z.bossType==='speed'?'SPEED':z.bossType==='summoner'?'SUMMON':z.bossType==='charger'?'CHARGE':'MELEE',z.x,z.y-z.r-16);if(z.bossType==='summoner'){ctx.fillStyle='#7b4b2b';ctx.fillRect(z.x+z.r*.45,z.y-z.r-17,5,26);ctx.fillStyle='#d5b6ff';ctx.beginPath();ctx.arc(z.x+z.r*.45+2,z.y-z.r-20,8,0,Math.PI*2);ctx.fill();}}if(z.type==='exploder'){ctx.strokeStyle='#ffb1a8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,hardMode?118:105,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('BOOM',z.x,z.y+4);}ctx.fillStyle='#401';ctx.fillRect(z.x-z.r,z.y-z.r-9,z.r*2,5);ctx.fillStyle='#f44';ctx.fillRect(z.x-z.r,z.y-z.r-9,z.r*2*Math.max(0,z.hp/z.maxHp),5);}
+ for(let z of zombies){drawMapZombieDetails(z);if(z.boss||z.midBoss){ctx.fillStyle='white';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(z.bossType==='ranged'?'RANGE':z.bossType==='speed'?'SPEED':z.bossType==='summoner'?'SUMMON':z.bossType==='charger'?'CHARGE':'MELEE',z.x,z.y-z.r-16);if(z.bossType==='summoner'){ctx.fillStyle='#7b4b2b';ctx.fillRect(z.x+z.r*.45,z.y-z.r-17,5,26);ctx.fillStyle='#d5b6ff';ctx.beginPath();ctx.arc(z.x+z.r*.45+2,z.y-z.r-20,8,0,Math.PI*2);ctx.fill();}}if(z.type==='exploder'){ctx.strokeStyle='#ffb1a8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,hardMode?118:105,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('BOOM',z.x,z.y+4);}ctx.fillStyle='#401';ctx.fillRect(z.x-z.r,z.y-z.r-9,z.r*2,5);ctx.fillStyle='#f44';ctx.fillRect(z.x-z.r,z.y-z.r-9,z.r*2*Math.max(0,z.hp/z.maxHp),5);}
  if(player){let w=getWeapon(),job=state.jobInventory.find(j=>j.id===state.equippedJob);if(Date.now()<shinyBoostUntil){ctx.save();let pulse=18+Math.sin(frame*.55)*7;ctx.globalAlpha=.72;ctx.strokeStyle='#ffe66d';ctx.lineWidth=8;ctx.shadowBlur=30;ctx.shadowColor='#fff3a1';ctx.beginPath();ctx.arc(player.x,player.y,pulse+player.r,0,Math.PI*2);ctx.stroke();for(let i=0;i<12;i++){let a=frame*.08+i*Math.PI/6;ctx.beginPath();ctx.moveTo(player.x+Math.cos(a)*24,player.y+Math.sin(a)*24);ctx.lineTo(player.x+Math.cos(a)*(38+(i%3)*8),player.y+Math.sin(a)*(38+(i%3)*8));ctx.stroke();}ctx.restore();}ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);ctx.fillStyle=job?job.color:'#dcecff';if(job){ctx.globalAlpha=.28;ctx.beginPath();ctx.arc(0,0,player.r+8,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}ctx.beginPath();ctx.arc(0,0,player.r,0,Math.PI*2);ctx.fill();if(job){ctx.fillStyle=job.color;ctx.beginPath();if(['heal','shield'].includes(job.type)){ctx.moveTo(-6,-12);ctx.lineTo(0,-21);ctx.lineTo(6,-12);ctx.lineTo(0,-8);ctx.closePath();}else if(['fire','lava','plasma','nova'].includes(job.type)){ctx.moveTo(-7,-10);ctx.lineTo(0,-23);ctx.lineTo(7,-10);ctx.lineTo(0,-13);ctx.closePath();}else{ctx.arc(0,-16,5,0,Math.PI*2);}ctx.fill();}drawBlockWeapon(w,player);ctx.restore();}
  if(coop.role==='host'&&remotePlayer){ctx.save();ctx.fillStyle=coop.remoteHealth>0?'#55dfff':'#777';ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(remotePlayer.x,remotePlayer.y,remotePlayer.r+2,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#07141b';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('P2',remotePlayer.x,remotePlayer.y+4);ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.fillText('친구 체력 '+Math.max(0,Math.ceil(coop.remoteHealth)),remotePlayer.x,remotePlayer.y-24);ctx.restore();}else if(coop.role==='guest'&&remotePlayer){ctx.save();ctx.fillStyle='#55dfff';ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(remotePlayer.x,remotePlayer.y,remotePlayer.r+2,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#07141b';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('P1',remotePlayer.x,remotePlayer.y+4);ctx.restore();}
  if(feverActive&&running){ctx.fillStyle='#9e2222';ctx.fillRect(W/2-130,10,260,34);ctx.fillStyle='white';ctx.font='bold 19px sans-serif';ctx.textAlign='center';ctx.fillText('🔥 FEVER MODE 🔥',W/2,34);}
