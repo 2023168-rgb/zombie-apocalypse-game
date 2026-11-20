@@ -43,9 +43,9 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 </div></div>
 <div id="coopModal" class="coop-modal" role="dialog" aria-modal="true"><div class="coop-window">
  <div class="row"><h2 style="margin-right:auto">👥 친구와 하기</h2><button class="secondary" id="coopClose">닫기</button></div>
- <div id="coopChoices" class="buttons"><button id="coopCreate">🔑 코드 생성</button><button class="secondary" id="coopJoin">🔢 코드 입력</button></div>
- <div id="coopCreatePane" style="display:none"><p class="muted">이 코드를 친구에게 보내줘. 친구가 입장하면 무한모드 협동 플레이가 시작돼.</p><div id="coopCode" class="coop-code">------</div><button id="coopCopy" class="gold" style="width:100%">코드 복사</button></div>
- <div id="coopJoinPane" style="display:none"><p class="muted">친구가 만든 6자리 방 코드를 입력해.</p><input id="coopCodeInput" maxlength="6" autocomplete="off" placeholder="방 코드"><button id="coopConnect" style="width:100%">▶ 시작</button></div>
+ <div id="coopChoices"><p class="muted">플레이 인원을 선택해. 3인 플레이는 방장 외 친구 2명이 모두 입장해야 시작돼.</p><div class="buttons"><button id="coopMode2" class="gold">👥 2인 플레이</button><button id="coopMode3" class="secondary">👥 3인 플레이</button></div><div class="buttons"><button id="coopCreate">🔑 코드 생성</button><button class="secondary" id="coopJoin">🔢 코드 입력</button></div></div>
+ <div id="coopCreatePane" style="display:none"><p class="muted" id="coopCreateHint">이 코드를 친구에게 보내줘.</p><div id="coopCode" class="coop-code">------</div><button id="coopCopy" class="gold" style="width:100%">코드 복사</button></div>
+ <div id="coopJoinPane" style="display:none"><p class="muted">방장이 만든 6자리 방 코드를 입력해. 방장이 선택한 인원수에 맞춰 대기해.</p><input id="coopCodeInput" maxlength="6" autocomplete="off" placeholder="방 코드"><button id="coopConnect" style="width:100%">▶ 입장</button></div>
  <div id="coopStatus" class="coop-status">두 명이 같은 방에서 무한모드를 함께 플레이해.</div>
  </div></div>
 <section id="lobby" class="view active">
@@ -287,53 +287,13 @@ function coopPlatformWarning(){
 }
 function coopNewCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=crypto.getRandomValues(new Uint8Array(6));return Array.from(bytes,b=>chars[b%chars.length]).join('');}
 function coopErrorText(e){const t=e&&e.type?e.type:'unknown';const messages={'browser-incompatible':'이 브라우저가 실시간 연결을 지원하지 않아. 크롬을 최신 버전으로 업데이트해줘.','network':'실시간 연결 서버에 접속하지 못했어.','server-error':'실시간 연결 서버 오류야.','socket-error':'연결 서버와 통신하지 못했어.','socket-closed':'연결 서버가 통신을 종료했어.','unavailable-id':'방 코드가 이미 사용 중이야. 새 방을 만들어줘.','invalid-id':'방 코드 형식이 올바르지 않아.','ssl-unavailable':'HTTPS 주소로 접속해야 해.','peer-unavailable':'서버에서 해당 방을 찾지 못했어. 방장이 방을 유지하고 있는지 확인 중이야.','webrtc':'두 기기 사이의 실시간 연결을 만들지 못했어.'};return messages[t]||('연결 오류 코드: '+t);}
-$('friendPlayBtn').onclick=()=>{coopModal.style.display='flex';$('coopChoices').style.display='flex';$('coopCreatePane').style.display='none';$('coopJoinPane').style.display='none';coopStatus('두 명이 같은 방에서 무한모드를 함께 플레이해.');};
+$('friendPlayBtn').onclick=()=>{coopModal.style.display='flex';$('coopChoices').style.display='block';$('coopCreatePane').style.display='none';$('coopJoinPane').style.display='none';$('coopMode2').classList.add('gold');$('coopMode3').classList.remove('gold');coop.playerCount=2;coopStatus('2인 또는 3인 플레이를 선택한 뒤 코드 생성/입력을 눌러.');};
+$('coopMode2').onclick=()=>{coop.playerCount=2;$('coopMode2').classList.add('gold');$('coopMode3').classList.remove('gold');};
+$('coopMode3').onclick=()=>{coop.playerCount=3;$('coopMode3').classList.add('gold');$('coopMode2').classList.remove('gold');};
 $('coopClose').onclick=()=>{coopModal.style.display='none';};
-$('coopCreate').onclick=()=>{
- if(coopPlatformWarning())return;
- if(!window.Peer){coopStatus('실시간 연결 모듈을 불러오지 못했어. 페이지를 새로고침해줘.');return;}
- coopDisconnect();$('coopChoices').style.display='none';$('coopCreatePane').style.display='block';coopStatus('실시간 서버에 접속하는 중...');
- let attempts=0;
- const createRoom=()=>{
-  attempts++;const code=coopNewCode();coop.code=code;$('coopCode').textContent=code;
-  let peer;try{peer=new Peer('zombie-'+code.toLowerCase(),coopPeerOptions);}catch(err){coopStatus('방 생성 실패: '+(err.message||'PeerJS 초기화 오류'));return;}
-  coop.peer=peer;let opened=false;
-  peer.on('open',id=>{opened=true;coopStatus('방 준비 완료! 코드 '+code+' · 친구가 코드를 입력할 때까지 기다리는 중...');});
-  peer.on('connection',conn=>{if(coop.peer!==peer||coop.conn){conn.close();return;}coopStatus('친구의 연결 요청을 받았어. 데이터 연결을 여는 중...');conn.on('error',e=>coopStatus('친구 연결 오류: '+coopErrorText(e)+' ('+(e&&e.type?e.type:'unknown')+')'));coopAttach(conn,'host');});
-  peer.on('disconnected',()=>{if(coop.peer===peer&&!peer.destroyed){coopStatus('서버 연결이 잠시 끊겼어. 방을 다시 등록하는 중...');try{peer.reconnect();}catch(e){coopStatus('방 서버 재접속 실패: '+(e.message||'다시 방을 만들어줘.'));}}});
-  peer.on('error',e=>{
-   if(e&&e.type==='unavailable-id'&&attempts<6){try{peer.destroy();}catch(_){}if(coop.peer===peer)coop.peer=null;coopStatus('방 코드가 겹쳐 새 코드를 만드는 중...');createRoom();return;}
-   console.error('[협동 방 생성 오류]',e);coopStatus('방 생성 실패: '+coopErrorText(e)+' ('+(e&&e.type?e.type:'unknown')+')');
-  });
-  setTimeout(()=>{if(coop.peer===peer&&!opened&&!peer.destroyed)coopStatus('방 서버 응답이 없어. 오류 코드가 표시되면 알려줘.');},15000);
- };
- createRoom();
-};
+$('coopCreate').onclick=()=>{if(coopPlatformWarning())return;if(!window.Peer){coopStatus('실시간 연결 모듈을 불러오지 못했어. 새로고침해줘.');return;}const cap=coop.playerCount;coopDisconnect();coop.playerCount=cap;coop.role='host';$('coopChoices').style.display='none';$('coopCreatePane').style.display='block';$('coopJoinPane').style.display='none';$('coopCreateHint').textContent=cap===3?'친구 2명에게 코드를 보내줘. 두 명 모두 입장하면 시작돼.':'친구 1명에게 코드를 보내줘. 입장하면 시작돼.';coopStatus('방 서버에 접속하는 중...');let tries=0;const make=()=>{tries++;const code=coopNewCode();coop.code=code;$('coopCode').textContent=code;let peer;try{peer=new Peer('zombie-'+code.toLowerCase(),coopPeerOptions);}catch(e){coopStatus('방 생성 실패: '+(e.message||'PeerJS 오류'));return;}coop.peer=peer;let opened=false;peer.on('open',()=>{opened=true;coopStatus(cap+'인 방 준비 완료 · 친구 '+(cap-1)+'명 대기 중 (0/'+(cap-1)+')');});peer.on('connection',conn=>{if(coop.peer!==peer){conn.close();return;}const slot=coop.conns[1]?2:1;if(slot>cap-1){conn.close();return;}coop.conns[slot]=conn;if(slot===1)coop.conn=conn;else coop.extraConn=conn;coopAttach(conn,'host',slot);});peer.on('disconnected',()=>{if(coop.peer===peer&&!peer.destroyed)try{peer.reconnect();}catch(e){coopStatus('서버 재접속 실패');}});peer.on('error',e=>{if(e&&e.type==='unavailable-id'&&tries<6){try{peer.destroy();}catch(_){}make();return;}coopStatus('방 생성 실패: '+coopErrorText(e));});setTimeout(()=>{if(coop.peer===peer&&!opened&&!peer.destroyed)coopStatus('방 서버 응답이 없어.');},15000);};make();};
 $('coopJoin').onclick=()=>{$('coopChoices').style.display='none';$('coopJoinPane').style.display='block';$('coopCodeInput').focus();};
-$('coopConnect').onclick=()=>{
- if(coopPlatformWarning())return;
- if(!window.Peer){coopStatus('실시간 연결 모듈을 불러오지 못했어. 페이지를 새로고침해줘.');return;}
- const code=$('coopCodeInput').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){coopStatus('6자리 방 코드를 정확히 입력해줘.');return;}
- coopDisconnect();coop.code=code;coopStatus('실시간 서버에 접속하는 중...');let peer;
- try{peer=new Peer(coopPeerOptions);}catch(err){coopStatus('연결 실패: '+(err.message||'PeerJS 초기화 오류'));return;}
- coop.peer=peer;let tries=0,connected=false,stopped=false;const target='zombie-'+code.toLowerCase();
- const attemptJoin=()=>{
-  if(stopped||connected||coop.peer!==peer||peer.destroyed)return;
-  tries++;coopStatus('방 찾는 중... ('+tries+'/10) · 코드 '+code);
-  const conn=peer.connect(target,{reliable:true,serialization:'json'});coopAttach(conn,'guest');
-  conn.on('open',()=>{connected=true;stopped=true;coopStatus('방에 연결됐어! 친구와 함께 시작할게.');});
-  conn.on('error',e=>{if(!connected)coopStatus('데이터 연결 오류: '+coopErrorText(e)+' ('+(e&&e.type?e.type:'unknown')+')');});
-  conn.on('close',()=>{if(!connected&&!stopped)coopStatus('연결이 닫혔어. 방장 상태와 코드를 확인해줘.');});
- };
- peer.on('open',()=>{attemptJoin();});
- peer.on('error',e=>{
-  if(e&&e.type==='peer-unavailable'&&!connected&&tries<10){if(coop.conn){try{coop.conn.close();}catch(_){}coop.conn=null;}coopStatus('방을 아직 찾지 못했어. 잠시 후 다시 찾을게... ('+tries+'/10)');setTimeout(attemptJoin,1800);return;}
-  if(e&&e.type==='peer-unavailable'&&!connected){stopped=true;coopStatus('방을 찾지 못했어. 방장이 같은 코드를 띄운 채 대기 중인지 확인해줘. (peer-unavailable)');return;}
-  console.error('[협동 참가 오류]',e);coopStatus('연결 실패: '+coopErrorText(e)+' ('+(e&&e.type?e.type:'unknown')+')');
- });
- peer.on('disconnected',()=>{if(!connected&&!peer.destroyed){coopStatus('연결 서버가 끊겨 재접속 중...');try{peer.reconnect();}catch(e){coopStatus('서버 재접속 실패: '+(e.message||'다시 시도해줘.'));}}});
- setTimeout(()=>{if(!connected&&!stopped&&coop.peer===peer){stopped=true;coopStatus('방을 찾지 못했어. 방장 화면의 코드와 친구 화면의 입력 코드가 같은지 확인해줘. (시도 '+tries+'회)');}},30000);
-};
+$('coopConnect').onclick=()=>{if(coopPlatformWarning())return;if(!window.Peer){coopStatus('실시간 연결 모듈을 불러오지 못했어. 새로고침해줘.');return;}const code=$('coopCodeInput').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){coopStatus('6자리 방 코드를 입력해줘.');return;}coopDisconnect();coop.code=code;coopStatus('방 찾는 중...');let peer;try{peer=new Peer(coopPeerOptions);}catch(e){coopStatus('연결 실패: '+e.message);return;}coop.peer=peer;let tries=0,done=false;const target='zombie-'+code.toLowerCase();const join=()=>{if(done||peer.destroyed)return;tries++;const conn=peer.connect(target,{reliable:true,serialization:'json'});coopAttach(conn,'guest',0);conn.on('open',()=>{done=true;});};peer.on('open',join);peer.on('error',e=>{if(e&&e.type==='peer-unavailable'&&tries<10){setTimeout(join,1800);return;}if(!done)coopStatus('연결 실패: '+coopErrorText(e));});setTimeout(()=>{if(!done)coopStatus('방을 찾지 못했어. 방장 코드가 맞는지 확인해줘.');},30000);};
 $('coopCopy').onclick=()=>{const code=coop.code||$('coopCode').textContent;if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(()=>coopStatus('방 코드를 복사했어!')).catch(()=>coopStatus('코드 복사가 안 됐어. 화면의 코드를 직접 복사해줘.'));else coopStatus('화면의 코드를 길게 눌러 복사해줘.');};
 $('playBtn').onclick=()=>startGame('normal');$('hardPlayBtn').onclick=()=>startGame('hard');$('insanePlayBtn').onclick=()=>startGame('insane');$('speedToggle').onclick=()=>{if(!state.hasDoubleSpeed){say('상점에서 진행속도 2배를 먼저 구매해야 해!');return;}doubleSpeedOn=!doubleSpeedOn;$('speedToggle').classList.toggle('on',doubleSpeedOn);$('speedToggle').textContent=doubleSpeedOn?'⚡ 2배 속도 ON':'⚡ 2배 속도 OFF';};
 
@@ -347,60 +307,18 @@ const skillBook={
  '용암 기관총':['용암 분출','lava','#ff6a2e',220,0], '번개 저격총':['연쇄 낙뢰','chain','#a98cff',330,0], '황금 자동 샷건':['황금 탄막','cone','#ffd65c',285,0],
  '낡은 야구방망이':['홈런 스윙','spin','#d5a36b',170,0], '전투 단검':['연속 찌르기','cross','#d5e5ff',190,0], '철제 대검':['강철 회전베기','spin','#b8c5d2',220,0], '전기 창':['번개 찌르기','line','#8cecff',360,0], '화염 대검':['화염 회전참','lava','#ff7547',260,0], '빙결 전투도끼':['빙결 강타','wave','#8beaff',320,0], '차원 낫':['차원 수확','rift','#c18cff',400,0], '신의 심판검':['천상의 참격','nova','#fff27a',480,0], '성운 레일건':['성운 직선포','line','#d28cff',600,0], '차원 분쇄기':['차원 균열','rift','#bd7cff',260,0], '갓슬레이어':['신벌의 심판','nova','#fff27a',340,0], '해커검':['좀비 감염','hack','#39ff55',260,0], '종말의 포효':['종말의 파동','wave','#ff5478',390,0]};
 let skillReadyAt=0,skillFx=[],jobSkillReadyAt=0,shinyBoostUntil=0,mobileControlsOn=true,chargeCooldown=0,blackHoleActive=null;
-let coop={role:'solo',peer:null,conn:null,code:null,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false};
+let coop={role:'solo',peer:null,conn:null,extraConn:null,conns:[],code:null,playerCount:2,readyCount:0,slot:0,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false,third:{input:{},player:null,health:100,maxHealth:100,coins:0,weapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},job:null,defense:0,coinMultiplier:1,lastShot:0,damageBoost:0,fireBoost:0}};
 function coopSend(data){try{if(coop.conn&&coop.conn.open)coop.conn.send(data);}catch(e){}}
 function coopStatus(t){const el=document.getElementById('coopStatus');if(el)el.textContent=t;}
-function coopDisconnect(){try{if(coop.conn)coop.conn.close();if(coop.peer)coop.peer.destroy();}catch(e){}coop={role:'solo',peer:null,conn:null,code:null,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false};}
-function coopWeaponData(){const w=getWeapon();return {...w,name:w.name,damage:Number(w.damage)||1,cooldown:Number(w.cooldown)||16,pellets:Number(w.pellets)||1,speed:Number(w.speed)||8.3,rarity:w.rarity||'common',melee:!!w.melee};}
+function coopDisconnect(){try{(coop.conns||[]).forEach(c=>{if(c&&c.open)c.close();});if(coop.conn&&coop.conn.open)coop.conn.close();if(coop.extraConn&&coop.extraConn.open)coop.extraConn.close();if(coop.peer)coop.peer.destroy();}catch(e){}coop={role:'solo',peer:null,conn:null,extraConn:null,conns:[],code:null,playerCount:2,readyCount:0,slot:0,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false,third:{input:{},player:null,health:100,maxHealth:100,coins:0,weapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},job:null,defense:0,coinMultiplier:1,lastShot:0,damageBoost:0,fireBoost:0}};remotePlayer3=null;}
+ function coopSendTo(conn,data){try{if(conn&&conn.open)conn.send(data);}catch(e){}}
+ function coopWeaponData(){const w=getWeapon();return {...w,name:w.name,damage:Number(w.damage)||1,cooldown:Number(w.cooldown)||16,pellets:Number(w.pellets)||1,speed:Number(w.speed)||8.3,rarity:w.rarity||'common',melee:!!w.melee};}
 function coopJobData(){const j=state.jobInventory.find(x=>x.id===state.equippedJob);return j?{name:j.name,type:j.type,rarity:j.rarity,color:j.color,skill:j.skill,index:j.index}:null;}
-function coopStartHost(){
- if(coop.role!=='host'||coop.hostStarted)return;
- coop.hostStarted=true;
- coopStatus('친구가 연결됐어! 협동 플레이 시작!');
- if(!running){startGame('infinite');}
- remotePlayer={x:W/2+45,y:H/2,r:13,speed:3.2,angle:0,swing:0};
- coop.remoteHealth=maxHealth;coop.remoteMaxHealth=maxHealth;
-}
-function coopSendGuestHello(){
- if(coop.role!=='guest'||coop.helloSent||!coop.conn||!coop.conn.open)return;
- coop.helloSent=true;
- coopSend({type:'hello',weapon:coopWeaponData(),job:coopJobData(),maxHealth:100+armorHealthBonus(),defense:Object.values(state.equippedArmor).reduce((n,id)=>n+(state.armorInventory.find(a=>a.id===id)?.defense||0),0),coinMultiplier:state.hasDoubleCoins?2:1});
- coopStatus('방에 연결됐어! 게임 시작을 기다리는 중...');
-}
-function coopAttach(conn,role){
- coop.role=role;coop.conn=conn;
- conn.on('data',data=>{
-  if(!data||typeof data!=='object')return;
-  if(role==='guest'&&data.type==='end'){
-   if(Number(data.wave)>=30){state.wallet+=Number(data.guestCoins)||0;state.infiniteBest=Math.max(state.infiniteBest,Number(data.wave)||0);save();refresh();}
-   running=false;show('lobby');coopStatus('협동 플레이가 종료됐어.');coopDisconnect();return;
-  }
-  if(role==='host'){
-   if(data.type==='hello'){
-    coop.remoteWeapon=data.weapon||coop.remoteWeapon;coop.remoteJob=data.job||null;
-    coop.remoteMaxHealth=Number(data.maxHealth)||100;coop.remoteHealth=coop.remoteMaxHealth;
-    coop.remoteDefense=Number(data.defense)||0;coop.remoteCoinMultiplier=Number(data.coinMultiplier)||1;
-    coopStartHost();
-   }else if(data.type==='input'){coop.remoteInput=data.input||{};if(data.weapon)coop.remoteWeapon=data.weapon;if(data.job)coop.remoteJob=data.job;}
-   else if(data.type==='action'){
-    if(data.action==='skill')coop.remoteInput.skill=true;
-    if(data.action==='job'&&Date.now()>=coop.remoteJobReadyAt){coop.remoteJobReadyAt=Date.now()+30000;coop.remoteInput.job=true;}
-    if(data.action==='upgradeDamage'&&coop.remoteCoins>=20){coop.remoteCoins-=20;coop.remoteDamageBoost++;}
-    if(data.action==='heal'&&coop.remoteCoins>=15&&coop.remoteHealth<coop.remoteMaxHealth){coop.remoteCoins-=15;coop.remoteHealth=Math.min(coop.remoteMaxHealth,coop.remoteHealth+35);}
-    if(data.action==='upgradeRate'&&coop.remoteCoins>=25){coop.remoteCoins-=25;coop.remoteFireBoost=Math.min(10,(coop.remoteFireBoost||0)+1);}
-   }
-  }else if(data.type==='snapshot'){
-   const q=data.state;if(!q)return;
-   if(!running){show('gameView');running=true;paused=false;modeName='infinite';infiniteMode=true;maxWaves=Infinity;}
-   player=q.guestPlayer||player;remotePlayer=q.hostPlayer||null;zombies=q.zombies||[];bullets=q.bullets||[];enemyBullets=q.enemyBullets||[];skillFx=q.skillFx||[];explosions=q.explosions||[];chest=q.chest||null;wave=q.wave||1;spawnLeft=q.spawnLeft||0;frame=q.frame||0;health=q.guestHealth??100;maxHealth=q.guestMaxHealth??100;matchCoins=q.guestCoins??0;remoteHealth=q.hostHealth??100;remoteMaxHealth=q.hostMaxHealth??100;remoteCoins=q.hostCoins??0;feverActive=!!q.feverActive;paused=!!q.paused;
-   coopStatus('무한모드 협동 플레이 중!');updateGameHud();
-  }
- });
- conn.on('open',()=>{if(role==='guest')coopSendGuestHello();else coopStartHost();});
- conn.on('close',()=>{coopStatus('친구 연결이 끊어졌어.');if(coop.role==='guest'){running=false;show('lobby');coopDisconnect();}else{remotePlayer=null;coop.role='solo';}});
- conn.on('error',e=>coopStatus('연결 오류: '+(e&&e.type?e.type:'알 수 없는 오류')+' · 다시 연결해줘.'));
- // 일부 브라우저에서는 open 이벤트를 리스너 등록 전에 받을 수 있어 현재 상태도 확인한다.
- if(conn.open){if(role==='guest')coopSendGuestHello();else coopStartHost();}
+function coopStartHost(){if(coop.role!=='host'||coop.hostStarted)return;const need=coop.playerCount-1;if(coop.readyCount<need){coopStatus('친구 '+coop.readyCount+'/'+need+'명 입장 완료 · 모두 입장하면 자동 시작!');return;}coop.hostStarted=true;if(!running)startGame('infinite');remotePlayer={x:W/2+45,y:H/2,r:13,speed:3.2,angle:0,swing:0};coop.remoteHealth=coop.remoteMaxHealth=maxHealth;if(coop.playerCount===3){remotePlayer3={x:W/2-45,y:H/2,r:13,speed:3.2,angle:0,swing:0};coop.third.player=remotePlayer3;coop.third.health=coop.third.maxHealth;}coopStatus(coop.playerCount+'인 협동 플레이 시작!');}
+function coopSendGuestHello(){if(coop.role!=='guest'||coop.helloSent||!coop.conn||!coop.conn.open||!coop.slot)return;coop.helloSent=true;coopSend({type:'hello',weapon:coopWeaponData(),job:coopJobData(),maxHealth:100+armorHealthBonus(),defense:Object.values(state.equippedArmor).reduce((n,id)=>n+(state.armorInventory.find(a=>a.id===id)?.defense||0),0),coinMultiplier:state.hasDoubleCoins?2:1});coopStatus('입장 완료! 다른 친구가 모두 들어오면 시작돼.');}
+function coopAttach(conn,role,slot=0){if(role==='guest'){coop.role='guest';coop.conn=conn;coop.slot=0;}else coop.role='host';
+ conn.on('data',data=>{if(!data||typeof data!=='object')return;if(role==='host'){if(data.type==='hello'){if(slot===1){coop.remoteWeapon=data.weapon||coop.remoteWeapon;coop.remoteJob=data.job||null;coop.remoteMaxHealth=Number(data.maxHealth)||100;coop.remoteHealth=coop.remoteMaxHealth;coop.remoteDefense=Number(data.defense)||0;coop.remoteCoinMultiplier=Number(data.coinMultiplier)||1;}else{const g=coop.third;g.weapon=data.weapon||g.weapon;g.job=data.job||null;g.maxHealth=Number(data.maxHealth)||100;g.health=g.maxHealth;g.defense=Number(data.defense)||0;g.coinMultiplier=Number(data.coinMultiplier)||1;}coop.readyCount++;coopStartHost();}else if(data.type==='input'){if(slot===1){coop.remoteInput=data.input||{};if(data.weapon)coop.remoteWeapon=data.weapon;if(data.job)coop.remoteJob=data.job;}else{coop.third.input=data.input||{};if(data.weapon)coop.third.weapon=data.weapon;if(data.job)coop.third.job=data.job;}}else if(data.type==='action'&&slot===1){if(data.action==='skill')coop.remoteInput.skill=true;if(data.action==='job'&&Date.now()>=coop.remoteJobReadyAt){coop.remoteJobReadyAt=Date.now()+30000;coop.remoteInput.job=true;}if(data.action==='upgradeDamage'&&coop.remoteCoins>=20){coop.remoteCoins-=20;coop.remoteDamageBoost++;}if(data.action==='heal'&&coop.remoteCoins>=15&&coop.remoteHealth<coop.remoteMaxHealth){coop.remoteCoins-=15;coop.remoteHealth=Math.min(coop.remoteMaxHealth,coop.remoteHealth+35);}if(data.action==='upgradeRate'&&coop.remoteCoins>=25){coop.remoteCoins-=25;coop.remoteFireBoost=Math.min(10,(coop.remoteFireBoost||0)+1);}}}else{if(data.type==='welcome'){coop.slot=Number(data.slot)||1;coop.playerCount=Number(data.playerCount)||2;coopSendGuestHello();}else if(data.type==='end'){if(Number(data.wave)>=30){state.wallet+=Number(data.guestCoins)||0;state.infiniteBest=Math.max(state.infiniteBest,Number(data.wave)||0);save();refresh();}running=false;show('lobby');coopStatus('협동 플레이가 종료됐어.');coopDisconnect();}else if(data.type==='snapshot'){const q=data.state;if(!q)return;if(!running){show('gameView');running=true;paused=false;modeName='infinite';infiniteMode=true;maxWaves=Infinity;}player=q.guestPlayers&&q.guestPlayers[coop.slot]||q.guestPlayer||player;remotePlayer=q.hostPlayer||null;const other=coop.slot===1?2:1;remotePlayer3=q.guestPlayers&&q.guestPlayers[other]||null;zombies=q.zombies||[];bullets=q.bullets||[];enemyBullets=q.enemyBullets||[];skillFx=q.skillFx||[];explosions=q.explosions||[];chest=q.chest||null;wave=q.wave||1;spawnLeft=q.spawnLeft||0;frame=q.frame||0;health=(q.guestHealths&&q.guestHealths[coop.slot])??q.guestHealth??100;maxHealth=(q.guestMaxHealths&&q.guestMaxHealths[coop.slot])??q.guestMaxHealth??100;matchCoins=(q.guestCoinValues&&q.guestCoinValues[coop.slot])??q.guestCoins??0;remoteHealth=q.hostHealth??100;remoteMaxHealth=q.hostMaxHealth??100;remoteCoins=q.hostCoins??0;feverActive=!!q.feverActive;paused=!!q.paused;coopStatus(coop.playerCount+'인 협동 플레이 중!');updateGameHud();}}});
+ conn.on('open',()=>{if(role==='host')coopSendTo(conn,{type:'welcome',slot,playerCount:coop.playerCount});});conn.on('close',()=>{if(role==='guest'){running=false;show('lobby');coopDisconnect();}else{coop.conns[slot]=null;if(slot===1){coop.conn=null;remotePlayer=null;}else{coop.extraConn=null;remotePlayer3=null;coop.third.player=null;}coop.readyCount=0;coop.hostStarted=false;coopStatus('친구 연결이 끊어졌어. 다시 입장해야 시작할 수 있어.');}});conn.on('error',e=>coopStatus('연결 오류: '+(e&&e.type?e.type:'알 수 없는 오류')));if(conn.open&&role==='host')coopSendTo(conn,{type:'welcome',slot,playerCount:coop.playerCount});
 }
 let fogMode=false,infiniteMode=false,beginnerMode=false;let keys={},player=null,remotePlayer=null,remoteHealth=100,remoteMaxHealth=100,remoteCoins=0,zombies=[],alliedZombies=[],bullets=[],enemyBullets=[],particles=[],explosions=[],explodersThisBlock=0,wave=1,spawnLeft=0,matchCoins=0,health=100,maxHealth=100,score=0,frame=0,lastShot=0,damageBoost=0,fireBoost=0,running=false,paused=false,bossSpawned=false,chest=null,feverWave=0,feverActive=false,waveDelay=0,hardMode=false,insaneMode=false,modeName='normal',maxWaves=30,midBossSpawned=false,dmgCost=20,hpCost=15,rateCost=25,roundScale=1,doubleSpeedOn=false,tickAccumulator=0;
 const mapDefs=[
