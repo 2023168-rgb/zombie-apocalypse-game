@@ -1296,10 +1296,10 @@ const miniStageRewards=[
  {label:'10스테이지 · 신화 무기',weaponRarity:'mythic'}
 ];
 const miniDifficulty=[
- {spawn:105,speed:1.25},{spawn:88,speed:1.55},{spawn:68,speed:2.05},
- {spawn:50,speed:2.65},{spawn:38,speed:3.25},{spawn:29,speed:3.9},
- {spawn:22,speed:4.6},{spawn:16,speed:5.25},{spawn:16,speed:5.35},
- {spawn:7,speed:8.0}
+ {spawn:60,speed:2.0},{spawn:45,speed:2.5},{spawn:35,speed:3.2},
+ {spawn:27,speed:4.0},{spawn:21,speed:5.0},{spawn:16,speed:6.0},
+ {spawn:12,speed:7.0},{spawn:9,speed:8.2},{spawn:9,speed:8.5},
+ {spawn:5,speed:11.0}
 ];
 function miniRewardText(){return miniRewards.length?miniRewards.map(r=>r.label).join(' / '):'없음';}
 function miniHud(){
@@ -1311,10 +1311,10 @@ function miniHud(){
 function miniStart(){
  miniActive=true;miniStage=1;miniLives=3;miniTicks=0;miniPlayer={x:450,y:270,r:13};
  miniHazards=[];miniInvuln=0;miniWon=false;miniHeld={};miniRewards=[];miniQualified=false;
- $('miniStartBtn').textContent='다시 시작';$('miniMessage').textContent='장애물을 피해 살아남아! 3스테이지까지 클리어해야 보상을 받을 수 있어.';miniHud();miniGameDraw();
+ $('miniStartBtn').textContent='다시 시작';$('miniMessage').textContent='장애물을 피해 살아남아! 3스테이지에 도달하면 이후 죽어도 누적 보상을 받을 수 있어.';miniHud();miniGameDraw();
 }
 function miniSettleRewards(){
- if(!miniQualified||!miniRewards.length)return false;
+ if(!(miniQualified||miniStage>=3)||!miniRewards.length)return false;
  let coins=0,weapons=[];
  for(const reward of miniRewards){if(reward.coins)coins+=reward.coins;if(reward.weapon)weapons.push(reward.weapon);}
  state.wallet+=coins;
@@ -1329,7 +1329,7 @@ function miniEnd(won){
  if(paid){
   const coins=miniRewards.reduce((n,r)=>n+(r.coins||0),0),weapons=miniRewards.filter(r=>r.weapon).map(r=>r.weapon.name);
   $('miniMessage').textContent='보상 지급 완료! '+(coins?coins+'코인 ':'')+(weapons.length?'무기: '+weapons.join(', '):'')+(won?' · 10스테이지 완전 클리어!':' · 누적 보상을 받았어!');
- }else $('miniMessage').textContent='3스테이지까지 클리어하지 못해 보상은 지급되지 않았어. 다시 도전해 봐!';
+ }else $('miniMessage').textContent='3스테이지에 도달하기 전에 끝나서 보상은 지급되지 않았어. 다시 도전해 봐!';
  miniHud();miniGameDraw();
 }
 function miniClearStage(){
