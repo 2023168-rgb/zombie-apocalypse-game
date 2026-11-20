@@ -1372,7 +1372,7 @@ function miniGameTick(){
  miniTicks++;
  const difficulty=miniDifficulty[miniStage-1],speed=difficulty.speed;
  const left=miniHeld.left||keys.a||keys.ArrowLeft,right=miniHeld.right||keys.d||keys.ArrowRight,up=miniHeld.up||keys.w||keys.ArrowUp,down=miniHeld.down||keys.s||keys.ArrowDown;
- if(left)miniPlayer.x-=4.1;if(right)miniPlayer.x+=4.1;if(up)miniPlayer.y-=4.1;if(down)miniPlayer.y+=4.1;
+ if(left)miniPlayer.x-=4.5;if(right)miniPlayer.x+=4.5;if(up)miniPlayer.y-=4.5;if(down)miniPlayer.y+=4.5;
  miniPlayer.x=Math.max(18,Math.min(882,miniPlayer.x));miniPlayer.y=Math.max(18,Math.min(522,miniPlayer.y));
  if(miniTicks%difficulty.spawn===0){
   const side=Math.floor(Math.random()*4);let h={x:0,y:0,vx:0,vy:0,r:10+Math.random()*7};
