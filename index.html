@@ -48,9 +48,24 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
  <div id="coopJoinPane" style="display:none"><p class="muted">방장이 만든 6자리 방 코드를 입력해. 방장이 선택한 인원수에 맞춰 대기해.</p><input id="coopCodeInput" maxlength="6" autocomplete="off" placeholder="방 코드"><button id="coopConnect" style="width:100%">▶ 입장</button></div>
  <div id="coopStatus" class="coop-status">두 명이 같은 방에서 무한모드를 함께 플레이해.</div>
  </div></div>
+<div id="duelModal" class="coop-modal" role="dialog" aria-modal="true"><div class="coop-window">
+ <div class="row"><h2 style="margin-right:auto">⚔ 1대1 대전</h2><button class="secondary" id="duelClose">닫기</button></div>
+ <div id="duelChoices"><p class="muted">친구와 같은 방 코드로 연결해 1대1 대전! 총 3판 중 먼저 2승 하면 승리해. 보상은 없어.</p><div class="buttons"><button class="gold" id="duelCreate">🔑 대전 방 만들기</button><button class="secondary" id="duelJoin">🔢 코드 입력</button></div></div>
+ <div id="duelCreatePane" style="display:none"><p class="muted">친구에게 이 코드를 알려줘. 친구가 입장하면 대전 준비가 시작돼.</p><div id="duelCode" class="coop-code">------</div><button class="gold" id="duelCopy" style="width:100%">코드 복사</button></div>
+ <div id="duelJoinPane" style="display:none"><p class="muted">친구가 만든 6자리 코드를 입력해.</p><input id="duelCodeInput" maxlength="6" autocomplete="off" placeholder="방 코드"><button id="duelConnect" style="width:100%">▶ 대전 입장</button></div>
+ <div id="duelStatus" class="coop-status">방을 만들거나 친구의 코드로 입장해.</div>
+ </div></div>
+<section id="duelView" class="view"><div class="panel">
+ <div class="row"><h2 style="margin-right:auto">⚔ 1대1 대전</h2><button class="secondary" id="duelLeave">나가기</button></div>
+ <div class="stats"><div class="pill" id="duelRoundLabel">라운드 1 / 3</div><div class="pill" id="duelScoreLabel">나 0승 · 친구 0승</div><div class="pill" id="duelTimerLabel">대기 중</div></div>
+ <p class="muted" id="duelHint">PC: WASD 이동 · 마우스로 조준 · 마우스 클릭으로 공격. 모바일: 이동 버튼과 공격 버튼 사용, 자동 조준 및 공격력 50%.</p>
+ <canvas id="duelCanvas" width="900" height="540" style="margin-top:10px;background:#101a24;border:2px solid #526a57;border-radius:12px;touch-action:none"></canvas>
+ <div class="buttons" style="justify-content:center;margin-top:10px"><button id="duelAttackBtn" class="gold" style="min-width:140px;touch-action:none">공격</button></div>
+ <p id="duelMessage" style="text-align:center;font-weight:800;color:#ffe28a">친구 연결을 기다리는 중...</p>
+</div></section>
 <section id="lobby" class="view active">
  <div class="panel"><h2>🏠 로비</h2><p>일반/하드 30웨이브 또는 인세인 40웨이브를 버티고 남은 인게임 코인을 로비 보상으로 가져가자!</p><div class="bar"><i id="xpBar"></i></div><div class="muted" id="xpLabel">스테이지 레벨 진행도 1 / 1000</div>
- <div class="buttons" style="margin-top:14px"><button id="playBtn">▶ 일반 모드</button><button class="gold" id="hardPlayBtn">☠ 하드 모드</button><button class="danger" id="insanePlayBtn">💀 인세인 모드</button><button class="secondary" id="shopBtn">🛒 상점</button><button class="secondary" id="jobGachaBtn">🎭 직업 뽑기</button><button class="secondary" id="equipBtn">⚔ 장착</button><button class="secondary" id="armorBtn">🛡 방어구</button><button class="secondary" id="titleBtn">🏅 칭호</button><button class="secondary" id="infiniteBtn">♾ 무한 생존</button><button class="gold" id="friendPlayBtn">👥 친구와 하기</button><button class="secondary" id="fogBtn">🌫 안개 모드</button><button class="gold" id="miniGameBtn">🎮 미니게임</button></div></div>
+ <div class="buttons" style="margin-top:14px"><button id="playBtn">▶ 일반 모드</button><button class="gold" id="hardPlayBtn">☠ 하드 모드</button><button class="danger" id="insanePlayBtn">💀 인세인 모드</button><button class="secondary" id="shopBtn">🛒 상점</button><button class="secondary" id="jobGachaBtn">🎭 직업 뽑기</button><button class="secondary" id="equipBtn">⚔ 장착</button><button class="secondary" id="armorBtn">🛡 방어구</button><button class="secondary" id="titleBtn">🏅 칭호</button><button class="secondary" id="infiniteBtn">♾ 무한 생존</button><button class="gold" id="friendPlayBtn">👥 친구와 하기</button><button class="danger" id="duelOpenBtn">⚔ 1대1 대전</button><button class="secondary" id="fogBtn">🌫 안개 모드</button><button class="gold" id="miniGameBtn">🎮 미니게임</button></div></div>
  <div class="panel"><h3>게임 안내</h3><div class="muted">WASD / 방향키 이동 · 스페이스 공격(근접 무기는 휘두르기) · P 무기 스킬 · O 직업 스킬(각 30초 쿨타임) · 인세인 모드는 스페이스를 한 번씩 눌러야 공격<br>선택한 모드의 모든 웨이브를 클리어하면 스테이지 레벨이 1 오르고, 남은 코인이 로비 코인으로 지급돼. 스테이지 레벨이 오를수록 다음 판 좀비가 더 강해져. 보스를 잡으면 상자가 나오고 E 키로 열면 인게임 코인 10개를 얻어. 빨간 자폭 좀비는 가까이 오면 폭발해. 샤이니스타와 적월선은 좀비 처치 시 각각 0.0001% 확률로 획득할 수 있어. 모바일은 화면 아래 조작 버튼으로 이동·공격·스킬을 사용할 수 있어.</div></div>
 </section>
 <section id="shop" class="view">
@@ -78,7 +93,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 <section id="miniGameView" class="view">
  <div class="panel"><div class="row"><h2 style="margin-right:auto">🎮 좀비 회피 챌린지</h2><button class="secondary" id="miniBackBtn">로비로</button></div>
  <p class="muted">장애물을 피해 10초씩 버텨! 총 10스테이지, 목숨은 3개야. 3스테이지까지 클리어해야 보상을 받을 수 있어. 도전 종료 또는 사망 시 누적 보상이 자동 지급돼.</p>
- <div class="stats"><div class="pill" id="miniStageLabel">스테이지 1 / 10</div><div class="pill" id="miniLivesLabel">목숨 3</div><div class="pill" id="miniTimeLabel">남은 시간 10초</div><div class="pill" id="miniRewardLabel">누적 보상: 없음</div></div>
+ <div class="stats"><div class="pill" id="miniDailyLabel">남은 횟수 10/10</div><div class="pill" id="miniStageLabel">스테이지 1 / 10</div><div class="pill" id="miniLivesLabel">목숨 3</div><div class="pill" id="miniTimeLabel">남은 시간 10초</div><div class="pill" id="miniRewardLabel">누적 보상: 없음</div></div>
  <canvas id="miniCanvas" width="900" height="540" style="margin-top:10px;background:#101a24;border:2px solid #526a57;border-radius:12px;touch-action:none"></canvas>
  <style>
  #miniJoystickArea{display:none;justify-content:flex-start;align-items:center;margin:12px 0 4px;min-height:116px;touch-action:none;user-select:none}
@@ -1250,6 +1265,11 @@ const miniDifficulty=[
  {spawn:5,speed:11.0}
 ];
 function miniRewardText(){return miniRewards.length?miniRewards.map(r=>r.label).join(' / '):'없음';}
+const MINI_DAILY_KEY='zombieMiniDailyV1';
+function miniDailyData(){const today=new Date().toLocaleDateString('en-CA');let data;try{data=JSON.parse(localStorage.getItem(MINI_DAILY_KEY)||'null');}catch(e){}if(!data||data.date!==today)data={date:today,used:0};data.used=Math.max(0,Math.min(10,Number(data.used)||0));return data;}
+function miniDailyRemaining(){return Math.max(0,10-miniDailyData().used);}
+function miniDailyHud(){const el=$('miniDailyLabel');if(el)el.textContent='남은 횟수 '+miniDailyRemaining()+'/10';}
+function miniDailyUse(){const d=miniDailyData();if(d.used>=10){miniDailyHud();$('miniMessage').textContent='오늘 미니게임 10회를 모두 사용했어. 내일 다시 도전할 수 있어!';return false;}d.used++;try{localStorage.setItem(MINI_DAILY_KEY,JSON.stringify(d));}catch(e){$('miniMessage').textContent='일일 횟수를 저장하지 못했어. 브라우저 저장공간을 확인해줘.';return false;}miniDailyHud();return true;}
 function miniHud(){
  $('miniStageLabel').textContent='스테이지 '+Math.min(10,miniStage)+' / 10';
  $('miniLivesLabel').textContent='목숨 '+miniLives;
@@ -1257,6 +1277,7 @@ function miniHud(){
  $('miniRewardLabel').textContent='누적 보상: '+miniRewardText();
 }
 function miniStart(){
+ if(miniActive)return;if(!miniDailyUse())return;
  miniActive=true;miniPaused=false;$('miniPauseBtn').disabled=false;$('miniPauseBtn').textContent='일시정지';miniStage=1;miniLives=3;miniTicks=0;miniPlayer={x:450,y:270,r:13};
  miniHazards=[];miniInvuln=0;miniWon=false;miniHeld={};resetMiniJoystick();miniRewards=[];miniQualified=false;
  $('miniStartBtn').textContent='다시 시작';$('miniMessage').textContent='장애물을 피해 살아남아! 3스테이지에 도달하면 이후 죽어도 누적 보상을 받을 수 있어.';miniHud();miniGameDraw();
@@ -1345,12 +1366,56 @@ const miniJoystickBase=$('miniJoystickBase'),miniJoystickKnob=$('miniJoystickKno
 function resetMiniJoystick(){miniJoystickPointer=null;miniHeld.left=miniHeld.right=miniHeld.up=miniHeld.down=false;if(miniJoystickKnob)miniJoystickKnob.style.transform='translate(-50%,-50%)';}
 function moveMiniJoystick(e){if(miniJoystickPointer!==e.pointerId)return;e.preventDefault();const rect=miniJoystickBase.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,max=rect.width*.31;let dx=e.clientX-cx,dy=e.clientY-cy;const length=Math.hypot(dx,dy);if(length>max){dx=dx/length*max;dy=dy/length*max;}miniJoystickKnob.style.transform='translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px))';const threshold=max*.2;miniHeld.left=dx< -threshold;miniHeld.right=dx>threshold;miniHeld.up=dy< -threshold;miniHeld.down=dy>threshold;}
 if(miniJoystickBase){miniJoystickBase.addEventListener('pointerdown',e=>{if(!miniActive||miniPaused)return;e.preventDefault();miniJoystickPointer=e.pointerId;miniJoystickBase.setPointerCapture(e.pointerId);moveMiniJoystick(e);});miniJoystickBase.addEventListener('pointermove',moveMiniJoystick);const endMiniJoystick=e=>{if(miniJoystickPointer!==e.pointerId)return;e.preventDefault();resetMiniJoystick();};miniJoystickBase.addEventListener('pointerup',endMiniJoystick);miniJoystickBase.addEventListener('pointercancel',endMiniJoystick);miniJoystickBase.addEventListener('lostpointercapture',resetMiniJoystick);}
-$('miniGameBtn').onclick=()=>{miniActive=false;show('miniGameView');miniGameDraw();};
+$('miniGameBtn').onclick=()=>{miniActive=false;show('miniGameView');miniDailyHud();miniGameDraw();};
 $('miniBackBtn').onclick=()=>{if(miniActive)miniEnd(false);miniHeld={};resetMiniJoystick();show('lobby');};
 $('miniStartBtn').onclick=miniStart;
 $('miniPauseBtn').onclick=()=>{if(!miniActive)return;miniPaused=!miniPaused;miniHeld={};resetMiniJoystick();$('miniPauseBtn').textContent=miniPaused?'계속하기':'일시정지';$('miniMessage').textContent=miniPaused?'일시정지 중':'게임을 다시 시작했어!';miniGameDraw();};
 
-function loop(){if(coop.role==='guest'&&running){const now=Date.now();if(now-coop.lastInput>55){coop.lastInput=now;coopSend({type:'input',slot:coop.slot,input:{w:!!(keys.w||keys.ArrowUp),a:!!(keys.a||keys.ArrowLeft),s:!!(keys.s||keys.ArrowDown),d:!!(keys.d||keys.ArrowRight),attack:!!keys[' ']},weapon:coopWeaponData(),job:coopJobData()});}}else if(running&&!paused){if(doubleSpeedOn&&state.hasDoubleSpeed){gameUpdate();gameUpdate();}else gameUpdate();if(coop.role==='host'&&frame%3===0)coopSnapshot();}if(running&&frame%6===0)updateGameHud();drawGame();if($('miniGameView').classList.contains('active')){miniGameTick();miniGameDraw();}requestAnimationFrame(loop);}
+
+// 1대1 대전: 방장 권한으로 경기 상태를 계산하고 친구에게 전송
+const duelCanvas=$('duelCanvas'),duelCtx=duelCanvas.getContext('2d'),duelModal=$('duelModal');
+let duel={role:'solo',peer:null,conn:null,code:null,active:false,started:false,phase:'idle',countdown:0,round:1,hostWins:0,guestWins:0,host:{x:130,y:270,hp:100,angle:0,lastShot:0,attack:false},guest:{x:770,y:270,hp:100,angle:Math.PI,lastShot:0,attack:false},hostInput:{},guestInput:{},bullets:[],lastSend:0,lastTick:0,mouse:{x:700,y:270},mobile:false,attackHeld:false,resultSent:false};
+function duelStatus(t){$('duelStatus').textContent=t;}
+function duelSend(data){try{if(duel.conn&&duel.conn.open)duel.conn.send(data);}catch(e){}}
+function duelMobile(){return window.matchMedia('(pointer:coarse),(max-width:900px)').matches;}
+function duelResetState(){duel.active=false;duel.started=false;duel.phase='idle';duel.countdown=0;duel.round=1;duel.hostWins=0;duel.guestWins=0;duel.bullets=[];duel.hostInput={};duel.guestInput={};duel.attackHeld=false;duel.resultSent=false;duel.host={x:130,y:270,hp:100,angle:0,lastShot:0,attack:false};duel.guest={x:770,y:270,hp:100,angle:Math.PI,lastShot:0,attack:false};}
+function duelCloseConnection(){try{if(duel.conn&&duel.conn.open)duel.conn.close();if(duel.peer)duel.peer.destroy();}catch(e){}duel.peer=null;duel.conn=null;duel.role='solo';duelResetState();}
+function duelRenderStats(){const me=duel.role==='guest'?duel.guestWins:duel.hostWins,them=duel.role==='guest'?duel.hostWins:duel.guestWins;$('duelRoundLabel').textContent='라운드 '+Math.min(3,duel.round)+' / 3';$('duelScoreLabel').textContent='나 '+me+'승 · 친구 '+them+'승';$('duelTimerLabel').textContent=duel.phase==='countdown'?'시작까지 '+Math.ceil(duel.countdown/60)+'초':duel.phase==='fight'?'대전 중':duel.phase==='roundEnd'?'라운드 종료':duel.phase==='done'?'대전 종료':'대기 중';}
+function duelDraw(){const c=duelCtx;c.clearRect(0,0,900,540);c.fillStyle='#111d27';c.fillRect(0,0,900,540);c.strokeStyle='#263b49';for(let x=0;x<900;x+=45){c.beginPath();c.moveTo(x,0);c.lineTo(x,540);c.stroke();}for(let y=0;y<540;y+=45){c.beginPath();c.moveTo(0,y);c.lineTo(900,y);c.stroke();}c.strokeStyle='#718391';c.lineWidth=5;c.strokeRect(8,8,884,524);
+ const drawF=(p,label,color)=>{c.fillStyle=p.hp>0?color:'#666';c.beginPath();c.arc(p.x,p.y,18,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.stroke();c.fillStyle='#fff';c.font='bold 13px sans-serif';c.textAlign='center';c.fillText(label,p.x,p.y-28);c.fillStyle='#333';c.fillRect(p.x-22,p.y+25,44,6);c.fillStyle='#5de08b';c.fillRect(p.x-22,p.y+25,44*Math.max(0,p.hp)/100,6);c.strokeStyle=color;c.lineWidth=3;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x+Math.cos(p.angle)*25,p.y+Math.sin(p.angle)*25);c.stroke();};
+ drawF(duel.host,duel.role==='host'?'나':'친구','#49c9ff');drawF(duel.guest,duel.role==='guest'?'나':'친구','#ffbd68');
+ for(const b of duel.bullets){c.fillStyle=b.owner==='host'?'#75e4ff':'#ffbd68';c.beginPath();c.arc(b.x,b.y,5,0,Math.PI*2);c.fill();}
+ if(duel.phase==='countdown'||duel.phase==='roundEnd'||duel.phase==='done'){c.fillStyle='#0009';c.fillRect(8,8,884,524);c.fillStyle='#fff';c.textAlign='center';c.font='bold 58px sans-serif';c.fillText(duel.phase==='countdown'?String(Math.max(1,Math.ceil(duel.countdown/60))):duel.phase==='done'?(duel.hostWins===duel.guestWins?'무승부':(duel.hostWins>duel.guestWins?'방장 승리!':'친구 승리!')):'라운드 완료!',450,270);}}
+function duelStartCountdown(){duel.phase='countdown';duel.countdown=180;duel.bullets=[];duel.host={x:130,y:270,hp:100,angle:0,lastShot:0,attack:false};duel.guest={x:770,y:270,hp:100,angle:Math.PI,lastShot:0,attack:false};duelRenderStats();$('duelMessage').textContent='3초 후 대전 시작!';if(duel.role==='host')duelSend({type:'duel-state',state:duelPack()});}
+function duelPack(){return {phase:duel.phase,countdown:duel.countdown,round:duel.round,hostWins:duel.hostWins,guestWins:duel.guestWins,host:duel.host,guest:duel.guest,bullets:duel.bullets};}
+function duelApplyPack(p){if(!p)return;duel.phase=p.phase;duel.countdown=p.countdown;duel.round=p.round;duel.hostWins=p.hostWins;duel.guestWins=p.guestWins;duel.host=p.host;duel.guest=p.guest;duel.bullets=p.bullets||[];duelRenderStats();duelDraw();if(duel.phase==='done')$('duelMessage').textContent=duel.hostWins===duel.guestWins?'대전 무승부! 보상은 없어.':((duel.role==='host'?duel.hostWins>duel.guestWins:duel.guestWins>duel.hostWins)?'대전 승리!':'대전 패배!')+' 보상은 없어.';}
+function duelEndRound(winner){if(duel.phase!=='fight')return;if(winner==='host')duel.hostWins++;else duel.guestWins++;duel.phase='roundEnd';duel.countdown=90;duel.bullets=[];duelRenderStats();$('duelMessage').textContent=(winner==='host'?'방장':'친구')+'가 '+duel.round+'라운드 승리!';if(duel.hostWins>=2||duel.guestWins>=2||duel.round>=3){duel.phase='done';duel.active=false;duelRenderStats();$('duelMessage').textContent=(duel.hostWins===duel.guestWins?'3판 무승부!':(duel.hostWins>duel.guestWins?'방장':'친구')+' 최종 승리!')+' 보상은 없어.';}if(duel.role==='host')duelSend({type:'duel-state',state:duelPack()});}
+function duelTick(){if(!duel.active||duel.role!=='host')return;if(duel.phase==='countdown'){duel.countdown--;if(duel.countdown<=0){duel.phase='fight';$('duelMessage').textContent='대전 시작!';}duelRenderStats();if(duel.countdown%6===0)duelSend({type:'duel-state',state:duelPack()});return;}if(duel.phase==='roundEnd'){duel.countdown--;if(duel.countdown<=0){duel.round++;duelStartCountdown();}return;}if(duel.phase!=='fight')return;
+ const move=(p,i)=>{let dx=(i.d?1:0)-(i.a?1:0),dy=(i.s?1:0)-(i.w?1:0);if(dx||dy){const n=Math.hypot(dx,dy);p.x+=dx/n*4.4;p.y+=dy/n*4.4;}p.x=Math.max(30,Math.min(870,p.x));p.y=Math.max(30,Math.min(510,p.y));p.angle=Number.isFinite(i.angle)?i.angle:p.angle;};
+ move(duel.host,duel.hostInput);move(duel.guest,duel.guestInput);
+ const fire=(p,i,owner,target)=>{if(!i.attack||Date.now()-p.lastShot<240)return;p.lastShot=Date.now();const mobile=!!i.mobile,damage=mobile?5:10;duel.bullets.push({x:p.x+Math.cos(p.angle)*23,y:p.y+Math.sin(p.angle)*23,vx:Math.cos(p.angle)*9,vy:Math.sin(p.angle)*9,owner,damage});};
+ fire(duel.host,duel.hostInput,'host',duel.guest);fire(duel.guest,duel.guestInput,'guest',duel.host);
+ for(const b of duel.bullets){b.x+=b.vx;b.y+=b.vy;const t=b.owner==='host'?duel.guest:duel.host;if(Math.hypot(b.x-t.x,b.y-t.y)<20){t.hp=Math.max(0,t.hp-b.damage);b.dead=true;if(t.hp<=0){duel.bullets=duel.bullets.filter(q=>!q.dead);duelEndRound(b.owner);return;}}if(b.x<0||b.x>900||b.y<0||b.y>540)b.dead=true;}
+ duel.bullets=duel.bullets.filter(b=>!b.dead);duelRenderStats();if(Date.now()-duel.lastSend>50){duel.lastSend=Date.now();duelSend({type:'duel-state',state:duelPack()});}}
+function duelMakeInput(){const mobile=duelMobile();let angle=duel.host.angle;if(mobile){angle=Math.atan2(duel.guest.y-duel.host.y,duel.guest.x-duel.host.x);}else{const rect=duelCanvas.getBoundingClientRect(),x=(duel.mouse.x-rect.left)*900/rect.width,y=(duel.mouse.y-rect.top)*540/rect.height;angle=Math.atan2(y-duel.host.y,x-duel.host.x);}return {w:!!duel.keys?.w,a:!!duel.keys?.a,s:!!duel.keys?.s,d:!!duel.keys?.d,angle,attack:!!duel.attackHeld,mobile};}
+function duelClientLoop(){if(!duel.active)return;if(duel.role==='host'){duel.hostInput=duelMakeInput();duelTick();}else if(duel.role==='guest'&&duel.conn&&duel.conn.open){const mobile=duelMobile();let angle;if(mobile)angle=Math.atan2(duel.host.y-duel.guest.y,duel.host.x-duel.guest.x);else{const rect=duelCanvas.getBoundingClientRect(),x=(duel.mouse.x-rect.left)*900/rect.width,y=(duel.mouse.y-rect.top)*540/rect.height;angle=Math.atan2(y-duel.guest.y,x-duel.guest.x);}duelSend({type:'duel-input',input:{w:!!duel.keys?.w,a:!!duel.keys?.a,s:!!duel.keys?.s,d:!!duel.keys?.d,angle,attack:!!duel.attackHeld,mobile}});}}
+function duelAttach(conn,role){duel.conn=conn;duel.role=role;conn.on('open',()=>{if(role==='guest'){duelSend({type:'duel-hello'});duelStatus('방장과 연결 완료!');}else duelStatus('친구 연결 완료! 대전을 시작할게.');});conn.on('data',d=>{if(!d)return;if(role==='host'&&d.type==='duel-input')duel.guestInput=d.input||{};else if(role==='guest'&&d.type==='duel-start'){duel.active=true;show('duelView');duelResetState();duel.active=true;duelApplyPack(d.state);$('duelMessage').textContent='3초 후 대전 시작!';}else if(role==='guest'&&d.type==='duel-state')duelApplyPack(d.state);else if(role==='host'&&d.type==='duel-hello'){duel.active=true;show('duelView');duelStartCountdown();duelSend({type:'duel-start',state:duelPack()});}});conn.on('close',()=>{duel.active=false;$('duelMessage').textContent='친구 연결이 끊어졌어.';duelStatus('연결이 종료됐어.');});conn.on('error',e=>duelStatus('대전 연결 오류: '+(e.type||'unknown')));}
+$('duelOpenBtn').onclick=()=>{duelModal.style.display='flex';$('duelChoices').style.display='block';$('duelCreatePane').style.display='none';$('duelJoinPane').style.display='none';duelStatus('방을 만들거나 친구 코드로 입장해.');};
+$('duelClose').onclick=()=>duelModal.style.display='none';
+$('duelCreate').onclick=()=>{if(coopPlatformWarning())return;if(!window.Peer){duelStatus('실시간 연결 모듈을 불러오지 못했어.');return;}duelCloseConnection();duel.role='host';$('duelChoices').style.display='none';$('duelCreatePane').style.display='block';duelStatus('대전 방 만드는 중...');const code=coopNewCode();duel.code=code;$('duelCode').textContent=code;try{duel.peer=new Peer('duel-'+code.toLowerCase(),coopPeerOptions);}catch(e){duelStatus('방 생성 실패: '+e.message);return;}duel.peer.on('open',()=>duelStatus('친구 입장을 기다리는 중...'));duel.peer.on('connection',c=>{if(duel.conn){c.close();return;}duelAttach(c,'host');});duel.peer.on('error',e=>duelStatus('대전 방 오류: '+coopErrorText(e)));};
+$('duelJoin').onclick=()=>{$('duelChoices').style.display='none';$('duelJoinPane').style.display='block';$('duelCodeInput').focus();};
+$('duelConnect').onclick=()=>{if(coopPlatformWarning())return;const code=$('duelCodeInput').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){duelStatus('6자리 코드를 입력해줘.');return;}duelCloseConnection();duel.role='guest';duel.code=code;duelStatus('대전 방 찾는 중...');try{duel.peer=new Peer(coopPeerOptions);}catch(e){duelStatus('연결 실패: '+e.message);return;}let done=false;duel.peer.on('open',()=>{const c=duel.peer.connect('duel-'+code.toLowerCase(),{reliable:true,serialization:'json'});duelAttach(c,'guest');c.on('open',()=>done=true);});duel.peer.on('error',e=>{if(!done)duelStatus('연결 실패: '+coopErrorText(e));});setTimeout(()=>{if(!done)duelStatus('방을 찾지 못했어. 코드를 확인해줘.');},25000);};
+$('duelCopy').onclick=()=>{try{navigator.clipboard.writeText(duel.code);duelStatus('대전 코드 복사 완료!');}catch(e){duelStatus('코드: '+duel.code);}};
+$('duelLeave').onclick=()=>{duelCloseConnection();show('lobby');};
+duelCanvas.addEventListener('pointermove',e=>{duel.mouse={x:e.clientX,y:e.clientY};});
+duelCanvas.addEventListener('pointerdown',e=>{if(!duelMobile()){duel.attackHeld=true;e.preventDefault();}});
+window.addEventListener('pointerup',()=>duel.attackHeld=false);
+$('duelAttackBtn').addEventListener('pointerdown',e=>{e.preventDefault();duel.attackHeld=true;});
+['pointerup','pointercancel','pointerleave'].forEach(t=>$('duelAttackBtn').addEventListener(t,e=>{e.preventDefault();duel.attackHeld=false;}));
+duel.keys={};window.addEventListener('keydown',e=>{if(!$('duelView').classList.contains('active'))return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)){duel.keys[k.replace('arrow','')]=true;e.preventDefault();if(k===' ')duel.attackHeld=true;}});
+window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k===' ')duel.attackHeld=false;duel.keys[k.replace('arrow','')]=false;});
+
+function loop(){duelClientLoop();if(coop.role==='guest'&&running){const now=Date.now();if(now-coop.lastInput>55){coop.lastInput=now;coopSend({type:'input',slot:coop.slot,input:{w:!!(keys.w||keys.ArrowUp),a:!!(keys.a||keys.ArrowLeft),s:!!(keys.s||keys.ArrowDown),d:!!(keys.d||keys.ArrowRight),attack:!!keys[' ']},weapon:coopWeaponData(),job:coopJobData()});}}else if(running&&!paused){if(doubleSpeedOn&&state.hasDoubleSpeed){gameUpdate();gameUpdate();}else gameUpdate();if(coop.role==='host'&&frame%3===0)coopSnapshot();}if(running&&frame%6===0)updateGameHud();drawGame();if($('miniGameView').classList.contains('active')){miniGameTick();miniGameDraw();}if($('duelView').classList.contains('active'))duelDraw();requestAnimationFrame(loop);}
 function renderWeaponCodex(){
  const owned=new Set(state.inventory.map(w=>w.name));
  const groups=rarityInfo.map(r=>({id:r.id,name:r.name,cls:r.cls,items:(pools[r.id]||[]).map(w=>({name:w[0],damage:w[1],cooldown:w[2],melee:w[3]==='melee',special:false}))}));
