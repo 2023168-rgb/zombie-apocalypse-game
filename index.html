@@ -1532,6 +1532,28 @@ window.addEventListener('keydown',unlockBgm);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&uiSettings.bgm&&bgmContext&&bgmContext.state==='suspended')startBgm();});
 window.addEventListener('resize',()=>{if(uiSettings.joystickLeft!==null&&uiSettings.joystickBottom!==null)applyJoystickSettings();});
 
+window.zombieAdminGrant=(kind)=>{
+ const stateRef=state;
+ stateRef.inventory=Array.isArray(stateRef.inventory)?stateRef.inventory:[];
+ stateRef.armorInventory=Array.isArray(stateRef.armorInventory)?stateRef.armorInventory:[];
+ stateRef.jobInventory=Array.isArray(stateRef.jobInventory)?stateRef.jobInventory:[];
+ stateRef.nextId=Math.max(Number(stateRef.nextId)||1,...stateRef.inventory.map(x=>Number(x.id)||0))+1;
+ stateRef.nextArmorId=Math.max(Number(stateRef.nextArmorId)||1,...stateRef.armorInventory.map(x=>Number(x.id)||0))+1;
+ stateRef.nextJobId=Math.max(Number(stateRef.nextJobId)||1,...stateRef.jobInventory.map(x=>Number(x.id)||0))+1;
+ let added=0;
+ if(kind==='weapons'){
+  const seen=new Set(stateRef.inventory.map(w=>w.name+'|'+w.rarity));
+  Object.entries(pools).forEach(([rarityId,pool])=>pool.forEach(pick=>{const key=pick[0]+'|'+rarityId;if(seen.has(key))return;const melee=pick[3]==='melee';stateRef.inventory.push(balanceWeapon({id:stateRef.nextId++,name:pick[0],rarity:rarityId,damage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(rarityId==='odd'?2:rarityId==='legendary'?2:1),speed:rarityId==='epic'?11:9,melee}));seen.add(key);added++;}));
+  const strongest=Math.max(1,...stateRef.inventory.filter(w=>!['샤이니스타','적월선','블랙홀 발사기'].includes(w.name)).map(w=>Number(w.damage)||1));
+  [['샤이니스타',false],['적월선',true]].forEach(([name,melee])=>{if(!stateRef.inventory.some(w=>w.name===name)){stateRef.inventory.push(balanceWeapon({id:stateRef.nextId++,name,rarity:'godly',damage:strongest*2,cooldown:30,pellets:1,speed:melee?10:12,melee,special:true}));added++;}});
+ }else if(kind==='armor'){
+  const seen=new Set(stateRef.armorInventory.map(a=>a.name));armorDefs.forEach(d=>{if(!seen.has(d[0])){stateRef.armorInventory.push({id:stateRef.nextArmorId++,name:d[0],slot:d[1],rarity:d[2],defense:d[3]});seen.add(d[0]);added++;}});
+ }else if(kind==='jobs'){
+  const seen=new Set(stateRef.jobInventory.map(j=>j.name));jobDefs.forEach(j=>{if(!seen.has(j.name)){stateRef.jobInventory.push({...j,id:stateRef.nextJobId++});seen.add(j.name);added++;}});
+ }else throw new Error('알 수 없는 지급 항목');
+ save();refresh();renderInventory();renderJobInventory();renderArmor();
+ return added;
+};
 refresh();loop();
 })();
 </script>
@@ -1549,34 +1571,8 @@ function adminGrant(kind){
  const msg=$('adminGrantMsg');
  if(me!=='dnieyeye'){if(msg)msg.textContent='개발자 계정에서만 사용할 수 있어.';return;}
  try{
-  state.inventory=Array.isArray(state.inventory)?state.inventory:[];
-  state.armorInventory=Array.isArray(state.armorInventory)?state.armorInventory:[];
-  state.jobInventory=Array.isArray(state.jobInventory)?state.jobInventory:[];
-  state.nextId=Math.max(Number(state.nextId)||1,...state.inventory.map(x=>Number(x.id)||0))+1;
-  state.nextArmorId=Math.max(Number(state.nextArmorId)||1,...state.armorInventory.map(x=>Number(x.id)||0))+1;
-  state.nextJobId=Math.max(Number(state.nextJobId)||1,...state.jobInventory.map(x=>Number(x.id)||0))+1;
-  let added=0;
-  if(kind==='weapons'){
-   const seen=new Set(state.inventory.map(w=>w.name+'|'+w.rarity));
-   Object.entries(pools).forEach(([rarityId,pool])=>pool.forEach(pick=>{
-    const key=pick[0]+'|'+rarityId;if(seen.has(key))return;
-    const melee=pick[3]==='melee',w={id:state.nextId++,name:pick[0],rarity:rarityId,damage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(rarityId==='odd'?2:rarityId==='legendary'?2:1),speed:rarityId==='epic'?11:9,melee};
-    state.inventory.push(balanceWeapon(w));seen.add(key);added++;
-   }));
-   const strongest=Math.max(1,...state.inventory.filter(w=>!['샤이니스타','적월선','블랙홀 발사기'].includes(w.name)).map(w=>Number(w.damage)||1));
-   [['샤이니스타',false],['적월선',true]].forEach(([name,melee])=>{if(!state.inventory.some(w=>w.name===name)){state.inventory.push(balanceWeapon({id:state.nextId++,name,rarity:'godly',damage:strongest*2,cooldown:30,pellets:1,speed:melee?10:12,melee,special:true}));added++;}});
-  }else if(kind==='armor'){
-   const seen=new Set(state.armorInventory.map(a=>a.name));
-   armorDefs.forEach(d=>{if(!seen.has(d[0])){state.armorInventory.push({id:state.nextArmorId++,name:d[0],slot:d[1],rarity:d[2],defense:d[3]});seen.add(d[0]);added++;}});
-  }else if(kind==='jobs'){
-   const seen=new Set(state.jobInventory.map(j=>j.name));
-   jobDefs.forEach(j=>{if(!seen.has(j.name)){state.jobInventory.push({...j,id:state.nextJobId++});seen.add(j.name);added++;}});
-  }else{if(msg)msg.textContent='지급 항목을 찾을 수 없어.';return;}
-  save();
-  refresh();
-  renderInventory();
-  renderJobInventory();
-  renderArmor();
+  if(typeof window.zombieAdminGrant!=='function')throw new Error('게임 지급 시스템을 불러오지 못했어. 새로고침해줘.');
+  const added=window.zombieAdminGrant(kind);
   if(msg)msg.textContent=added?('지급 완료! 새로 추가한 항목: '+added+'개 · 게임 저장 완료'):'이미 모든 항목을 보유하고 있어!';
  }catch(err){console.error('개발자 보급 오류',err);if(msg)msg.textContent='지급 중 오류: '+(err&&err.message?err.message:'알 수 없는 오류');}
 }
