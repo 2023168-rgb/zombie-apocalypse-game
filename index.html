@@ -1538,7 +1538,7 @@ refresh();loop();
 <script>
 (()=>{'use strict';
 const DB='zombieLocalSocialV1',SESSION='zombieLocalSessionV1';let me=null,activeChat=null;
-const $=id=>document.getElementById(id),read=()=>{try{return JSON.parse(localStorage.getItem(DB)||'{}')}catch(e){return {users:{},requests:[],friends:{},messages:{}}}},write=d=>localStorage.setItem(DB,JSON.stringify(d)),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id),read=()=>{let d;try{d=JSON.parse(localStorage.getItem(DB)||'{}')}catch(e){d={}}if(!d||typeof d!=='object')d={};d.users=d.users&&typeof d.users==='object'?d.users:{};d.requests=Array.isArray(d.requests)?d.requests:[];d.friends=d.friends&&typeof d.friends==='object'?d.friends:{};d.messages=d.messages&&typeof d.messages==='object'?d.messages:{};return d},write=d=>localStorage.setItem(DB,JSON.stringify(d)),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function hash(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function say(t){$('authMsg').textContent=t}function logged(){document.body.classList.remove('local-locked');$('localAuth').style.display='none';$('socialMenu').style.display='block';}
 function loginUser(u){me=u;localStorage.setItem(SESSION,u);logged();profile();}
