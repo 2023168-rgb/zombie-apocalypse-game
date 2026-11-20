@@ -1291,8 +1291,8 @@ const miniStageRewards=[
  {label:'1스테이지 · 1코인',coins:1},{label:'2스테이지 · 2코인',coins:2},
  {label:'3스테이지 · 5코인',coins:5},{label:'4스테이지 · 10코인',coins:10},
  {label:'5스테이지 · 50코인',coins:50},{label:'6스테이지 · 100코인',coins:100},
- {label:'7스테이지 · 200코인',coins:200},{label:'8스테이지 · 500코인',coins:500},
- {label:'9스테이지 · 전설 무기',weaponRarity:'legendary'},
+ {label:'7스테이지 · 150코인',coins:150},{label:'8스테이지 · 200코인',coins:200},
+ {label:'9스테이지 · 전설 무기 랜덤 + 500코인',coins:500,weaponRarity:'legendary'},
  {label:'10스테이지 · 신화 무기',weaponRarity:'mythic'}
 ];
 const miniDifficulty=[
@@ -1334,11 +1334,10 @@ function miniEnd(won){
 }
 function miniClearStage(){
  const reward=miniStageRewards[miniStage-1];
- if(reward.coins)miniRewards.push({...reward});
- else{
+ if(reward.weaponRarity){
   const rarity=rarityInfo.find(r=>r.id===reward.weaponRarity),weapon=makeWeapon(rarity);
-  miniRewards.push({...reward,weapon,label:reward.weaponRarity==='legendary'?'9스테이지 · 전설 무기: '+weapon.name:'10스테이지 · 신화 무기: '+weapon.name});
- }
+  miniRewards.push({...reward,weapon,label:reward.weaponRarity==='legendary'?'9스테이지 · 전설 무기: '+weapon.name+' + 500코인':'10스테이지 · 신화 무기: '+weapon.name});
+ }else miniRewards.push({...reward});
  if(miniStage===3)miniQualified=true;
  $('miniMessage').textContent=miniStage+'스테이지 클리어! 보상 누적 중: '+miniRewardText();
  if(miniStage>=10){miniEnd(true);return;}
