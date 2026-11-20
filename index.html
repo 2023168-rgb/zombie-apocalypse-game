@@ -607,6 +607,24 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선/.test(n);
+ if(n==='샤이니스타'){
+  ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
+  glow('#8c5cff');P([[-8,-7],[3,-13],[20,-12],[30,-17],[49,-14],[57,-8],[53,8],[33,12],[18,8],[5,11],[-9,4]],'#11172f','#6e5bd5',2);ctx.shadowBlur=0;
+  P([[-7,-5],[7,-10],[18,-8],[19,7],[5,9],[-8,3]],'#26315c','#9a8bff',1.4);
+  P([[13,-10],[37,-12],[48,-7],[46,7],[27,9],[15,5]],'#202c58','#718cff',1.2);
+  P([[34,-7],[58,-6],[66,-3],[66,3],[56,6],[35,6]],'#101a39','#7b6bff',1.5);
+  P([[19,8],[27,8],[25,22],[17,20],[13,10]],'#22294b','#7568bd',1.4);
+  P([[1,9],[13,9],[17,15],[10,18],[2,15]],'#10172b','#655b9c',1.2);
+  ctx.shadowColor='#b45cff';ctx.shadowBlur=15;ctx.fillStyle='#5836a8';ctx.beginPath();ctx.ellipse(30,-1,12,7,-.12,0,Math.PI*2);ctx.fill();
+  const neb=ctx.createLinearGradient(19,-8,43,7);neb.addColorStop(0,'#31d9ff');neb.addColorStop(.48,'#9b5cff');neb.addColorStop(1,'#ff73d1');ctx.fillStyle=neb;ctx.beginPath();ctx.ellipse(30,-1,9,4.8,-.12,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.strokeStyle='#65eaff';ctx.lineWidth=2.5;ctx.shadowColor='#8b62ff';ctx.shadowBlur=13;ctx.beginPath();ctx.ellipse(64,0,5,10,.15,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#f2c9ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(64,0,2.5,7,.15,0,Math.PI*2);ctx.stroke();C(64,0,2.4,'#ffffff');ctx.shadowBlur=0;
+  L(7,-13,14,-18,'#a9a0ff',1.2);L(14,-18,21,-13,'#a9a0ff',1.2);L(21,-13,28,-18,'#a9a0ff',1.2);
+  for(const [x,y,r] of [[9,-16,1.4],[17,-19,1.2],[39,-16,1.1],[46,12,1.3],[55,-13,1.1]])C(x,y,r,'#fff4b0');
+  ctx.strokeStyle='rgba(133,119,255,.9)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(31,0,24,13,-.18,0,Math.PI*2);ctx.stroke();
+  L(48,-11,55,-16,'#63eaff',1.5);L(51,10,58,14,'#d98cff',1.5);
+  screw(5,0);screw(43,0);ctx.restore();return true;
+ }
  if(!melee&&drawRealWorldGunSkin(n,c))return true;
  if(melee){
   if(n==='낡은 야구방망이'){rect(8,-3,8,42,'#98633d');rect(6,-13,12,15,'#c18a53');rect(7,-12,10,3,'#e4c18b');rect(9,29,6,10,'#493326');for(let i=0;i<3;i++)rect(5,-8+i*5,14,2,'#68452f');}
