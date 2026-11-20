@@ -1492,7 +1492,7 @@ async function startBgm(){
   const AC=window.AudioContext||window.webkitAudioContext;
   if(!AC){say('이 브라우저는 배경음 재생을 지원하지 않아.');return;}
   if(!bgmContext||bgmContext.state==='closed'){
-   bgmContext=new AC();bgmMaster=bgmContext.createGain();bgmMaster.gain.value=Math.max(0,Math.min(100,Number(uiSettings.bgmVolume??80)))/100;bgmMaster.connect(bgmContext.destination);
+   bgmContext=new AC();bgmMaster=bgmContext.createGain();bgmMaster.gain.value=Math.max(0,Math.min(100,Number(uiSettings.bgmVolume??80)))/50;bgmMaster.connect(bgmContext.destination);
   }
   if(bgmContext.state==='suspended')await bgmContext.resume();
   if(!uiSettings.bgm||bgmContext.state!=='running'||bgmTimer)return;
@@ -1518,7 +1518,7 @@ async function startBgm(){
  finally{bgmStarting=false;}
 }
 $('bgmToggle').onclick=()=>{uiSettings.bgm=!uiSettings.bgm;saveUiSettings();if(uiSettings.bgm)startBgm();else stopBgm();renderSettings();};
- $('bgmVolume').addEventListener('input',e=>{uiSettings.bgmVolume=Number(e.target.value);if(bgmMaster&&bgmContext&&bgmContext.state!=='closed')bgmMaster.gain.setTargetAtTime(uiSettings.bgmVolume/100,bgmContext.currentTime,.025);$('bgmVolumeLabel').textContent=uiSettings.bgmVolume+'%';saveUiSettings();});
+ $('bgmVolume').addEventListener('input',e=>{uiSettings.bgmVolume=Number(e.target.value);if(bgmMaster&&bgmContext&&bgmContext.state!=='closed')bgmMaster.gain.setTargetAtTime(uiSettings.bgmVolume/50,bgmContext.currentTime,.025);$('bgmVolumeLabel').textContent=uiSettings.bgmVolume+'%';saveUiSettings();});
 $('zombieQualityToggle').onclick=()=>{uiSettings.zombieQuality=!uiSettings.zombieQuality;saveUiSettings();renderSettings();};
 applyJoystickSettings();renderSettings();
 // 자동 시작 시 브라우저가 오디오를 잠가 두더라도 첫 사용자 입력에서 반드시 재개한다.
