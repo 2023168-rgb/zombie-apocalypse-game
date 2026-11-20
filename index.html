@@ -38,7 +38,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 <div id="questModal" class="quest-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="questTitle"><div class="quest-window"><div class="row"><h2 id="questTitle" style="margin-right:auto">📜 오늘의 퀘스트</h2><button class="secondary" id="closeQuests" type="button">닫기</button></div><p class="muted" id="questResetInfo">매일 낮 12시에 새로운 미션 3개가 제공돼.</p><div id="questList" class="quest-list"></div></div></div>
 <div id="settingsModal" class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="settings-window"><div class="row"><h2 id="settingsTitle" style="margin-right:auto">⚙ 게임 설정</h2><button class="secondary" id="closeSettings" type="button">닫기</button></div>
 <div class="setting-card"><h3>🎮 조이스틱 설정</h3><p class="muted">조이스틱 표시 여부와 크기, 위치를 설정할 수 있어.</p><button class="gold" id="joystickToggle" type="button">조이스틱 끄기</button><div class="setting-row"><label for="joystickSize">조이스틱 크기</label><input id="joystickSize" type="range" min="110" max="240" step="5" value="184"><strong id="joystickSizeLabel">184px</strong></div><button class="gold" id="joystickMoveMode" type="button">📍 위치 이동 켜기</button><button class="secondary" id="joystickReset" type="button">기본 위치·크기</button><p class="muted" id="joystickHelp">위치 이동을 켜면 게임 화면에서 조이스틱을 드래그할 수 있어.</p></div>
-<div class="setting-card"><h3>🎵 BGM 배경음</h3><p class="muted">게임 중 반복되는 배경 음악을 켜거나 끌 수 있어. 처음 켤 때 화면을 한 번 터치해야 소리가 시작될 수 있어.</p><button class="gold" id="bgmToggle" type="button">BGM 켜기</button></div>
+<div class="setting-card"><h3>🎵 BGM 배경음</h3><p class="muted">게임 중 반복되는 배경 음악을 켜거나 끌 수 있어. 처음 켤 때 화면을 한 번 터치해야 소리가 시작될 수 있어.</p><button class="gold" id="bgmToggle" type="button">BGM 켜기</button><div class="setting-row"><label for="bgmVolume">BGM 음량</label><input id="bgmVolume" type="range" min="0" max="100" step="1" value="58"><strong id="bgmVolumeLabel">58%</strong></div></div>
 <div class="setting-card"><h3>🧟 좀비 그래픽 퀄리티</h3><p class="muted">켜면 좀비의 몸 형태, 그림자, 옷과 얼굴 표현이 더 세밀해져. 저사양 기기에서는 끄면 더 부드럽게 실행돼.</p><button class="gold" id="zombieQualityToggle" type="button">현실적인 좀비 그래픽 켜기</button></div>
 </div></div>
 <div id="coopModal" class="coop-modal" role="dialog" aria-modal="true"><div class="coop-window">
@@ -158,7 +158,7 @@ function load(){
   state.nextArmorId=Number(state.nextArmorId)||1;
 }
 
-const uiSettings={bgm:false,zombieQuality:true,joystickEnabled:true,joystickSize:184,joystickLeft:null,joystickBottom:null};
+const uiSettings={bgm:false,bgmVolume:58,zombieQuality:true,joystickEnabled:true,joystickSize:184,joystickLeft:null,joystickBottom:null};
 try{const savedUi=JSON.parse(localStorage.getItem('zombieV810Settings')||'{}');Object.assign(uiSettings,savedUi||{});}catch(e){}
 function saveUiSettings(){try{localStorage.setItem('zombieV810Settings',JSON.stringify(uiSettings));}catch(e){}}
 function localQuestDay(){const d=new Date();if(d.getHours()<12)d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -1470,7 +1470,7 @@ $('odds').addEventListener('click',()=>{});
 let joystickMoveEditing=false,joystickDragStart=null;
 const settingsModal=$('settingsModal');
 function applyJoystickSettings(){const j=$('moveJoystick'),k=$('joystickKnob'),size=Math.max(110,Math.min(240,Number(uiSettings.joystickSize)||184));j.style.width=size+'px';j.style.height=size+'px';k.style.width=Math.round(size*.413)+'px';k.style.height=Math.round(size*.413)+'px';$('joystickSize').value=size;$('joystickSizeLabel').textContent=size+'px';if(uiSettings.joystickLeft!==null&&uiSettings.joystickBottom!==null){j.style.position='fixed';j.style.left=(uiSettings.joystickLeft*window.innerWidth)+'px';j.style.bottom=(uiSettings.joystickBottom*window.innerHeight)+'px';j.style.right='auto';}}
-function renderSettings(){ $('joystickToggle').textContent=uiSettings.joystickEnabled?'🎮 조이스틱 끄기':'🎮 조이스틱 켜기';$('bgmToggle').textContent=uiSettings.bgm?'🔊 BGM 끄기':'🔇 BGM 켜기';$('zombieQualityToggle').textContent=uiSettings.zombieQuality?'🧟 현실적인 좀비 그래픽 끄기':'🧟 현실적인 좀비 그래픽 켜기';$('joystickMoveMode').textContent=joystickMoveEditing?'✓ 위치 이동 중 (드래그)':'📍 위치 이동 켜기';$('joystickHelp').textContent=joystickMoveEditing?'게임 화면의 조이스틱을 원하는 위치로 드래그해. 다시 누르면 이동이 끝나.':'위치 이동을 켜면 게임 화면에서 조이스틱을 드래그할 수 있어.';}
+function renderSettings(){ $('joystickToggle').textContent=uiSettings.joystickEnabled?'🎮 조이스틱 끄기':'🎮 조이스틱 켜기';$('bgmToggle').textContent=uiSettings.bgm?'🔊 BGM 끄기':'🔇 BGM 켜기';$('bgmVolume').value=Math.max(0,Math.min(100,Number(uiSettings.bgmVolume??58)));$('bgmVolumeLabel').textContent=$('bgmVolume').value+'%';$('zombieQualityToggle').textContent=uiSettings.zombieQuality?'🧟 현실적인 좀비 그래픽 끄기':'🧟 현실적인 좀비 그래픽 켜기';$('joystickMoveMode').textContent=joystickMoveEditing?'✓ 위치 이동 중 (드래그)':'📍 위치 이동 켜기';$('joystickHelp').textContent=joystickMoveEditing?'게임 화면의 조이스틱을 원하는 위치로 드래그해. 다시 누르면 이동이 끝나.':'위치 이동을 켜면 게임 화면에서 조이스틱을 드래그할 수 있어.';}
 $('settingsBtn').onclick=()=>{settingsModal.style.display='flex';renderSettings();applyJoystickSettings();};$('closeSettings').onclick=()=>{joystickMoveEditing=false;$('moveJoystick').classList.remove('joystick-editing');mobileControls.classList.remove('joystick-edit-layer');saveUiSettings();setMobileControls(mobileControlsOn);settingsModal.style.display='none';renderSettings();};settingsModal.addEventListener('click',e=>{if(e.target===settingsModal){joystickMoveEditing=false;$('moveJoystick').classList.remove('joystick-editing');mobileControls.classList.remove('joystick-edit-layer');saveUiSettings();setMobileControls(mobileControlsOn);settingsModal.style.display='none';}});
 $('joystickToggle').onclick=()=>{uiSettings.joystickEnabled=!uiSettings.joystickEnabled;if(!uiSettings.joystickEnabled)resetJoystick();saveUiSettings();setMobileControls(true);renderSettings();};
 $('joystickSize').addEventListener('input',e=>{uiSettings.joystickSize=Number(e.target.value);applyJoystickSettings();saveUiSettings();});
@@ -1492,7 +1492,7 @@ async function startBgm(){
   const AC=window.AudioContext||window.webkitAudioContext;
   if(!AC){say('이 브라우저는 배경음 재생을 지원하지 않아.');return;}
   if(!bgmContext||bgmContext.state==='closed'){
-   bgmContext=new AC();bgmMaster=bgmContext.createGain();bgmMaster.gain.value=.58;bgmMaster.connect(bgmContext.destination);
+   bgmContext=new AC();bgmMaster=bgmContext.createGain();bgmMaster.gain.value=Math.max(0,Math.min(100,Number(uiSettings.bgmVolume??58)))/100;bgmMaster.connect(bgmContext.destination);
   }
   if(bgmContext.state==='suspended')await bgmContext.resume();
   if(!uiSettings.bgm||bgmContext.state!=='running'||bgmTimer)return;
@@ -1518,6 +1518,7 @@ async function startBgm(){
  finally{bgmStarting=false;}
 }
 $('bgmToggle').onclick=()=>{uiSettings.bgm=!uiSettings.bgm;saveUiSettings();if(uiSettings.bgm)startBgm();else stopBgm();renderSettings();};
+ $('bgmVolume').addEventListener('input',e=>{uiSettings.bgmVolume=Number(e.target.value);if(bgmMaster&&bgmContext&&bgmContext.state!=='closed')bgmMaster.gain.setTargetAtTime(uiSettings.bgmVolume/100,bgmContext.currentTime,.025);$('bgmVolumeLabel').textContent=uiSettings.bgmVolume+'%';saveUiSettings();});
 $('zombieQualityToggle').onclick=()=>{uiSettings.zombieQuality=!uiSettings.zombieQuality;saveUiSettings();renderSettings();};
 applyJoystickSettings();renderSettings();
 // 자동 시작 시 브라우저가 오디오를 잠가 두더라도 첫 사용자 입력에서 반드시 재개한다.
