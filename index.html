@@ -293,7 +293,7 @@ const coopModal=$('coopModal');
 // 양쪽 기기가 반드시 같은 PeerJS 시그널링 서버를 사용하도록 주소를 명시한다.
 // STUN은 서로 다른 네트워크에 있는 두 기기의 직접 연결 경로 탐색을 돕는다.
 const coopPeerOptions={
- host:'0.peerjs.com', port:443, path:'/', secure:true, debug:3,
+ host:'0.peerjs.com', port:443, path:'/', secure:true, debug:1,
  config:{iceServers:[
   {urls:'stun:stun.l.google.com:19302'},
   {urls:'stun:stun.cloudflare.com:3478'}
