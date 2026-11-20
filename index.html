@@ -82,7 +82,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
  <canvas id="miniCanvas" width="900" height="540" style="margin-top:10px;background:#101a24;border:2px solid #526a57;border-radius:12px;touch-action:none"></canvas>
  <div class="buttons" style="justify-content:center;margin-top:10px"><button class="secondary" data-mini-dir="up">▲</button></div>
  <div class="buttons" style="justify-content:center"><button class="secondary" data-mini-dir="left">◀</button><button class="secondary" data-mini-dir="down">▼</button><button class="secondary" data-mini-dir="right">▶</button></div>
- <div class="buttons" style="justify-content:center;margin-top:10px"><button class="gold" id="miniStartBtn">도전 시작</button></div>
+ <div class="buttons" style="justify-content:center;margin-top:10px"><button class="gold" id="miniStartBtn">도전 시작</button><button class="secondary" id="miniPauseBtn" disabled>일시정지</button></div>
  <p id="miniMessage" style="text-align:center;font-weight:800;color:#ffe28a">시작 버튼을 눌러 도전해!</p></div>
 </section>
 <section id="gameView" class="view">
@@ -1286,7 +1286,7 @@ function coopSnapshot(){if(coop.role!=='host'||!coop.conn||!coop.conn.open||!pla
 
 // 미니게임: 10단계 장애물 회피 챌린지와 누적 보상
 const miniCanvas=$('miniCanvas'),miniCtx=miniCanvas.getContext('2d');
-let miniActive=false,miniStage=1,miniLives=3,miniTicks=0,miniPlayer={x:450,y:270,r:13},miniHazards=[],miniInvuln=0,miniWon=false,miniHeld={},miniRewards=[],miniQualified=false;
+let miniActive=false,miniPaused=false,miniStage=1,miniLives=3,miniTicks=0,miniPlayer={x:450,y:270,r:13},miniHazards=[],miniInvuln=0,miniWon=false,miniHeld={},miniRewards=[],miniQualified=false;
 const miniStageRewards=[
  {label:'1스테이지 · 1코인',coins:1},{label:'2스테이지 · 2코인',coins:2},
  {label:'3스테이지 · 5코인',coins:5},{label:'4스테이지 · 10코인',coins:10},
@@ -1309,7 +1309,7 @@ function miniHud(){
  $('miniRewardLabel').textContent='누적 보상: '+miniRewardText();
 }
 function miniStart(){
- miniActive=true;miniStage=1;miniLives=3;miniTicks=0;miniPlayer={x:450,y:270,r:13};
+ miniActive=true;miniPaused=false;$('miniPauseBtn').disabled=false;$('miniPauseBtn').textContent='일시정지';miniStage=1;miniLives=3;miniTicks=0;miniPlayer={x:450,y:270,r:13};
  miniHazards=[];miniInvuln=0;miniWon=false;miniHeld={};miniRewards=[];miniQualified=false;
  $('miniStartBtn').textContent='다시 시작';$('miniMessage').textContent='장애물을 피해 살아남아! 3스테이지에 도달하면 이후 죽어도 누적 보상을 받을 수 있어.';miniHud();miniGameDraw();
 }
@@ -1324,7 +1324,7 @@ function miniSettleRewards(){
 }
 function miniEnd(won){
  if(!miniActive)return;
- miniActive=false;miniWon=won;miniHeld={};
+ miniActive=false;miniPaused=false;$("miniPauseBtn").disabled=true;$("miniPauseBtn").textContent="일시정지";miniWon=won;miniHeld={};
  const paid=miniSettleRewards();
  if(paid){
   const coins=miniRewards.reduce((n,r)=>n+(r.coins||0),0),weapons=miniRewards.filter(r=>r.weapon).map(r=>r.weapon.name);
@@ -1345,7 +1345,7 @@ function miniClearStage(){
  miniStage++;miniTicks=0;miniHazards=[];miniPlayer={x:450,y:270,r:13};miniHud();
 }
 function miniGameTick(){
- if(!miniActive)return;
+ if(!miniActive||miniPaused)return;
  miniTicks++;
  const difficulty=miniDifficulty[miniStage-1],speed=difficulty.speed;
  const left=miniHeld.left||keys.a||keys.ArrowLeft,right=miniHeld.right||keys.d||keys.ArrowRight,up=miniHeld.up||keys.w||keys.ArrowUp,down=miniHeld.down||keys.s||keys.ArrowDown;
@@ -1377,15 +1377,28 @@ function miniGameDraw(){
  if(!miniCanvas)return;const c=miniCtx;c.clearRect(0,0,900,540);
  c.fillStyle='#111d27';c.fillRect(0,0,900,540);
  c.strokeStyle='#263b49';c.lineWidth=1;for(let x=0;x<=900;x+=45){c.beginPath();c.moveTo(x,0);c.lineTo(x,540);c.stroke();}for(let y=0;y<=540;y+=45){c.beginPath();c.moveTo(0,y);c.lineTo(900,y);c.stroke();}
- c.fillStyle='#d84b54';for(const h of miniHazards){c.beginPath();c.arc(h.x,h.y,h.r,0,Math.PI*2);c.fill();c.fillStyle='#ffb0a9';c.beginPath();c.arc(h.x-h.r*.25,h.y-h.r*.25,Math.max(2,h.r*.22),0,Math.PI*2);c.fill();c.fillStyle='#d84b54';}
+ for(const h of miniHazards){
+  c.save();c.translate(h.x,h.y);c.rotate(Math.atan2(h.vy,h.vx));
+  c.fillStyle='#405b45';c.strokeStyle='#172b20';c.lineWidth=2;
+  c.beginPath();c.ellipse(0,h.r*.35,h.r*.72,h.r*.9,0,0,Math.PI*2);c.fill();c.stroke();
+  c.strokeStyle='#6f8b59';c.lineWidth=3;c.lineCap='round';
+  c.beginPath();c.moveTo(-h.r*.48,h.r*.1);c.lineTo(-h.r*1.05,h.r*.72);c.moveTo(h.r*.48,h.r*.1);c.lineTo(h.r*1.05,h.r*.55);c.stroke();
+  c.fillStyle='#526f4c';c.beginPath();c.arc(0,-h.r*.55,h.r*.62,0,Math.PI*2);c.fill();c.stroke();
+  c.fillStyle='#e84b4b';c.beginPath();c.arc(-h.r*.23,-h.r*.62,Math.max(1.8,h.r*.12),0,Math.PI*2);c.arc(h.r*.23,-h.r*.62,Math.max(1.8,h.r*.12),0,Math.PI*2);c.fill();
+  c.fillStyle='#17251b';c.fillRect(-h.r*.25,-h.r*.28,h.r*.5,h.r*.12);
+  c.fillStyle='#9db477';c.fillRect(-h.r*.7,h.r*1.05,h.r*.48,h.r*.35);c.fillRect(h.r*.22,h.r*1.05,h.r*.48,h.r*.35);
+  c.restore();
+ }
  c.globalAlpha=miniInvuln>0&&Math.floor(miniInvuln/6)%2===0?.35:1;c.fillStyle='#78e6a0';c.beginPath();c.arc(miniPlayer.x,miniPlayer.y,miniPlayer.r,0,Math.PI*2);c.fill();c.strokeStyle='#e2ffe9';c.lineWidth=3;c.stroke();c.globalAlpha=1;
  c.fillStyle='#eaf3f7';c.font='bold 20px sans-serif';c.textAlign='left';c.fillText('STAGE '+miniStage+' / 10',18,30);
- if(!miniActive){c.fillStyle='#0009';c.fillRect(0,0,900,540);c.fillStyle='#fff';c.textAlign='center';c.font='bold 34px sans-serif';c.fillText(miniWon?'CHALLENGE COMPLETE!':'DODGE CHALLENGE',450,250);}
+ if(miniPaused){c.fillStyle='#000b';c.fillRect(0,0,900,540);c.fillStyle='#fff';c.textAlign='center';c.font='bold 42px sans-serif';c.fillText('PAUSED',450,260);}
+ if(!miniActive&&!miniPaused){c.fillStyle='#0009';c.fillRect(0,0,900,540);c.fillStyle='#fff';c.textAlign='center';c.font='bold 34px sans-serif';c.fillText(miniWon?'CHALLENGE COMPLETE!':'DODGE CHALLENGE',450,250);}
 }
 document.querySelectorAll('[data-mini-dir]').forEach(b=>{const d=b.dataset.miniDir;const on=e=>{e.preventDefault();miniHeld[d]=true;};const off=e=>{e.preventDefault();miniHeld[d]=false;};b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);});
 $('miniGameBtn').onclick=()=>{miniActive=false;show('miniGameView');miniGameDraw();};
 $('miniBackBtn').onclick=()=>{if(miniActive)miniEnd(false);miniHeld={};show('lobby');};
 $('miniStartBtn').onclick=miniStart;
+$('miniPauseBtn').onclick=()=>{if(!miniActive)return;miniPaused=!miniPaused;miniHeld={};$('miniPauseBtn').textContent=miniPaused?'계속하기':'일시정지';$('miniMessage').textContent=miniPaused?'일시정지 중':'게임을 다시 시작했어!';miniGameDraw();};
 
 function loop(){if(coop.role==='guest'&&running){const now=Date.now();if(now-coop.lastInput>55){coop.lastInput=now;coopSend({type:'input',input:{w:!!(keys.w||keys.ArrowUp),a:!!(keys.a||keys.ArrowLeft),s:!!(keys.s||keys.ArrowDown),d:!!(keys.d||keys.ArrowRight),attack:!!keys[' ']},weapon:coopWeaponData(),job:coopJobData()});}}else if(running&&!paused){if(doubleSpeedOn&&state.hasDoubleSpeed){gameUpdate();gameUpdate();}else gameUpdate();if(coop.role==='host'&&frame%3===0)coopSnapshot();}if(running&&frame%6===0)updateGameHud();drawGame();if($('miniGameView').classList.contains('active')){miniGameTick();miniGameDraw();}requestAnimationFrame(loop);}
 function renderWeaponCodex(){
