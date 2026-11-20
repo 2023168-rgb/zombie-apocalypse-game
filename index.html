@@ -1554,7 +1554,7 @@ function adminGrant(kind){
    const melee=pick[3]==='melee',w={id:state.nextId++,name:pick[0],rarity:rarityId,damage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(rarityId==='odd'?2:rarityId==='legendary'?2:1),speed:rarityId==='epic'?11:9,melee};
    state.inventory.push(balanceWeapon(w));seen.add(key);
   }));
-  if(!state.inventory.some(w=>w.name==='블랙홀 발사기'))state.inventory.push({id:state.nextId++,name:'블랙홀 발사기',rarity:'divine',damage:65,cooldown:38,pellets:1,speed:6.5,melee:false,special:true});
+  if(!state.inventory.some(w=>w.name==='블랙홀 발사기'))state.inventory.push({id:state.nextId++,name:'블랙홀 발사기',rarity:'divine',damage:65,cooldown:38,pellets:1,speed:6.5,melee:false,special:true});const best=Math.max(1,...state.inventory.filter(w=>!['샤이니스타','적월선','블랙홀 발사기'].includes(w.name)).map(w=>Number(w.damage)||1));if(!state.inventory.some(w=>w.name==='샤이니스타'))state.inventory.push(balanceWeapon({id:state.nextId++,name:'샤이니스타',rarity:'godly',damage:best*2,cooldown:30,pellets:1,speed:12,melee:false,special:true}));if(!state.inventory.some(w=>w.name==='적월선'))state.inventory.push(balanceWeapon({id:state.nextId++,name:'적월선',rarity:'godly',damage:best*2,cooldown:30,pellets:1,speed:10,melee:true,special:true}));
  }else if(kind==='armor'){
   const seen=new Set(state.armorInventory.map(a=>a.name));
   armorDefs.forEach(d=>{if(!seen.has(d[0]))state.armorInventory.push({id:state.nextArmorId++,name:d[0],slot:d[1],rarity:d[2],defense:d[3]});});
