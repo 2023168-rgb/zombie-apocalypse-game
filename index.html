@@ -93,7 +93,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 <div id="codexModal" class="codex-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="codexTitle"><div class="codex-panel"><div class="row"><h2 id="codexTitle" style="margin-right:auto">📚 도감</h2><button class="secondary" id="closeCodex" type="button">닫기</button></div><div class="buttons" style="margin:10px 0"><button class="gold" data-codex="monster">🧟 몹도감</button><button class="gold" data-codex="job">🎭 직업도감</button><button class="gold" data-codex="weapon">⚔ 무기도감</button></div><p class="muted" id="codexDescription">보고 싶은 도감을 선택해.</p><div id="codexContent"></div></div></div>
 <style>.codex-backdrop{position:fixed;inset:0;z-index:3000;background:#000b;display:flex;align-items:center;justify-content:center;padding:12px}.codex-panel{width:min(760px,100%);max-height:88vh;overflow:auto;background:#14212c;border:1px solid #708696;border-radius:15px;padding:16px;box-shadow:0 12px 40px #000b}.codex-group{margin:12px 0;padding:10px;background:#1c2b37;border:1px solid #405361;border-radius:10px}.codex-group h3{margin:0 0 8px}.codex-entry{padding:8px 10px;margin:5px 0;background:#263744;border-radius:8px}.codex-entry small{display:block;color:#c1cdd5;margin-top:3px}.codex-owned{color:#8df0a4;font-weight:800}.codex-missing{color:#aebbc4}.armor-odds{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:10px 0 14px}.armor-odds-row{background:#263541;border:1px solid #465865;border-radius:9px;padding:9px 10px}.armor-odds-head{display:flex;justify-content:space-between;gap:8px;font-weight:800;font-size:13px}.armor-odds-track{height:9px;background:#101923;border-radius:20px;overflow:hidden;margin-top:7px}.armor-odds-fill{height:100%;border-radius:20px;min-width:2px}.armor-odds-row small{display:block;color:#c2ced5;margin-top:4px}</style>
 <section id="miniGameView" class="view">
- <div class="panel"><div class="row"><h2 style="margin-right:auto">🎮 좀비 회피 챌린지</h2><button class="secondary" id="miniBackBtn">로비로</button></div>
+ <div class="panel"><div class="row"><h2 style="margin-right:auto">🎮 좀비 회피 챌린지</h2></div>
  <p class="muted">장애물을 피해 10초씩 버텨! 총 10스테이지, 목숨은 3개야. 3스테이지까지 클리어해야 보상을 받을 수 있어. 도전 종료 또는 사망 시 누적 보상이 자동 지급돼.</p>
  <div class="stats"><div class="pill" id="miniDailyLabel">남은 횟수 10/10</div><div class="pill" id="miniStageLabel">스테이지 1 / 10</div><div class="pill" id="miniLivesLabel">목숨 3</div><div class="pill" id="miniTimeLabel">남은 시간 10초</div><div class="pill" id="miniRewardLabel">누적 보상: 없음</div></div>
  <canvas id="miniCanvas" width="900" height="540" style="margin-top:10px;background:#101a24;border:2px solid #526a57;border-radius:12px;touch-action:none"></canvas>
@@ -104,7 +104,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
  @media (pointer:coarse),(max-width:900px){#miniJoystickArea{display:flex}}
  </style>
  <div id="miniJoystickArea" aria-label="미니게임 이동 조이스틱"><div id="miniJoystickBase"><div id="miniJoystickKnob"></div></div></div>
- <div class="buttons" style="justify-content:center;margin-top:10px"><button class="gold" id="miniStartBtn">도전 시작</button><button class="secondary" id="miniPauseBtn" disabled>일시정지</button></div>
+ <div class="buttons" style="justify-content:center;margin-top:10px"><button class="gold" id="miniStartBtn">도전 시작</button><button class="secondary" id="miniPauseBtn" disabled>일시정지</button><button class="secondary" id="miniBackBtn">로비로</button></div>
  <p id="miniMessage" style="text-align:center;font-weight:800;color:#ffe28a">시작 버튼을 눌러 도전해!</p></div>
 </section>
 <section id="gameView" class="view">
@@ -1268,7 +1268,7 @@ const miniDifficulty=[
 ];
 function miniRewardText(){return miniRewards.length?miniRewards.map(r=>r.label).join(' / '):'없음';}
 const MINI_DAILY_KEY='zombieMiniDailyV1';
-function miniDailyData(){const today=new Date().toLocaleDateString('en-CA');let data;try{data=JSON.parse(localStorage.getItem(MINI_DAILY_KEY)||'null');}catch(e){}if(!data||data.date!==today)data={date:today,used:0};data.used=Math.max(0,Math.min(10,Number(data.used)||0));return data;}
+function miniDailyData(){const now=new Date();if(now.getHours()<12)now.setDate(now.getDate()-1);const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');let data;try{data=JSON.parse(localStorage.getItem(MINI_DAILY_KEY)||'null');}catch(e){}if(!data||data.date!==today)data={date:today,used:0};data.used=Math.max(0,Math.min(10,Number(data.used)||0));return data;}
 function miniDailyRemaining(){return Math.max(0,10-miniDailyData().used);}
 function miniDailyHud(){const el=$('miniDailyLabel');if(el)el.textContent='남은 횟수 '+miniDailyRemaining()+'/10';}
 function miniDailyUse(){const d=miniDailyData();if(d.used>=10){miniDailyHud();$('miniMessage').textContent='오늘 미니게임 10회를 모두 사용했어. 내일 다시 도전할 수 있어!';return false;}d.used++;try{localStorage.setItem(MINI_DAILY_KEY,JSON.stringify(d));}catch(e){$('miniMessage').textContent='일일 횟수를 저장하지 못했어. 브라우저 저장공간을 확인해줘.';return false;}miniDailyHud();return true;}
