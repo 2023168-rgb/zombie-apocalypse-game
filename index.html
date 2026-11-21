@@ -1283,7 +1283,7 @@ function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  if(n==='수류탄'||n==='오버사이클')return false;
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d',divine:'#9b70ff'};
- const superForm=!!w.superAwakened,c=superForm?'#ff4b62':(colors[rar]||'#9aa5aa'),dark=superForm?'#250e1b':'#202b34',metal=superForm?'#d7b66b':'#647783',wood=superForm?'#542d3b':'#805536';
+ const superForm=!!w.superAwakened,c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선|갓슬레이어/.test(n);
  ctx.save();
  // 손잡이 부근을 회전축으로 잡아 모든 근접무기가 확실히 좌우로 휘둘러지게 한다.
@@ -1293,9 +1293,9 @@ function drawDistinctWeapon(w,pl){
  if(melee&&pl.swing>0)ctx.rotate(swingAngle);
  ctx.translate(-12,-5);
  ctx.translate(7,1);
- if(superForm){ctx.save();ctx.globalCompositeOperation='lighter';ctx.shadowColor='#ff263f';ctx.shadowBlur=20;ctx.strokeStyle='#ff5368';ctx.lineWidth=2;ctx.globalAlpha=.72;ctx.beginPath();ctx.ellipse(26,0,43,17,-.08,0,Math.PI*2);ctx.stroke();ctx.shadowColor='#ffd36a';ctx.shadowBlur=13;ctx.strokeStyle='#ffd36a';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(26,0,35,12,.08,Math.PI*.12,Math.PI*1.82);ctx.stroke();ctx.fillStyle='#fff0b0';ctx.beginPath();ctx.moveTo(18,-17);ctx.lineTo(24,-28);ctx.lineTo(30,-17);ctx.lineTo(24,-12);ctx.closePath();ctx.fill();ctx.restore();}
- if(drawRedesignedWeapon(n,c)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
- if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ const drawSuperEffect=()=>{if(!superForm)return;ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.42;ctx.shadowColor='#ff334f';ctx.shadowBlur=11;ctx.strokeStyle='#ff5368';ctx.lineWidth=1.6;ctx.beginPath();ctx.ellipse(27,0,39,13,-.06,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.72;ctx.shadowColor='#ffd36a';ctx.shadowBlur=7;ctx.strokeStyle='#ffd36a';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(19,-13);ctx.lineTo(24,-19);ctx.lineTo(29,-13);ctx.stroke();ctx.fillStyle='#fff0b0';ctx.beginPath();ctx.arc(24,-4,2.2,0,Math.PI*2);ctx.fill();ctx.restore();};
+ if(drawRedesignedWeapon(n,c)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}drawSuperEffect();ctx.restore();return true;}
+ if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}drawSuperEffect();ctx.restore();return true;}
  if(melee){
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
   if(n.includes('방망이')){ctx.fillStyle='#b7834e';ctx.fillRect(8,-4,9,43);ctx.fillStyle='#e4c18b';ctx.fillRect(7,-12,11,14);ctx.fillStyle='#382b25';ctx.fillRect(9,31,8,5);}
