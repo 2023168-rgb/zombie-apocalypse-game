@@ -1531,21 +1531,106 @@ function wbSend(data){try{if(wb.conn&&wb.conn.open)wb.conn.send(data);}catch(e){
 function wbOpenView(){if(state.worldBossDay===wbDay()){wbStatus('오늘의 월드 보스 도전은 이미 사용했어. 내일 다시 도전할 수 있어.');$('wbCreateBtn').disabled=true;$('wbJoinBtn').disabled=true;}else{$('wbCreateBtn').disabled=false;$('wbJoinBtn').disabled=false;}show('worldBossView');}
 function wbCleanup(){try{wb.slots.forEach(c=>{if(c&&c.open)c.close();});if(wb.conn&&wb.conn.open)wb.conn.close();if(wb.peer)wb.peer.destroy();}catch(e){}wb.role='solo';wb.peer=null;wb.conn=null;wb.slots=[];wb.players=[];wb.started=false;wb.finished=false;wb.mySlot=0;$('wbArena').style.display='none';$('wbLobby').style.display='block';$('wbStartBtn').disabled=true;}
 function wbCount(){const n=wb.players.filter(p=>p&&p.connected).length;$('wbCount').textContent='인원 '+n+'/10';$('wbStartBtn').disabled=wb.role!=='host'||n<2||wb.started;}
-function wbLoadout(){const w=getWeapon();return {damage:Number(w.damage)||1,melee:isMeleeWeapon(w)};}
+function wbLoadout(){const w=getWeapon();return {damage:Number(w.damage)||1,melee:isMeleeWeapon(w),weaponName:w.name,rarity:w.rarity};}
 function wbBroadcast(data){if(wb.role==='host')wb.slots.forEach(c=>{try{if(c&&c.open)c.send(data);}catch(e){}});}
-function wbStart(){if(wb.role!=='host'||wb.started||wb.players.filter(p=>p&&p.connected).length<2)return;if(state.worldBossDay===wbDay()){wbStatus('오늘의 도전 횟수를 이미 사용했어.');return;}state.worldBossDay=wbDay();save();wb.started=true;wb.finished=false;const bossHp=Math.ceil(120*(1+Math.min(4,(state.level-1)*0.08))*1000);wb.boss={hp:bossHp,maxHp:bossHp,x:450,y:205,phase:0,phaseUntil:Date.now()+3000,stunUntil:0,attackAt:0};wb.players.forEach((p,i)=>{if(p&&p.connected){p.x=130+(i%5)*150;p.y=410+Math.floor(i/5)*55;p.hp=100;p.maxHp=100;p.dead=false;p.attackAt=0;p.skillAt=0;}});$('wbLobby').style.display='none';$('wbArena').style.display='block';wbStatus('월드 보스 출현!');wbBroadcast({type:'start',boss:wb.boss,players:wb.players});}
+function wbStart(){
+ if(wb.role!=='host'||wb.started||wb.players.filter(p=>p&&p.connected).length<2)return;
+ if(state.worldBossDay===wbDay()){wbStatus('오늘의 도전 횟수를 이미 사용했어.');return;}
+ state.worldBossDay=wbDay();save();wb.started=true;wb.finished=false;
+ const bossHp=Math.ceil(120*(1+Math.min(4,(state.level-1)*0.08))*1000);
+ wb.boss={hp:bossHp,maxHp:bossHp,x:450,y:205,phase:0,phaseUntil:Date.now()+3000,phaseStartedAt:Date.now(),stunUntil:0,attackAt:0,lastPatternHit:0,projectiles:[],minions:[],chargeAngle:0,chargeTarget:null};
+ wb.players.forEach((p,i)=>{if(p&&p.connected){p.x=130+(i%5)*150;p.y=410+Math.floor(i/5)*55;p.hp=100;p.maxHp=100;p.dead=false;p.attackAt=0;p.skillAt=0;p.input={};}});
+ $('wbLobby').style.display='none';$('wbArena').style.display='block';wbStatus('월드 보스 출현!');wbBroadcast({type:'start',boss:wb.boss,players:wb.players});
+}
 function wbHostTick(){
  const now=Date.now(),b=wb.boss;if(!wb.started||wb.finished)return;
- if(b.stunUntil>now){$('wbPhase').textContent='기절 중';}else{if(now>=b.phaseUntil){if(b.phase===4){b.stunUntil=now+10000;b.phase=-1;b.phaseUntil=b.stunUntil;}else{b.phase++;b.phaseUntil=now+3000;b.attackAt=0;}}$('wbPhase').textContent=['근접 패턴','원거리 패턴','스피드 패턴','소환 패턴','돌진 패턴'][Math.max(0,b.phase)]||'대기';if(now-b.attackAt>1150){b.attackAt=now;for(const p of wb.players){if(!p||!p.connected||p.dead)continue;const dist=Math.hypot(p.x-b.x,p.y-b.y),range=[175,330,245,210,285][Math.max(0,b.phase)];if(dist<range){p.hp=Math.max(0,p.hp-([18,12,14,12,24][Math.max(0,b.phase)]));if(p.hp<=0)p.dead=true;}}}}
- if(b.stunUntil&&now>=b.stunUntil){b.stunUntil=0;b.phase=0;b.phaseUntil=now+3000;b.attackAt=0;}
- for(const p of wb.players){if(!p||!p.connected||p.dead)continue;const i=p.input||{};let dx=(i.d?1:0)-(i.a?1:0),dy=(i.s?1:0)-(i.w?1:0),len=Math.hypot(dx,dy)||1;p.x=Math.max(30,Math.min(870,p.x+dx/len*3.2));p.y=Math.max(285,Math.min(510,p.y+dy/len*3.2));if(i.attack&&now-(p.attackAt||0)>420){p.attackAt=now;b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*(p.melee?250:150));}if(i.skill&&now-(p.skillAt||0)>12000){p.skillAt=now;b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*750);}}
- if(b.hp<=0&&!wb.finished){wb.finished=true;for(const p of wb.players){if(p&&p.connected){if(p.slot===0){state.wallet+=10000;save();refresh();}else{const c=wb.slots[p.slot];try{if(c&&c.open)c.send({type:'reward',coins:10000,day:wbDay()});}catch(e){}}}}wbStatus('월드 보스 처치 성공! 참가자에게 10,000코인을 지급했어.');wbBroadcast({type:'victory',players:wb.players});}
- $('wbHp').textContent='보스 체력 '+Math.ceil(b.hp).toLocaleString('ko-KR')+' / '+b.maxHp.toLocaleString('ko-KR');$('wbTimer').textContent=b.stunUntil>now?'기절 '+Math.ceil((b.stunUntil-now)/1000)+'초':Math.ceil(Math.max(0,b.phaseUntil-now)/1000)+'초';wbBroadcast({type:'snapshot',boss:b,players:wb.players});
+ const alive=wb.players.filter(p=>p&&p.connected&&!p.dead);
+ const nearest=()=>alive.reduce((best,p)=>!best||Math.hypot(p.x-b.x,p.y-b.y)<Math.hypot(best.x-b.x,best.y-b.y)?p:best,null);
+ const moveBoss=(tx,ty,speed)=>{const dx=tx-b.x,dy=ty-b.y,len=Math.hypot(dx,dy)||1;b.x=Math.max(95,Math.min(805,b.x+dx/len*speed));b.y=Math.max(125,Math.min(270,b.y+dy/len*speed));};
+ const hurt=(p,amount)=>{if(!p||!p.connected||p.dead)return;p.hp=Math.max(0,p.hp-amount);if(p.hp<=0)p.dead=true;};
+ if(b.stunUntil>now){
+  $('wbPhase').textContent='기절 중';
+  b.projectiles=[];b.minions=[];
+ }else{
+  if(now>=b.phaseUntil){
+   if(b.phase>=4){b.stunUntil=now+10000;b.phase=-1;b.phaseUntil=b.stunUntil;b.attackAt=0;b.projectiles=[];b.minions=[];}
+   else{b.phase++;b.phaseStartedAt=now;b.phaseUntil=now+3000;b.attackAt=0;b.lastPatternHit=0;if(b.phase===4){const t=nearest();b.chargeTarget=t?{x:t.x,y:t.y}:null;b.chargeAngle=t?Math.atan2(t.y-b.y,t.x-b.x):Math.PI/2;}}
+  }
+  const labels=['근접 패턴','원거리 포격','스피드 돌진','소환 패턴','강력 돌진'];
+  $('wbPhase').textContent=labels[Math.max(0,b.phase)]||'패턴 종료';
+  const target=nearest();
+  if(target){
+   if(b.phase===0){
+    moveBoss(target.x,target.y,1.7);
+    if(Math.hypot(target.x-b.x,target.y-b.y)<155&&now-(b.lastPatternHit||0)>1050){b.lastPatternHit=now;b.attackAt=now;hurt(target,20);}
+   }else if(b.phase===1){
+    if(now-(b.lastPatternHit||0)>850){b.lastPatternHit=now;b.attackAt=now;for(const p of alive){const a=Math.atan2(p.y-b.y,p.x-b.x);b.projectiles.push({x:b.x,y:b.y,vx:Math.cos(a)*5.2,vy:Math.sin(a)*5.2,life:90,targetSlot:p.slot});}}
+   }else if(b.phase===2){
+    moveBoss(target.x,target.y,5.2);
+    if(Math.hypot(target.x-b.x,target.y-b.y)<48&&now-(b.lastPatternHit||0)>850){b.lastPatternHit=now;b.attackAt=now;hurt(target,17);}
+   }else if(b.phase===3){
+    if(now-(b.lastPatternHit||0)>720&&(b.minions||[]).length<10){b.lastPatternHit=now;b.attackAt=now;const count=Math.min(2,10-b.minions.length);for(let n=0;n<count;n++){const a=Math.random()*Math.PI*2;b.minions.push({x:b.x+Math.cos(a)*65,y:b.y+Math.sin(a)*55,attackAt:0,life:300});}}
+   }else if(b.phase===4){
+    const elapsed=now-(b.phaseStartedAt||now);
+    if(elapsed<500){const t=nearest();if(t){b.chargeAngle=Math.atan2(t.y-b.y,t.x-b.x);b.chargeTarget={x:t.x,y:t.y};}}
+    moveBoss(b.x+Math.cos(b.chargeAngle)*8,b.y+Math.sin(b.chargeAngle)*8,8);
+    for(const p of alive)if(Math.hypot(p.x-b.x,p.y-b.y)<55&&now-(p.lastBossHit||0)>900){p.lastBossHit=now;b.attackAt=now;hurt(p,25);}
+   }
+  }
+ }
+ if(b.stunUntil&&now>=b.stunUntil){b.stunUntil=0;b.phase=0;b.phaseStartedAt=now;b.phaseUntil=now+3000;b.attackAt=0;b.lastPatternHit=0;b.projectiles=[];b.minions=[];}
+ // 투사체와 소환수는 기절 중에는 움직이거나 공격하지 않아.
+ if(!(b.stunUntil>now)){
+  b.projectiles=(b.projectiles||[]).filter(q=>q.life-->0);
+  for(const q of b.projectiles){q.x+=q.vx;q.y+=q.vy;const p=wb.players[q.targetSlot];if(p&&p.connected&&!p.dead&&Math.hypot(p.x-q.x,p.y-q.y)<20){hurt(p,15);q.life=0;}}
+  b.projectiles=b.projectiles.filter(q=>q.life>0&&q.x>0&&q.x<900&&q.y>0&&q.y<540);
+  b.minions=(b.minions||[]).filter(m=>m.life-->0);
+  for(const m of b.minions){const p=wb.players.filter(x=>x&&x.connected&&!x.dead).reduce((best,x)=>!best||Math.hypot(x.x-m.x,x.y-m.y)<Math.hypot(best.x-m.x,best.y-m.y)?x:best,null);if(p){const dx=p.x-m.x,dy=p.y-m.y,len=Math.hypot(dx,dy)||1;m.x+=dx/len*1.45;m.y+=dy/len*1.45;if(len<25&&now-(m.attackAt||0)>900){m.attackAt=now;hurt(p,6);}}}
+ }
+ for(const p of wb.players){
+  if(!p||!p.connected||p.dead)continue;
+  const i=p.input||{};let dx=(i.d?1:0)-(i.a?1:0),dy=(i.s?1:0)-(i.w?1:0),len=Math.hypot(dx,dy)||1;
+  p.x=Math.max(30,Math.min(870,p.x+dx/len*3.2));p.y=Math.max(285,Math.min(510,p.y+dy/len*3.2));
+  if(i.attack&&now-(p.attackAt||0)>420){p.attackAt=now;b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*(p.melee?250:150));}
+  if(i.skill&&now-(p.skillAt||0)>12000){p.skillAt=now;b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*750);/* 해커검도 보스에게는 시간 정지를 적용하지 않아. */}
+ }
+ if(b.hp<=0&&!wb.finished){
+  wb.finished=true;
+  for(const p of wb.players){if(p&&p.connected){if(p.slot===0){state.wallet+=10000;save();refresh();}else{const c=wb.slots[p.slot];try{if(c&&c.open)c.send({type:'reward',coins:10000,day:wbDay()});}catch(e){}}}}
+  wbStatus('월드 보스 처치 성공! 전투 중 쓰러진 플레이어를 포함해 접속 중인 참가자에게 10,000코인을 지급했어.');
+  wbBroadcast({type:'victory',players:wb.players});
+ }
+ $('wbHp').textContent='보스 체력 '+Math.ceil(b.hp).toLocaleString('ko-KR')+' / '+b.maxHp.toLocaleString('ko-KR');
+ $('wbTimer').textContent=b.stunUntil>now?'기절 '+Math.ceil((b.stunUntil-now)/1000)+'초':Math.ceil(Math.max(0,b.phaseUntil-now)/1000)+'초';
+ wbBroadcast({type:'snapshot',boss:b,players:wb.players});
 }
-function wbRender(){const c=wb.ctx;if(!c)return;const now=Date.now(),b=wb.boss;c.clearRect(0,0,900,540);c.fillStyle='#111923';c.fillRect(0,0,900,540);c.strokeStyle='#293a4a';for(let x=0;x<900;x+=45){c.beginPath();c.moveTo(x,0);c.lineTo(x,540);c.stroke();}c.fillStyle='#252d39';c.fillRect(0,275,900,265);c.save();c.translate(b.x,b.y+(now-b.attackAt<260?Math.sin((now-b.attackAt)/260*Math.PI)*18:0));c.scale(1+Math.sin(now/180)*.025,1-Math.sin(now/180)*.025);c.fillStyle='#303a43';c.beginPath();c.ellipse(0,18,142,115,0,0,Math.PI*2);c.fill();c.strokeStyle='#a9b3bd';c.lineWidth=12;c.stroke();c.fillStyle='#59636c';c.beginPath();c.ellipse(0,-28,78,78,0,0,Math.PI*2);c.fill();c.fillStyle='#202a34';c.beginPath();c.ellipse(0,-45,67,62,0,0,Math.PI*2);c.fill();c.fillStyle='#d7dce0';c.beginPath();c.moveTo(-45,-35);c.lineTo(-28,-12);c.lineTo(-8,-7);c.lineTo(0,-18);c.lineTo(12,-7);c.lineTo(33,-15);c.lineTo(45,-38);c.lineTo(35,15);c.lineTo(0,35);c.lineTo(-35,15);c.closePath();c.fill();c.fillStyle='#151b22';c.fillRect(-36,-35,72,22);c.fillStyle='#ff354b';c.fillRect(-27,-29,16,7);c.fillRect(11,-29,16,7);c.fillStyle='#858f99';c.beginPath();c.moveTo(-55,-70);c.quadraticCurveTo(-115,-125,-104,-160);c.quadraticCurveTo(-68,-124,-42,-98);c.closePath();c.fill();c.beginPath();c.moveTo(55,-70);c.quadraticCurveTo(115,-125,104,-160);c.quadraticCurveTo(68,-124,42,-98);c.closePath();c.fill();c.fillStyle='#75808b';for(let x of [-110,110]){c.beginPath();c.ellipse(x,28,38,65,x*.002,0,Math.PI*2);c.fill();}c.fillStyle='#9aa5af';c.fillRect(-92,82,184,24);c.restore();if(b.stunUntil>now){c.fillStyle='#72e8ff';c.font='bold 34px sans-serif';c.textAlign='center';c.fillText('기절!',450,80);}else{c.fillStyle='#ff5264';c.font='bold 22px sans-serif';c.textAlign='center';c.fillText(['근접 공격','원거리 포격','초고속 돌진','소환 패턴','강력 돌진'][Math.max(0,b.phase)]+' 패턴',450,42);}wb.players.forEach(p=>{if(!p||!p.connected)return;c.fillStyle=p.dead?'#777':'#67d8ff';c.beginPath();c.arc(p.x,p.y,13,0,Math.PI*2);c.fill();c.fillStyle='#fff';c.font='12px sans-serif';c.textAlign='center';c.fillText(p.name+(p.dead?' (전투불능)':''),p.x,p.y-20);c.fillStyle='#222';c.fillRect(p.x-22,p.y+17,44,5);c.fillStyle='#59e58a';c.fillRect(p.x-22,p.y+17,44*Math.max(0,p.hp/p.maxHp),5);});c.fillStyle='#222';c.fillRect(140,12,620,13);c.fillStyle='#e94d59';c.fillRect(140,12,620*Math.max(0,b.hp/b.maxHp),13);c.strokeStyle='#fff';c.strokeRect(140,12,620,13);if(wb.finished){c.fillStyle='#ffe27a';c.font='bold 42px sans-serif';c.fillText('월드 보스 격파!',450,250);}}
+function wbRender(){
+ const c=wb.ctx;if(!c)return;const now=Date.now(),b=wb.boss||{};c.clearRect(0,0,900,540);
+ c.fillStyle='#111923';c.fillRect(0,0,900,540);c.strokeStyle='#293a4a';for(let x=0;x<900;x+=45){c.beginPath();c.moveTo(x,0);c.lineTo(x,540);c.stroke();}
+ c.fillStyle='#252d39';c.fillRect(0,275,900,265);
+ for(const q of b.projectiles||[]){c.fillStyle='#ff5368';c.beginPath();c.arc(q.x,q.y,9,0,Math.PI*2);c.fill();c.strokeStyle='#ffb1ba';c.lineWidth=2;c.stroke();}
+ for(const m of b.minions||[]){c.fillStyle='#71818c';c.beginPath();c.arc(m.x,m.y,11,0,Math.PI*2);c.fill();c.fillStyle='#ff5264';c.fillRect(m.x-5,m.y-3,3,3);c.fillRect(m.x+2,m.y-3,3,3);}
+ c.save();c.translate(b.x||450,b.y||205);const stunned=b.stunUntil>now,attacking=!stunned&&now-(b.attackAt||0)<280;c.rotate(attacking?Math.sin((now-b.attackAt)/280*Math.PI)*.13:0);c.scale(1+Math.sin(now/180)*.018,1-Math.sin(now/180)*.018);
+ // 거대한 철갑 몸체와 해골 투구
+ c.fillStyle='#303a43';c.beginPath();c.ellipse(0,24,145,116,0,0,Math.PI*2);c.fill();c.strokeStyle='#a9b3bd';c.lineWidth=13;c.stroke();
+ c.fillStyle='#65717b';c.fillRect(-112,-3,224,82);c.fillStyle='#424e59';c.fillRect(-98,8,196,58);c.strokeStyle='#c3ccd2';c.lineWidth=5;c.strokeRect(-98,8,196,58);
+ for(let x of [-78,-42,0,42,78]){c.fillStyle='#c4cbd0';c.beginPath();c.moveTo(x-8,12);c.lineTo(x,38);c.lineTo(x+8,12);c.closePath();c.fill();}
+ c.fillStyle='#59636c';c.beginPath();c.ellipse(0,-34,82,80,0,0,Math.PI*2);c.fill();c.strokeStyle='#c0c8ce';c.lineWidth=9;c.stroke();
+ c.fillStyle='#202a34';c.beginPath();c.ellipse(0,-49,68,62,0,0,Math.PI*2);c.fill();
+ c.fillStyle='#d7dce0';c.beginPath();c.moveTo(-47,-38);c.lineTo(-29,-12);c.lineTo(-8,-7);c.lineTo(0,-19);c.lineTo(12,-7);c.lineTo(34,-15);c.lineTo(47,-40);c.lineTo(36,15);c.lineTo(0,36);c.lineTo(-36,15);c.closePath();c.fill();
+ c.fillStyle='#151b22';c.fillRect(-38,-38,76,24);c.fillStyle='#ff354b';c.shadowColor='#ff243d';c.shadowBlur=14;c.fillRect(-28,-31,17,8);c.fillRect(11,-31,17,8);c.shadowBlur=0;
+ c.fillStyle='#858f99';c.beginPath();c.moveTo(-55,-73);c.quadraticCurveTo(-118,-125,-108,-166);c.quadraticCurveTo(-68,-127,-42,-99);c.closePath();c.fill();c.strokeStyle='#d0d7dc';c.lineWidth=4;c.stroke();
+ c.beginPath();c.moveTo(55,-73);c.quadraticCurveTo(118,-125,108,-166);c.quadraticCurveTo(68,-127,42,-99);c.closePath();c.fill();c.stroke();
+ c.fillStyle='#75808b';for(let x of [-112,112]){c.beginPath();c.ellipse(x,24,39,68,x*.002,0,Math.PI*2);c.fill();c.strokeStyle='#c1c9ce';c.lineWidth=7;c.stroke();}
+ c.fillStyle='#9aa5af';c.fillRect(-92,88,184,25);c.restore();
+ if(stunned){c.fillStyle='#72e8ff';c.font='bold 34px sans-serif';c.textAlign='center';c.fillText('기절! 공격 불가',450,80);}else{c.fillStyle='#ff5264';c.font='bold 22px sans-serif';c.textAlign='center';c.fillText(['근접 공격','원거리 포격','초고속 돌진','소환 패턴','강력 돌진'][Math.max(0,b.phase)]+' 패턴',450,42);}
+ wb.players.forEach(p=>{if(!p||!p.connected)return;c.fillStyle=p.dead?'#777':'#67d8ff';c.beginPath();c.arc(p.x,p.y,13,0,Math.PI*2);c.fill();c.fillStyle='#fff';c.font='12px sans-serif';c.textAlign='center';c.fillText(p.name+(p.dead?' (전투불능)':''),p.x,p.y-20);c.fillStyle='#222';c.fillRect(p.x-22,p.y+17,44,5);c.fillStyle='#59e58a';c.fillRect(p.x-22,p.y+17,44*Math.max(0,p.hp/p.maxHp),5);});
+ c.fillStyle='#222';c.fillRect(140,12,620,13);c.fillStyle='#e94d59';c.fillRect(140,12,620*Math.max(0,(b.hp||0)/(b.maxHp||1)),13);c.strokeStyle='#fff';c.strokeRect(140,12,620,13);
+ if(wb.finished){c.fillStyle='#ffe27a';c.font='bold 42px sans-serif';c.textAlign='center';c.fillText('월드 보스 격파!',450,250);}
+}
 function wbGuestSend(){if(wb.role!=='guest'||!wb.started||!wb.conn||!wb.conn.open)return;wbSend({type:'input',input:{w:!!(wb.keys.w||wb.keys.ArrowUp),a:!!(wb.keys.a||wb.keys.ArrowLeft),s:!!(wb.keys.s||wb.keys.ArrowDown),d:!!(wb.keys.d||wb.keys.ArrowRight),attack:!!wb.keys[' '],skill:!!wb.keys.p},loadout:wbLoadout()});}
 function wbTick(){if(!$('worldBossView').classList.contains('active'))return;const now=Date.now();if(wb.role==='host'&&wb.started&&!wb.finished&&now-wb.lastTick>=50){wb.lastTick=now;wbHostTick();}else if(wb.role==='guest'&&wb.started&&now-wb.lastSend>50){wb.lastSend=now;wbGuestSend();}wbRender();}
-function wbHostAttach(conn,slot){wb.slots[slot]=conn;conn.on('data',d=>{if(!d||typeof d!=='object')return;if(d.type==='hello'){const p=wb.players[slot];if(!p)return;p.connected=true;p.name=String(d.name||('플레이어 '+(slot+1))).slice(0,18);p.damage=Math.max(1,Number(d.loadout&&d.loadout.damage)||1);p.melee=!!(d.loadout&&d.loadout.melee);wbCount();try{conn.send({type:'welcome',slot:slot,players:wb.players,boss:wb.boss,started:wb.started,day:state.worldBossDay});}catch(e){}}else if(d.type==='input'){const p=wb.players[slot];if(p&&p.connected){p.input=d.input||{};if(d.loadout){p.damage=Math.max(1,Number(d.loadout.damage)||1);p.melee=!!d.loadout.melee;}}}});conn.on('close',()=>{const p=wb.players[slot];if(p){p.connected=false;p.input={};}wbCount();});}
+function wbHostAttach(conn,slot){wb.slots[slot]=conn;conn.on('data',d=>{if(!d||typeof d!=='object')return;if(d.type==='hello'){const p=wb.players[slot];if(!p)return;p.connected=true;p.name=String(d.name||('플레이어 '+(slot+1))).slice(0,18);p.damage=Math.max(1,Number(d.loadout&&d.loadout.damage)||1);p.melee=!!(d.loadout&&d.loadout.melee);p.weaponName=String(d.loadout&&d.loadout.weaponName||'');wbCount();try{conn.send({type:'welcome',slot:slot,players:wb.players,boss:wb.boss,started:wb.started,day:state.worldBossDay});}catch(e){}}else if(d.type==='input'){const p=wb.players[slot];if(p&&p.connected){p.input=d.input||{};if(d.loadout){p.damage=Math.max(1,Number(d.loadout.damage)||1);p.melee=!!d.loadout.melee;p.weaponName=String(d.loadout.weaponName||'');}}}});conn.on('close',()=>{const p=wb.players[slot];if(p){p.connected=false;p.input={};}wbCount();});}
 function wbCreate(){if(state.worldBossDay===wbDay()){wbStatus('오늘 도전은 이미 사용했어.');return;}if(!window.Peer){wbStatus('실시간 연결 모듈을 불러오지 못했어.');return;}wbCleanup();wb.role='host';wb.players=Array.from({length:10},(_,i)=>({slot:i,connected:i===0,name:i===0?(coopLocalProfile().nick||'방장'):'',x:130+(i%5)*150,y:410+Math.floor(i/5)*55,hp:100,maxHp:100,dead:false,input:{},damage:1,melee:false}));const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',code=Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>chars[b%chars.length]).join('');wb.code=code;$('wbRoomCode').textContent=code;wbStatus('월드 보스 방을 만드는 중...');let peer;try{peer=new Peer('zombie-world-'+code.toLowerCase(),coopPeerOptions);}catch(e){wbStatus('방 생성 실패: '+e.message);return;}wb.peer=peer;peer.on('open',()=>{wbStatus('방 준비 완료! 코드를 친구에게 보내.');wbCount();});peer.on('connection',conn=>{if(wb.started){conn.close();return;}const slot=wb.players.findIndex((p,i)=>i>0&&!p.connected);if(slot<1){conn.close();return;}wbHostAttach(conn,slot);});peer.on('error',e=>wbStatus('월드 보스 연결 오류: '+coopErrorText(e)));}
 function wbJoin(){if(state.worldBossDay===wbDay()){wbStatus('오늘 월드 보스 도전은 이미 사용했어.');return;}if(!window.Peer){wbStatus('실시간 연결 모듈을 불러오지 못했어.');return;}const code=$('wbCodeInput').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){wbStatus('6자리 방 코드를 입력해.');return;}wbCleanup();wb.role='guest';wb.code=code;wbStatus('방에 접속하는 중...');let peer;try{peer=new Peer(coopPeerOptions);}catch(e){wbStatus('접속 실패: '+e.message);return;}wb.peer=peer;peer.on('open',()=>{const conn=peer.connect('zombie-world-'+code.toLowerCase(),{reliable:true,serialization:'json'});wb.conn=conn;conn.on('open',()=>conn.send({type:'hello',name:coopLocalProfile().nick,loadout:wbLoadout()}));conn.on('data',d=>{if(!d)return;if(d.type==='welcome'){wb.mySlot=d.slot;wb.players=d.players||[];wb.boss=d.boss||wb.boss;wb.started=!!d.started;wbStatus('방 입장 완료! 방장이 시작할 때까지 기다려.');wbCount();}else if(d.type==='start'||d.type==='snapshot'){if(d.type==='start'){state.worldBossDay=wbDay();save();}wb.started=true;wb.players=d.players||wb.players;wb.boss=d.boss||wb.boss;$('wbLobby').style.display='none';$('wbArena').style.display='block';}else if(d.type==='reward'){state.worldBossDay=d.day||wbDay();state.wallet+=Number(d.coins)||10000;save();refresh();wbStatus('월드 보스 보상 10,000코인을 받았어!');}else if(d.type==='victory'){wb.finished=true;wb.players=d.players||wb.players;wbRender();}});conn.on('close',()=>wbStatus('방장과 연결이 끊어졌어.'));});peer.on('error',e=>wbStatus('월드 보스 접속 오류: '+coopErrorText(e)));}
 function wbKeyDown(e){if(!$('worldBossView').classList.contains('active')||!wb.started)return;if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();wb.keys[e.key===' '?' ':e.key]=true;if(e.key.toLowerCase()==='p')wb.keys.p=true;if(wb.role==='host'&&wb.players[0])wb.players[0].input={w:!!(wb.keys.w||wb.keys.ArrowUp),a:!!(wb.keys.a||wb.keys.ArrowLeft),s:!!(wb.keys.s||wb.keys.ArrowDown),d:!!(wb.keys.d||wb.keys.ArrowRight),attack:!!wb.keys[' '],skill:!!wb.keys.p};}
