@@ -1279,6 +1279,42 @@ function drawRedesignedWeapon(n,c){
 
  return false;
 }
+function drawSuperWeaponFinish(n,melee,c){
+ // 기존 무기 실루엣은 유지하고 이름에 맞는 재질·홈·코어만 덧입힌다.
+ let a=c,glow=0;
+ if(/해커/.test(n)){a='#55ff79';glow=5;}
+ else if(/화염|불꽃|용암/.test(n)){a='#ff7138';glow=6;}
+ else if(/빙결|얼음|전기 창/.test(n)){a='#70eaff';glow=5;}
+ else if(/차원/.test(n)){a='#c18aff';glow=6;}
+ else if(/적월선|혈월/.test(n)){a='#ff526d';glow=6;}
+ else if(/영혼/.test(n)){a='#76ffc4';glow=5;}
+ else if(/블랙홀/.test(n)){a='#b18aff';glow=7;}
+ else if(/성운|샤이니스타|종말 레일건/.test(n)){a='#a78bff';glow=6;}
+ else if(/독성|스프레이/.test(n)){a='#83f0a8';glow=5;}
+ else if(/황금/.test(n)){a='#ffd66b';glow=5;}
+ else {a='#e8c982';glow=4;}
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.shadowColor=a;ctx.shadowBlur=glow;
+ ctx.strokeStyle=a;ctx.globalAlpha=.9;ctx.lineWidth=1.8;
+ if(melee){
+  // 칼날/도구의 길이 방향을 따라가는 정밀한 이중 베벨
+  if(/낫/.test(n)){ctx.beginPath();ctx.arc(17,-16,27,-1.48,.62);ctx.stroke();ctx.globalAlpha=.55;ctx.lineWidth=1;ctx.beginPath();ctx.arc(17,-16,22,-1.45,.55);ctx.stroke();}
+  else if(/창/.test(n)){ctx.beginPath();ctx.moveTo(12,-34);ctx.lineTo(12,-7);ctx.stroke();ctx.globalAlpha=.55;ctx.beginPath();ctx.moveTo(8,-20);ctx.lineTo(12,-29);ctx.lineTo(16,-20);ctx.stroke();}
+  else if(/방망이/.test(n)){ctx.beginPath();ctx.moveTo(9,-8);ctx.lineTo(15,28);ctx.stroke();ctx.globalAlpha=.6;ctx.lineWidth=1;for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(8,2+k*8);ctx.lineTo(16,4+k*8);ctx.stroke();}}
+  else{ctx.beginPath();ctx.moveTo(17,-8);ctx.lineTo(29,-12);ctx.lineTo(48,-15);ctx.stroke();ctx.globalAlpha=.6;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(19,-3);ctx.lineTo(45,-9);ctx.stroke();}
+  // 손잡이와 칼날 접점의 금속 보강 링
+  ctx.globalAlpha=.95;ctx.fillStyle='#e5d5a8';ctx.fillRect(7,-5,11,2);ctx.fillRect(8,4,9,1.5);
+ }else{
+  // 총기 본체 측면의 이름별 회로/에너지 채널
+  ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(17,-5);ctx.lineTo(21,-2);ctx.lineTo(32,-2);ctx.stroke();
+  ctx.globalAlpha=.65;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(11,5);ctx.lineTo(18,5);ctx.lineTo(22,2);ctx.lineTo(31,2);ctx.stroke();
+  ctx.fillStyle=a;ctx.globalAlpha=1;ctx.fillRect(22,-1.5,5,3);
+  ctx.fillStyle='#f5f0df';ctx.fillRect(9,-9,5,1.4);
+  if(/샷건/.test(n)){ctx.strokeStyle=a;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(42,-6);ctx.lineTo(61,-6);ctx.moveTo(42,5);ctx.lineTo(61,5);ctx.stroke();}
+  if(/저격|레일건/.test(n)){ctx.strokeStyle=a;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(44,0);ctx.lineTo(75,0);ctx.stroke();}
+ }
+ ctx.restore();
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  if(n==='수류탄'||n==='오버사이클')return false;
@@ -1293,8 +1329,8 @@ function drawDistinctWeapon(w,pl){
  if(melee&&pl.swing>0)ctx.rotate(swingAngle);
  ctx.translate(-12,-5);
  ctx.translate(7,1);
- if(drawRedesignedWeapon(n,c)){if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
- if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ if(drawRedesignedWeapon(n,c)){if(superForm)drawSuperWeaponFinish(n,melee,c);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=8;ctx.beginPath();ctx.arc(0,0,66,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ if(drawWeaponSignature(n,c,metal,dark,wood)){drawRemainingWeaponDetail(n,c);drawWeaponFinish(n,c,melee);if(superForm)drawSuperWeaponFinish(n,melee,c);if(melee&&pl.swing>0){ctx.globalAlpha=.18;ctx.strokeStyle=c;ctx.lineWidth=9;ctx.beginPath();ctx.arc(0,0,64,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
  if(melee){
   ctx.fillStyle=wood;ctx.fillRect(5,-2,8,16);ctx.fillStyle=dark;ctx.fillRect(1,-5,16,4);
   if(n.includes('방망이')){ctx.fillStyle='#b7834e';ctx.fillRect(8,-4,9,43);ctx.fillStyle='#e4c18b';ctx.fillRect(7,-12,11,14);ctx.fillStyle='#382b25';ctx.fillRect(9,31,8,5);}
@@ -1328,6 +1364,7 @@ function drawDistinctWeapon(w,pl){
   ctx.fillStyle=c;ctx.fillRect(30,2,4,3);
  }
  drawWeaponFinish(n,c,melee);
+ if(superForm)drawSuperWeaponFinish(n,melee,c);
  ctx.restore();return true;
 }
 function drawGrenadeIcon(gctx,scale=1){gctx.save();gctx.scale(scale,scale);gctx.shadowColor='#243d20';gctx.shadowBlur=9;const body=gctx.createLinearGradient(-9,0,9,0);body.addColorStop(0,'#142d19');body.addColorStop(.48,'#294b27');body.addColorStop(1,'#102416');gctx.fillStyle=body;gctx.beginPath();gctx.ellipse(0,2,10,13,0,0,Math.PI*2);gctx.fill();gctx.shadowBlur=0;gctx.strokeStyle='#f5f7ff';gctx.lineWidth=1.35;gctx.stroke();gctx.strokeStyle='#fff';gctx.lineWidth=1;gctx.beginPath();gctx.arc(-3,0,5,-1.2,1.2);gctx.stroke();gctx.beginPath();gctx.moveTo(-5,5);gctx.lineTo(4,5);gctx.stroke();gctx.fillStyle='#080b0d';gctx.beginPath();gctx.roundRect(-5,-13,10,6,2);gctx.fill();gctx.fillRect(-3,-16,6,4);gctx.strokeStyle='#f5f7ff';gctx.lineWidth=1.25;gctx.strokeRect(-5,-13,10,6);gctx.strokeRect(-3,-16,6,4);gctx.fillStyle='#fff';gctx.beginPath();gctx.arc(0,1,1.7,0,Math.PI*2);gctx.fill();gctx.restore();}
