@@ -540,7 +540,7 @@ function drawMap(){
  if(!towerMode){ctx.fillStyle='rgba(4,9,13,.72)';ctx.fillRect(12,10,250,30);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';ctx.fillText('🗺 '+currentMap.name+'  ·  장애물 '+mapObstacles.length+'개',22,30);}
 }
 function say(t){$('message').textContent=t}
-let blackMarketOverride='auto';
+var blackMarketOverride='auto';
 function isMarketAdmin(){return me==='dnieyeye';}
 function blackMarketIsOpen(){if(blackMarketOverride==='open')return true;if(blackMarketOverride==='closed')return false;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()),h=Number(parts.find(p=>p.type==='hour').value),m=Number(parts.find(p=>p.type==='minute').value),mins=h*60+m;return mins>=750&&mins<760;}
 function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminStatus'))$('marketAdminStatus').textContent=mode==='open'?'암시장을 강제로 열었어.':mode==='closed'?'암시장을 강제로 닫았어.':'매일 12:30~12:40 자동 운영으로 돌아갔어.';}
