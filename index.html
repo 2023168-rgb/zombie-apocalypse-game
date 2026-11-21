@@ -541,9 +541,11 @@ function drawMap(){
 }
 function say(t){$('message').textContent=t}
 window.blackMarketOverride='auto';
-function isMarketAdmin(){return me==='dnieyeye';}
+let marketAdminAllowed=false;
+window.zombieSetMarketAdmin=allowed=>{marketAdminAllowed=!!allowed;};
+function isMarketAdmin(){return marketAdminAllowed;}
 function blackMarketIsOpen(){if(window.blackMarketOverride==='open')return true;if(window.blackMarketOverride==='closed')return false;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()),h=Number(parts.find(p=>p.type==='hour').value),m=Number(parts.find(p=>p.type==='minute').value),mins=h*60+m;return mins>=750&&mins<760;}
-function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;window.blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminStatus'))$('marketAdminStatus').textContent=mode==='open'?'암시장을 강제로 열었어.':mode==='closed'?'암시장을 강제로 닫았어.':'매일 12:30~12:40 자동 운영으로 돌아갔어.';}
+function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;window.blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminSupplyStatus'))$('marketAdminSupplyStatus').textContent='현재 설정: '+(mode==='open'?'강제 오픈':mode==='closed'?'강제 종료':'자동 운영');}
  window.blackMarketControl={get:()=>window.blackMarketOverride,set:mode=>setMarketOverride(mode),apply:mode=>{window.blackMarketOverride=mode;marketClockTick();}};
 function updateMarketAdmin(){const box=$('marketAdminControls');if(box)box.style.display='none';}
 function showBlackMarketClosed(){const el=$('marketLobbyStatus');if(el)el.textContent='지금은 암시장에 들어갈 수 있는 시간이 아니야. 매일 오후 12시 30분부터 12시 40분까지만 열려!';if($('blackMarketView')&&$('blackMarketView').classList.contains('active'))show('lobby');}
@@ -2211,7 +2213,7 @@ function logged(){document.body.classList.remove('local-locked');$('localAuth').
 function locked(){document.body.classList.add('local-locked');$('localAuth').style.display='flex';$('socialMenu').style.display='none';}
 function emailFor(id){return id.toLowerCase()+'@accounts.zombie-apocalypse.invalid';}
 function validId(id){return /^[a-zA-Z0-9_]{3,20}$/.test(id);}
-function setProfile(p){myProfile=p;me=p.username;logged();profile();startGamePresence();if(!tradePollTimer)tradePollTimer=setInterval(()=>tradeRefresh(),2200);tradeRefresh(true);}
+function setProfile(p){myProfile=p;me=p.username;window.zombieSetMarketAdmin?.(me==='dnieyeye');logged();profile();startGamePresence();if(!tradePollTimer)tradePollTimer=setInterval(()=>tradeRefresh(),2200);tradeRefresh(true);}
 function profile(){if(!myProfile)return;const dev=me==='dnieyeye',name=(myProfile.nickname||me)+(dev?' (개발자)':'');$('myNick').textContent=name;$('myProfileName').textContent=name;$('myNick').style.color=dev?'#55aaff':'';$('myProfileName').style.color=dev?'#55aaff':'';$('myAvatar').src=myProfile.avatar_url||fallbackAvatar;}
 let rankTab='boss_kills';
 const rankLabels={boss_kills:'보스 처치 횟수',zombie_kills:'좀비 처치 횟수',gacha_count:'뽑기 횟수',tower_floor:'차원의 탑 최고 층수',infinite_best:'무한모드 최고 스테이지'};
@@ -2332,7 +2334,7 @@ $('gameRegister').onclick=register;$('gameLogin').onclick=login;$('saveNick').on
 $('socialMenu').onclick=()=>{$('socialPanel').style.display='block';profile();render('friends');};$('socialClose').onclick=()=>$('socialPanel').style.display='none';document.querySelectorAll('#socialPanel [data-tab]').forEach(b=>b.onclick=()=>render(b.dataset.tab));
 $('gameLogout').onclick=async()=>{await sb.auth.signOut();user=null;me=null;myProfile=null;activeChat=null;currentTrade=null;if(onlineChannel){sb.removeChannel(onlineChannel);onlineChannel=null;}if(tradePollTimer){clearInterval(tradePollTimer);tradePollTimer=null;}$('tradeModal').style.display='none';tradeHideIncoming();$('socialPanel').style.display='none';$('nickSetup').style.display='none';locked();};
 $('avatarUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>1024*1024){alert('사진은 1MB 이하로 선택해줘.');return;}const rd=new FileReader();rd.onload=async()=>{const {data,error}=await sb.from('profiles').update({avatar_url:rd.result}).eq('id',user.id).select('*').single();if(error){say('프로필 사진 저장 실패: '+error.message);return;}setProfile(data);};rd.readAsDataURL(f);};
-sb.auth.onAuthStateChange(async(event,session)=>{if(session?.user){user=session.user;if(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED'){await finishLogin();}}else if(event==='INITIAL_SESSION'||event==='SIGNED_OUT'){user=null;me=null;myProfile=null;locked();}});
+sb.auth.onAuthStateChange(async(event,session)=>{if(session?.user){user=session.user;if(event==='INITIAL_SESSION'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED'){await finishLogin();}}else if(event==='INITIAL_SESSION'||event==='SIGNED_OUT'){user=null;me=null;myProfile=null;window.zombieSetMarketAdmin?.(false);locked();}});
 (async()=>{locked();const {data,error}=await sb.auth.getSession();if(error){say('인증 상태 확인 실패: '+error.message);return;}if(data.session){user=data.session.user;await finishLogin();}})();
 })();
 </script>
