@@ -354,7 +354,7 @@ function renderInventory(){
 }
 function isGodslayerWeapon(w){return !!(w&&/^갓슬레이어\+*$/.test(w.name||''));}
 function balanceWeapon(w){
- if(w&&w.name==='오버사이클'){w.cooldown=72;w.damage=10;w.pellets=1;w.melee=false;return w;}
+ if(w&&w.name==='오버사이클'){w.cooldown=60;w.damage=10;w.pellets=1;w.melee=false;return w;}
  const melee=isMeleeWeapon(w),pellets=melee?3:Math.max(1,Number(w.pellets)||1);
  const cooldown=Math.max(7,Math.min(38,Number(w.cooldown)||17));
  const baseName=String(w.name||'').replace(/\++$/,'');
@@ -611,7 +611,7 @@ function awardRareDrops(){
 
 function fire(){
  if(coop.role==='guest'){coopSend({type:'action',action:'attack'});return;}
- let w=getWeapon(),boosted=Date.now()<shinyBoostUntil,delay=w.name==='오버사이클'?72:Math.max(1,Math.floor((w.cooldown-fireBoost*2)/(boosted?2.5:1)));
+ let w=getWeapon(),boosted=Date.now()<shinyBoostUntil,delay=w.name==='오버사이클'?60:Math.max(1,Math.floor((w.cooldown-fireBoost*2)/(boosted?2.5:1)));
  if(!running||paused||frame-lastShot<delay)return;lastShot=frame;
  if(w.name==='오버사이클'){const a=player.angle;bullets.push({x:player.x+Math.cos(a)*25,y:player.y+Math.sin(a)*25,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:90,dmg:10,color:'#aeb5bc',shape:'overcycle',weaponName:'오버사이클'});return;}
  if(w.name==='수류탄'){const job=state.jobInventory.find(j=>j.id===state.equippedJob),dmg=100*(job&&job.name==='폭발의 왕'?2:1),a=player.angle;bullets.push({x:player.x+Math.cos(a)*18,y:player.y+Math.sin(a)*18-5,vx:Math.cos(a)*3.6,vy:Math.sin(a)*3.6-2.6,life:90,dmg,color:'#ffcf55',shape:'grenade',weaponName:'수류탄',spin:Math.random()*Math.PI*2});return;}
@@ -2098,7 +2098,7 @@ function loop(now=performance.now()){duelClientLoop();if(coop.role==='guest'&&ru
 function renderWeaponCodex(){
  const owned=new Set(state.inventory.map(w=>w.name));
  const groups=rarityInfo.map(r=>({id:r.id,name:r.name,cls:r.cls,items:(pools[r.id]||[]).map(w=>({name:w[0],damage:w[1],cooldown:w[2],melee:w[3]==='melee',special:false}))}));
- groups.push({id:'special',name:'특별 무기',cls:'godly',items:[{name:'샤이니스타',damage:'적월선과 동일',cooldown:'별도 설정',melee:false,special:true,detail:'5초 동안 공격력과 연사 속도 2.5배 · 별빛 오라'},{name:'적월선',damage:'현재 최강 무기의 2배',cooldown:'1초',melee:true,special:true,detail:'붉은 검기 · 여러 적 관통'},{name:'수류탄',damage:100,cooldown:'1.5초',melee:false,special:true,detail:'황금 수류탄 투척 · 충돌 또는 비행 종료 시 범위 폭발'},{name:'오버사이클',damage:10,cooldown:'1.2초',melee:false,special:true,detail:'회색 탄환 · 명중 지점 주변 추가 폭발 피해 · 스킬 사용 시 30초 동안 모든 좀비 능력치 절반'}]});
+ groups.push({id:'special',name:'특별 무기',cls:'godly',items:[{name:'샤이니스타',damage:'적월선과 동일',cooldown:'별도 설정',melee:false,special:true,detail:'5초 동안 공격력과 연사 속도 2.5배 · 별빛 오라'},{name:'적월선',damage:'현재 최강 무기의 2배',cooldown:'1초',melee:true,special:true,detail:'붉은 검기 · 여러 적 관통'},{name:'수류탄',damage:100,cooldown:'1.5초',melee:false,special:true,detail:'황금 수류탄 투척 · 충돌 또는 비행 종료 시 범위 폭발'},{name:'오버사이클',damage:10,cooldown:'1초',melee:false,special:true,detail:'회색 탄환 · 명중 지점 주변 추가 폭발 피해 · 스킬 사용 시 30초 동안 모든 좀비 능력치 절반'}]});
  $('codexContent').innerHTML=groups.map(g=>'<section class="codex-group"><h3 class="'+g.cls+'">'+g.name+'</h3>'+g.items.map(w=>{const copies=state.inventory.filter(x=>x.name===w.name),claimed=(state.claimedWeaponRewards||[]).includes(w.name)||copies.some(x=>(state.claimedWeaponRewards||[]).includes(x.id)),reward=w.special?10000:({common:10,uncommon:20,odd:30,rare:50,epic:100,legendary:100,mythic:500,godly:1000,divine:2000}[g.id]||0),has=copies.length>0;return '<div class="codex-entry"><b>'+w.name+'</b> <span class="'+(has?'codex-owned':'codex-missing')+'">'+(has?'✓ 보유 '+copies.length+'개':'미획득')+'</span><small>'+(w.special?w.detail:('공격력 '+w.damage+' · 공격 쿨타임 '+w.cooldown+' · '+(w.melee?'근접 무기':'총기')))+(w.special?' · '+(w.melee?'검':'총기'):'')+'</small>'+(has?'<div class="buttons"><button class="gold" data-reward="'+w.name+'" '+(claimed?'disabled':'')+'>'+(claimed?'✓ 수집 보상 수령 완료':'💰 '+reward+'코인 받기 (1회)')+'</button></div>':'<small>무기를 획득하면 1회 수집 보상을 받을 수 있어.</small>')+'</div>';}).join('')+'</section>').join('');
  $('codexContent').querySelectorAll('[data-reward]').forEach(btn=>btn.onclick=()=>{const name=btn.dataset.reward,copies=state.inventory.filter(w=>w.name===name),claimed=state.claimedWeaponRewards||[];if(!copies.length||claimed.includes(name)||copies.some(w=>claimed.includes(w.id)))return;const group=groups.find(g=>g.items.some(w=>w.name===name)),amount=group&&group.id==='special'?10000:({common:10,uncommon:20,odd:30,rare:50,epic:100,legendary:100,mythic:500,godly:1000,divine:2000}[group&&group.id]||0);if(!amount)return;state.claimedWeaponRewards.push(name);state.wallet+=amount;save();refresh();renderWeaponCodex();$('codexDescription').textContent=name+' 수집 보상 '+amount+'코인을 1회 받았어!';});
 }
