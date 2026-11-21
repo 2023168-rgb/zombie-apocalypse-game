@@ -1737,11 +1737,10 @@ function wbHostTick(){
    if(p.weaponName==='적월선')damage=p.damage*2.4;
    if(p.weaponName==='샤이니스타'){p.boostUntil=now+5000;damage=0;}
    if(p.weaponName==='블랙홀 발사기'){damage=Math.max(damage,p.damage*1100);b.stunUntil=Math.max(b.stunUntil||0,now+1800);}
-   if(p.weaponName==='해커검'){damage=0;}
+   if(p.weaponName==='해커검'){damage=Math.max(1,Number(b.maxHp)||0)/3;}
    if(type==='line'&&Math.abs(Math.atan2(Math.sin(p.angle-Math.atan2(b.y-p.y,b.x-p.x)),Math.cos(p.angle-Math.atan2(b.y-p.y,b.x-p.x))))>.35)damage=0;
    if(type==='cone'&&Math.hypot(b.x-p.x,b.y-p.y)>weaponCfg[3])damage=0;
    if(type==='chain'&&Math.hypot(b.x-p.x,b.y-p.y)>weaponCfg[3])damage=0;
-   if(p.weaponName==='해커검')b.stunUntil=Math.max(b.stunUntil||0,now+1000);
    b.hp=Math.max(0,b.hp-damage);
    b.skillFx={kind:'weapon',x:b.x,y:b.y,color:weaponCfg[2]||'#9cecff',until:now+850};
   }
