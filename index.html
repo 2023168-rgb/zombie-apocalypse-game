@@ -540,11 +540,11 @@ function drawMap(){
  if(!towerMode){ctx.fillStyle='rgba(4,9,13,.72)';ctx.fillRect(12,10,250,30);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';ctx.fillText('🗺 '+currentMap.name+'  ·  장애물 '+mapObstacles.length+'개',22,30);}
 }
 function say(t){$('message').textContent=t}
-var blackMarketOverride='auto';
+window.blackMarketOverride='auto';
 function isMarketAdmin(){return me==='dnieyeye';}
-function blackMarketIsOpen(){if(blackMarketOverride==='open')return true;if(blackMarketOverride==='closed')return false;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()),h=Number(parts.find(p=>p.type==='hour').value),m=Number(parts.find(p=>p.type==='minute').value),mins=h*60+m;return mins>=750&&mins<760;}
-function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminStatus'))$('marketAdminStatus').textContent=mode==='open'?'암시장을 강제로 열었어.':mode==='closed'?'암시장을 강제로 닫았어.':'매일 12:30~12:40 자동 운영으로 돌아갔어.';}
- window.blackMarketControl={get:()=>blackMarketOverride,set:mode=>setMarketOverride(mode),apply:mode=>{blackMarketOverride=mode;marketClockTick();}};
+function blackMarketIsOpen(){if(window.blackMarketOverride==='open')return true;if(window.blackMarketOverride==='closed')return false;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()),h=Number(parts.find(p=>p.type==='hour').value),m=Number(parts.find(p=>p.type==='minute').value),mins=h*60+m;return mins>=750&&mins<760;}
+function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;window.blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminStatus'))$('marketAdminStatus').textContent=mode==='open'?'암시장을 강제로 열었어.':mode==='closed'?'암시장을 강제로 닫았어.':'매일 12:30~12:40 자동 운영으로 돌아갔어.';}
+ window.blackMarketControl={get:()=>window.blackMarketOverride,set:mode=>setMarketOverride(mode),apply:mode=>{window.blackMarketOverride=mode;marketClockTick();}};
 function updateMarketAdmin(){const box=$('marketAdminControls');if(box)box.style.display='none';}
 function showBlackMarketClosed(){const el=$('marketLobbyStatus');if(el)el.textContent='지금은 암시장에 들어갈 수 있는 시간이 아니야. 매일 오후 12시 30분부터 12시 40분까지만 열려!';if($('blackMarketView')&&$('blackMarketView').classList.contains('active'))show('lobby');}
 const marketTalk=['흠… 오늘은 꽤 괜찮은 물건이 들어왔지.','쉿, 가격은 여기서만 알려주는 거야.','손님, 구경만 해도 좋지만 시간은 짧다고.','이 물건은 아무 데서나 못 구하지.','오늘 장사는 느낌이 좋은걸?','코인은 충분히 챙겨 왔겠지?','서두르라고. 문 닫을 시간이 금방 와.','나는 그냥 평범한 상인일 뿐이야… 아마도.','오늘 물건은 딱 한 번씩만 거래하지.','누가 뒤에서 따라오는 것 같은데… 기분 탓이겠지.'];
