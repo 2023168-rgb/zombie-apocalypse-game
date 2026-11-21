@@ -46,6 +46,7 @@ returns void language plpgsql security definer set search_path=public as $$
 declare t public.player_trades%rowtype; v_save jsonb; v_item jsonb; v_type text; v_id text; v_found boolean;
 begin
  if jsonb_typeof(p_offer)<>'array' or jsonb_array_length(p_offer)>12 then raise exception '거래 아이템은 최대 12개까지 올릴 수 있어.'; end if;
+ if (select count(*) from jsonb_array_elements(p_offer))<>(select count(distinct (value->>'type')||':'||(value->>'id')) from jsonb_array_elements(p_offer)) then raise exception '같은 아이템을 중복으로 올릴 수 없어.'; end if;
  select * into t from public.player_trades where id=p_trade_id for update;
  if not found or t.status<>'active' or auth.uid() not in (t.sender_id,t.recipient_id) then raise exception '진행 중인 거래가 아니야.'; end if;
  select save_data into v_save from public.game_saves where user_id=auth.uid() and save_slot='main' for update;
@@ -64,8 +65,8 @@ begin
    else raise exception '거래할 수 없는 아이템 종류야.'; end if;
    if not v_found then raise exception '보유하지 않은 아이템이 포함돼 있어.'; end if;
  end loop;
- if auth.uid()=t.sender_id then update public.player_trades set sender_offer=p_offer,sender_ready=false,updated_at=now() where id=t.id;
- else update public.player_trades set recipient_offer=p_offer,recipient_ready=false,updated_at=now() where id=t.id; end if;
+ if auth.uid()=t.sender_id then update public.player_trades set sender_offer=p_offer,sender_ready=false,recipient_ready=false,updated_at=now() where id=t.id;
+ else update public.player_trades set recipient_offer=p_offer,sender_ready=false,recipient_ready=false,updated_at=now() where id=t.id; end if;
 end $$;
 
 create or replace function public.trade_set_ready(p_trade_id uuid)
@@ -109,6 +110,7 @@ begin
        a:=jsonb_set(a,array[case typ when 'weapon' then 'inventory' when 'armor' then 'armorInventory' else 'jobInventory' end],arr,true);
        if typ='weapon' and a->>'equipped'=ident then a:=jsonb_set(a,'{equipped}',to_jsonb(coalesce((arr->0->>'id')::bigint,0)),true); end if;
        if typ='job' and a->>'equippedJob'=ident then a:=jsonb_set(a,'{equippedJob}','null'::jsonb,true); end if;
+       if typ='armor' then a:=jsonb_set(a,array['equippedArmor',case moved->>'slot' when 'helmet' then 'helmet' when 'vest' then 'vest' when 'gloves' then 'gloves' else 'none' end],'null'::jsonb,true); end if;
        arr:=coalesce(b->case typ when 'weapon' then 'inventory' when 'armor' then 'armorInventory' else 'jobInventory' end,'[]'::jsonb);
        select coalesce(max((z->>'id')::bigint),0)+1 into new_id from jsonb_array_elements(arr) z;
        moved:=jsonb_set(moved,'{id}',to_jsonb(new_id),true);
@@ -120,6 +122,7 @@ begin
        b:=jsonb_set(b,array[case typ when 'weapon' then 'inventory' when 'armor' then 'armorInventory' else 'jobInventory' end],arr,true);
        if typ='weapon' and b->>'equipped'=ident then b:=jsonb_set(b,'{equipped}',to_jsonb(coalesce((arr->0->>'id')::bigint,0)),true); end if;
        if typ='job' and b->>'equippedJob'=ident then b:=jsonb_set(b,'{equippedJob}','null'::jsonb,true); end if;
+       if typ='armor' then b:=jsonb_set(b,array['equippedArmor',case moved->>'slot' when 'helmet' then 'helmet' when 'vest' then 'vest' when 'gloves' then 'gloves' else 'none' end],'null'::jsonb,true); end if;
        arr:=coalesce(a->case typ when 'weapon' then 'inventory' when 'armor' then 'armorInventory' else 'jobInventory' end,'[]'::jsonb);
        select coalesce(max((z->>'id')::bigint),0)+1 into new_id from jsonb_array_elements(arr) z;
        moved:=jsonb_set(moved,'{id}',to_jsonb(new_id),true);
