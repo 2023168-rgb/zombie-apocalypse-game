@@ -433,7 +433,7 @@ $('coopCopy').onclick=()=>{const code=coop.code||$('coopCode').textContent;if(na
 const closeModeSelect=()=>{$('modeSelectModal').style.display='none';};$('playBtn').onclick=()=>{$('modeSelectModal').style.display='flex';};$('closeModeSelect').onclick=closeModeSelect;$('modeSelectModal').addEventListener('click',e=>{if(e.target===$('modeSelectModal'))closeModeSelect();});$('chooseNormalMode').onclick=()=>{closeModeSelect();startGame('normal');};$('chooseHardMode').onclick=()=>{closeModeSelect();startGame('hard');};$('chooseInsaneMode').onclick=()=>{closeModeSelect();startGame('insane');};$('chooseFogMode').onclick=()=>{closeModeSelect();startGame('fog');};$('chooseInfiniteMode').onclick=()=>{closeModeSelect();startGame('infinite');};$('speedToggle').onclick=()=>{if(!state.hasDoubleSpeed){say('상점에서 진행속도 2배를 먼저 구매해야 해!');return;}doubleSpeedOn=!doubleSpeedOn;$('speedToggle').classList.toggle('on',doubleSpeedOn);$('speedToggle').textContent=doubleSpeedOn?'⚡ 2배 속도 ON':'⚡ 2배 속도 OFF';};
 
 const skillBook={
- '샤이니스타':['초신성 각성','nova','#ffe66d',330,0], '적월선':['적월 관통검기','line','#ff263e',820,0],
+ '수류탄':['전방위 폭발','nova','#ff7845',135,0], '샤이니스타':['초신성 각성','nova','#ffe66d',330,0], '적월선':['적월 관통검기','line','#ff263e',820,0],
  '기본 권총':['정밀 속사','burst','#ffe08a',210,0], '낡은 권총':['정밀 속사','burst','#ffe08a',210,0], '경비용 리볼버':['강철 관통탄','line','#d8e7ff',440,0], '구형 기관권총':['난사 폭풍','spin','#ffd36b',170,0],
  '전술 권총':['전술 표식탄','mark','#65d9ff',250,0], '더블 배럴':['쌍열 산탄 폭발','cone','#ffb36b',235,0], '경량 기관단총':['탄막 소용돌이','spin','#a7ffb5',190,0],
  '독성 스프레이건':['맹독 안개','poison','#75f08a',175,0], '쌍권총':['크로스 파이어','cross','#ffe18a',260,0], '정찰용 카빈':['정찰 관통사격','line','#a9d7ff',470,0],
