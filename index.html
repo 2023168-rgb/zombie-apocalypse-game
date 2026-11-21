@@ -643,7 +643,7 @@ function awardRareDrops(){
 
 function fire(){
  if(coop.role==='guest'){coopSend({type:'action',action:'attack'});return;}
- let w=getWeapon(),boosted=Date.now()<shinyBoostUntil,delay=w.name==='오버사이클'?48:Math.max(1,Math.floor((w.cooldown-fireBoost*2)/(boosted?2.5:1)));
+ let w=getWeapon(),boosted=Date.now()<shinyBoostUntil,delay=Math.max(1,Math.floor((w.cooldown-fireBoost*2)/(boosted?2.5:1)));
  if(!running||paused||frame-lastShot<delay)return;lastShot=frame;
  if(w.name==='오버사이클'){const a=player.angle;bullets.push({x:player.x+Math.cos(a)*25,y:player.y+Math.sin(a)*25,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:90,dmg:10,color:'#aeb5bc',shape:'overcycle',weaponName:'오버사이클'});return;}
  if(w.name==='수류탄'){const job=state.jobInventory.find(j=>j.id===state.equippedJob),dmg=100*(job&&job.name==='폭발의 왕'?2:1),a=player.angle;bullets.push({x:player.x+Math.cos(a)*18,y:player.y+Math.sin(a)*18-5,vx:Math.cos(a)*3.6,vy:Math.sin(a)*3.6-2.6,life:90,dmg,color:'#ffcf55',shape:'grenade',weaponName:'수류탄',spin:Math.random()*Math.PI*2});return;}
