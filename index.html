@@ -2617,6 +2617,33 @@ window.zombieAdminGrant=(kind)=>{
  save();refresh();renderInventory();renderJobInventory();renderArmor();
  return added;
 };
+
+/* 로비 버튼 클릭을 한곳에서 처리해 모바일 터치 및 기존 핸들러 충돌 방지 */
+const lobbyButtons=document.querySelector('#lobby .buttons');
+if(lobbyButtons){
+ const lobbyActions={
+  playBtn:()=>{$('modeSelectModal').style.display='flex';},
+  shopBtn:()=>show('shop'),
+  equipBtn:()=>show('equip'),
+  titleBtn:()=>show('titles'),
+  friendPlayBtn:()=>{coopBossRaidSelected=false;coopModal.style.display='flex';$('coopChoices').style.display='block';$('coopPlayModeHint').textContent='친구와 일반 협동 생존 플레이를 해. 보스 레이드는 최종 보스 메뉴에서 도전해.';$('coopCreatePane').style.display='none';$('coopJoinPane').style.display='none';$('coopMode2').classList.add('gold');$('coopMode3').classList.remove('gold');coop.playerCount=2;coopStatus('2인 또는 3인 플레이를 선택한 뒤 코드 생성/입력을 눌러.');},
+  duelOpenBtn:()=>{duelModal.style.display='flex';$('duelChoices').style.display='block';$('duelCreatePane').style.display='none';$('duelJoinPane').style.display='none';duelStatus('방을 만들거나 친구 코드로 입장해.');},
+  miniGameBtn:()=>{miniActive=false;show('miniGameView');miniDailyHud();miniGameDraw();},
+  weaponUpgradeOpenBtn:()=>{wb.selectedWeapon=state.equipped;show('weaponUpgradeView');renderWeaponUpgrades();},
+  worldBossOpenBtn:()=>wbOpenView(),
+  towerOpenBtn:()=>{show('towerView');updateTowerHud();},
+  blackMarketOpenBtn:()=>{if(!blackMarketIsOpen()){showBlackMarketClosed();return;}renderBlackMarket();$('marketSpeech').textContent=marketTalk[Math.floor(Math.random()*marketTalk.length)];show('blackMarketView');},
+  rankingOpenBtn:()=>show('rankingView')
+ };
+ lobbyButtons.addEventListener('click',e=>{
+  const btn=e.target.closest('button[id]');
+  if(!btn||!lobbyActions[btn.id])return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  try{lobbyActions[btn.id]();}catch(err){console.error('로비 버튼 실행 오류',btn.id,err);const status=$('marketLobbyStatus');if(status)status.textContent='버튼 실행 오류: '+(err&&err.message||String(err));}
+ },true);
+}
+
 refresh();loop();
 })();
 </script>
