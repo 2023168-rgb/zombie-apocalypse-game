@@ -1082,6 +1082,7 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
  const name=w.name||'',melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선|갓슬레이어/.test(name);
  const accent=w.rarity==='godly'?'#d8b64b':w.rarity==='mythic'?'#9b72c9':w.rarity==='legendary'?'#bd7540':w.rarity==='epic'?'#4e9ba8':w.rarity==='rare'?'#587aa2':'#65717b';
  ctx.save();
+ if(!melee&&pl.swing>0)ctx.translate(-Math.min(6,pl.swing*.28),0);
  if(melee){
    const maxSwing=24,progress=pl.swing>0?1-pl.swing/maxSwing:0;
    // 실제 휘두르는 느낌: 손잡이를 축으로 검이 한쪽에서 반대쪽으로 크게 회전
@@ -1140,6 +1141,7 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
    if(isEnergy){ctx.fillStyle=accent;ctx.fillRect(19,-3,9,3);ctx.fillRect(24,1,5,2);ctx.fillStyle='#dce8ed';ctx.fillRect(29,-2,5,2);}
    else{ctx.fillStyle=accent;ctx.fillRect(20,-5,4,2);}
  }
+ if(!melee&&pl.swing>0){ctx.save();ctx.globalAlpha=Math.min(.95,pl.swing/12);ctx.shadowColor='#ffe18a';ctx.shadowBlur=18;ctx.fillStyle='#fff2a8';ctx.beginPath();ctx.ellipse(62,-1,10,5,0,0,Math.PI*2);ctx.fill();ctx.restore();}
  // 무기 이름별 고유 파츠: 단순 색상 변경이 아니라 총열·조준경·탄창·날 장식을 다르게 구성
  ctx.save();
  const part=(x,y,wid,hei,color)=>{ctx.fillStyle=color;ctx.fillRect(x,y,wid,hei);};
@@ -1716,11 +1718,20 @@ function wbHostTick(){
   p.x=Math.max(30,Math.min(870,p.x+dx/len*3.2));p.y=Math.max(285,Math.min(510,p.y+dy/len*3.2));
   p.angle=Math.atan2(b.y-p.y,b.x-p.x);
   if(i.attack&&p.equipped&&p.weaponName&&p.weaponName!=='무기 없음'&&p.damage>0&&now-(p.attackAt||0)>=Math.max(120,(Number(p.cooldown)||17)*16)){
-   p.attackAt=now;
-   if(p.melee){const reach=58+Math.min(42,p.damage*.35);if(Math.hypot(b.x-p.x,b.y-p.y)<145+reach){b.hp=Math.max(0,b.hp-p.damage*2.4);p.swingUntil=now+220;}}
+   p.attackAt=now;p.swingUntil=now+240;
+   if(p.melee){const reach=58+Math.min(42,p.damage*.35);if(Math.hypot(b.x-p.x,b.y-p.y)<145+reach)b.hp=Math.max(0,b.hp-p.damage*2.4);}
    else{const count=Math.max(1,Math.min(7,Number(p.pellets)||1)),spread=count>1?.13:0;for(let k=0;k<count;k++){const a=p.angle+(k-(count-1)/2)*spread,v=Number(p.speed)||8;b.playerShots.push({x:p.x+Math.cos(a)*20,y:p.y+Math.sin(a)*20,vx:Math.cos(a)*v,vy:Math.sin(a)*v,damage:p.damage,life:90,owner:p.slot});}}
   }
-  if(i.skill&&p.equipped&&p.weaponName&&p.weaponName!=='무기 없음'&&p.damage>0&&['epic','legendary','mythic','godly','divine'].includes(p.rarity)&&now-(p.skillAt||0)>=(p.rarity==='divine'?40000:30000)){p.skillAt=now;const cfg=skillBook[p.weaponName]||['특수 공격','nova','#fff',250];const mult=p.weaponName==='블랙홀 발사기'?1100:p.weaponName==='샤이니스타'?900:cfg[1]==='line'?620:cfg[1]==='rift'?700:cfg[1]==='nova'?760:520;b.hp=Math.max(0,b.hp-p.damage*mult);}if(i.job&&p.job&&now-(p.jobAt||0)>=(p.job.rarity==='divine'?50000:30000)){p.jobAt=now;const j=p.job;if(j.name==='의무병'||j.type==='heal'||j.type==='shield')p.hp=Math.min(p.maxHp,p.hp+35);else if(j.type==='hack'){p.hp=Math.min(p.maxHp,p.hp+15);b.hp=Math.max(0,b.hp-p.damage*180);}else{const mult={godly:1.8,mythic:1.6,legendary:1.45,epic:1.3,rare:1.2,odd:1.1,uncommon:1.05,common:1}[j.rarity]||1;b.hp=Math.max(0,b.hp-p.damage*430*mult);}}
+  const weaponSkillReady=weaponSkillUnlocked({rarity:p.rarity}),weaponSkillCooldown=p.rarity==='divine'?40000:30000;
+  if(i.skill&&p.equipped&&p.weaponName&&p.weaponName!=='무기 없음'&&p.damage>0&&weaponSkillReady&&now-(p.skillAt||0)>=weaponSkillCooldown){
+   p.skillAt=now;const cfg=skillBook[p.weaponName]||['특수 공격','nova','#fff',250],mult=p.weaponName==='블랙홀 발사기'?1100:p.weaponName==='샤이니스타'?900:cfg[1]==='line'?620:cfg[1]==='rift'?700:cfg[1]==='nova'?760:520;
+   b.hp=Math.max(0,b.hp-p.damage*mult);b.skillFx={kind:'weapon',x:b.x,y:b.y,color:cfg[2]||'#9cecff',until:now+850};
+  }
+  if(i.job&&p.job&&now-(p.jobAt||0)>=(p.job.rarity==='divine'?50000:30000)){
+   p.jobAt=now;const j=p.job,rank={godly:1.8,mythic:1.6,legendary:1.45,epic:1.3,rare:1.2,odd:1.1,uncommon:1.05,common:1}[j.rarity]||1;
+   const effects={heal:()=>p.hp=Math.min(p.maxHp,p.hp+Math.max(35,p.maxHp*.35)),shield:()=>p.hp=Math.min(p.maxHp,p.hp+Math.max(25,p.maxHp*.25)),dash:()=>{p.x=Math.max(30,Math.min(870,p.x+Math.cos(p.angle)*115));p.y=Math.max(285,Math.min(510,p.y+Math.sin(p.angle)*115));},freeze:()=>{b.stunUntil=Math.max(b.stunUntil||0,now+1800);},hack:()=>{p.hp=Math.min(p.maxHp,p.hp+20);b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*180*rank);},mark:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*260*rank),mine:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*300*rank),fire:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*360*rank),poison:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*320*rank),slash:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*400*rank),snipe:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*440*rank),shock:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*350*rank),rage:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*460*rank),acid:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*330*rank),chain:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*390*rank),ice:()=>{b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*340*rank);b.stunUntil=Math.max(b.stunUntil||0,now+900);},plasma:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*520*rank),rift:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*560*rank),curse:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*410*rank),nova:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*600*rank),abyss:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*650*rank)};
+   (effects[j.type]||effects.mark)();b.skillFx={kind:'job',x:b.x,y:b.y,color:j.color||'#a9eaff',until:now+850};
+  }
  }
  if(b.hp<=0&&!wb.finished){
   wb.finished=true;state.bossKills=(Number(state.bossKills)||0)+1;state.rankBossKills=(Number(state.rankBossKills)||0)+1;save();
@@ -1736,6 +1747,7 @@ function wbRender(){
  const c=ctx;if(!c)return;const now=Date.now(),b=wb.boss||{};c.clearRect(0,0,W,H);drawMap();
  for(const q of b.projectiles||[]){c.fillStyle='#ff5368';c.beginPath();c.arc(q.x,q.y,9,0,Math.PI*2);c.fill();c.strokeStyle='#ffb1ba';c.lineWidth=2;c.stroke();}
  for(const q of b.playerShots||[]){c.fillStyle='#ffe27a';c.beginPath();c.arc(q.x,q.y,5,0,Math.PI*2);c.fill();c.strokeStyle='#fff3b0';c.lineWidth=2;c.stroke();}
+ if(b.skillFx&&b.skillFx.until>Date.now()){const f=(b.skillFx.until-Date.now())/850;c.save();c.globalAlpha=Math.max(0,f);c.strokeStyle=b.skillFx.color||'#9cecff';c.lineWidth=8;c.beginPath();c.arc(b.x,b.y,175*(1-f)+25,0,Math.PI*2);c.stroke();c.fillStyle=b.skillFx.color||'#9cecff';c.globalAlpha=Math.max(0,f*.18);c.beginPath();c.arc(b.x,b.y,150,0,Math.PI*2);c.fill();c.restore();}
  c.save();c.translate(b.x||450,b.y||205);const stunned=b.stunUntil>now,attacking=!stunned&&now-(b.attackAt||0)<280;c.rotate(attacking?Math.sin((now-b.attackAt)/280*Math.PI)*.13:0);c.scale(1+Math.sin(now/180)*.018,1-Math.sin(now/180)*.018);
  // 거대한 철갑 몸체와 해골 투구
  c.fillStyle='#303a43';c.beginPath();c.ellipse(0,24,145,116,0,0,Math.PI*2);c.fill();c.strokeStyle='#a9b3bd';c.lineWidth=13;c.stroke();
@@ -1750,7 +1762,7 @@ function wbRender(){
  c.fillStyle='#75808b';for(let x of [-112,112]){c.beginPath();c.ellipse(x,24,39,68,x*.002,0,Math.PI*2);c.fill();c.strokeStyle='#c1c9ce';c.lineWidth=7;c.stroke();}
  c.fillStyle='#9aa5af';c.fillRect(-92,88,184,25);c.restore();
  if(stunned){c.fillStyle='#72e8ff';c.font='bold 34px sans-serif';c.textAlign='center';c.fillText('기절! 공격 불가',450,80);}else{c.fillStyle='#ff5264';c.font='bold 22px sans-serif';c.textAlign='center';c.fillText(['근접 공격','원거리 포격','초고속 돌진','광역 충격파','강력 돌진'][Math.max(0,b.phase)]+' 패턴',450,42);}
- wb.players.forEach(p=>{if(!p||!p.connected)return;c.save();c.translate(p.x,p.y);const a=Number.isFinite(p.angle)?p.angle:0;c.rotate(a);c.fillStyle=p.dead?'#777':(p.job&&p.job.color||'#67d8ff');c.beginPath();c.arc(0,0,13,0,Math.PI*2);c.fill();if(p.job&&p.job.color){c.strokeStyle=p.job.color;c.lineWidth=3;c.beginPath();c.arc(0,0,17,0,Math.PI*2);c.stroke();}if(p.equipped&&p.weaponData){const skinPlayer={x:p.x,y:p.y,r:13,angle:a,swing:now<(p.swingUntil||0)?10:0};drawBlockWeapon(p.weaponData,skinPlayer);}c.restore();c.fillStyle='#fff';c.font='12px sans-serif';c.textAlign='center';c.fillText(p.name+(p.dead?' (전투불능)':''),p.x,p.y-20);c.fillStyle='#222';c.fillRect(p.x-22,p.y+17,44,5);c.fillStyle='#59e58a';c.fillRect(p.x-22,p.y+17,44*Math.max(0,p.hp/p.maxHp),5);});
+ wb.players.forEach(p=>{if(!p||!p.connected)return;c.save();c.translate(p.x,p.y);const a=Number.isFinite(p.angle)?p.angle:0;c.rotate(a);c.fillStyle=p.dead?'#777':(p.job&&p.job.color||'#67d8ff');c.beginPath();c.arc(0,0,13,0,Math.PI*2);c.fill();if(p.job&&p.job.color){c.strokeStyle=p.job.color;c.lineWidth=3;c.beginPath();c.arc(0,0,17,0,Math.PI*2);c.stroke();}if(p.equipped&&p.weaponData){const swing=now<(p.swingUntil||0)?Math.max(1,Math.ceil((p.swingUntil-now)/10)):0;const skinPlayer={x:p.x,y:p.y,r:13,angle:a,swing};drawBlockWeapon(p.weaponData,skinPlayer);}c.restore();c.fillStyle='#fff';c.font='12px sans-serif';c.textAlign='center';c.fillText(p.name+(p.dead?' (전투불능)':''),p.x,p.y-20);c.fillStyle='#222';c.fillRect(p.x-22,p.y+17,44,5);c.fillStyle='#59e58a';c.fillRect(p.x-22,p.y+17,44*Math.max(0,p.hp/p.maxHp),5);});
  c.fillStyle='#222';c.fillRect(140,12,620,13);c.fillStyle='#e94d59';c.fillRect(140,12,620*Math.max(0,(b.hp||0)/(b.maxHp||1)),13);c.strokeStyle='#fff';c.strokeRect(140,12,620,13);
  if(wb.finished){c.fillStyle='#ffe27a';c.font='bold 42px sans-serif';c.textAlign='center';c.fillText('월드 보스 격파!',450,250);}
  const local=wb.players[wb.role==='host'?0:wb.mySlot]||{},job=local.job||wbLoadout().job,weapon=local.weaponName||wbLoadout().weaponName;const skillRemain=Math.max(0,Math.ceil(((local.skillAt||0)+(local.rarity==='divine'?40000:30000)-now)/1000)),jobRemain=Math.max(0,Math.ceil(((local.jobAt||0)+(job&&job.rarity==='divine'?50000:30000)-now)/1000));$('waveLabel').textContent='👑 월드 보스';$('jobLabel').textContent='직업: '+(job&&job.name||'없음');$('modeLabel').textContent='월드 보스 레이드';$('leftLabel').textContent='참가자 '+wb.players.filter(p=>p&&p.connected).length+'/10';$('healthLabel').textContent='체력 '+Math.max(0,Math.ceil(local.hp||0))+'/'+(local.maxHp||100);$('matchCoinLabel').textContent='보스 체력 '+Math.ceil(b.hp||0).toLocaleString('ko-KR');$('weaponLabel').textContent='무기 '+weapon;$('skillName').textContent=weaponSkillUnlocked({rarity:local.rarity})?(skillBook[weapon]||['무기 스킬'])[0]:'등급 제한으로 잠김';$('skillCooldown').textContent=skillRemain?'재사용 대기 '+skillRemain+'초':'사용 가능!';$('jobSkillName').textContent=job&&job.skill||'직업 없음';$('jobSkillCooldown').textContent=jobRemain?'재사용 대기 '+jobRemain+'초':'사용 가능!';
