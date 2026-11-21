@@ -737,7 +737,7 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
- if(n==='화염방사기'){glow('#ff6a18',10);rect(3,-8,38,16,'#343a3d');rect(8,-5,27,10,'#697176');rect(28,-11,13,22,'#22282c');rect(35,-7,16,14,'#a9afb2');rect(47,-4,16,8,'#3a4145');rect(9,8,8,18,'#262c30');rect(5,23,16,5,'#777e82');rect(12,-12,8,4,'#d34a1e');rect(17,-17,12,5,'#252b2e');rect(19,-16,8,2,'#ff9a35');rect(2,-3,5,6,'#d4d9dc');ctx.shadowBlur=0;return true;}
+ if(n==='화염방사기'){glow('#ff6a18',15);ctx.shadowColor='#ff6a18';ctx.shadowBlur=18;ctx.fillStyle='#ff7a24';ctx.beginPath();ctx.moveTo(20,-27);ctx.quadraticCurveTo(39,-12,29,2);ctx.quadraticCurveTo(24,13,12,7);ctx.quadraticCurveTo(-2,-1,8,-15);ctx.closePath();ctx.fill();ctx.shadowBlur=0;gem(17,-5,15,'#ffb52e');gem(17,-5,9,'#fff1a1');gem(17,-5,4,'#ffffff');ctx.strokeStyle='#bd79ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(17,-5,22,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#ffe08a';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(17,-5,28,.4,2.5);ctx.stroke();gem(-8,-20,4,'#ffdf75');gem(40,-18,3,'#ff9c45');gem(37,16,3,'#ffdf75');rect(8,13,18,4,'#7b55c8');rect(13,18,8,3,'#f5c96c');return true;}
 
  if(['영혼 수확자','차원 파쇄검','종말 레일건'].includes(n)&&drawRealWorldGunSkin(n,c))return true;
  if(!melee&&drawRealWorldGunSkin(n,c))return true;
