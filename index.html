@@ -564,11 +564,12 @@ function nextWave(){
  say('웨이브 '+wave+' 시작!');updateGameHud();
 }
 function finishGame(){
+ if(towerMode){endGame();return;}
  running=false;let bonus=matchCoins;state.wallet+=bonus;state.clears++;checkTitles();state.level=Math.min(1000,state.level+1);save();refresh();show('lobby');
  alert(`🎉 ${maxWaves}웨이브 클리어!\n스테이지 레벨 +1!\n남은 인게임 코인 ${bonus}개를 로비 보상으로 받았어.\n현재 스테이지 레벨 ${state.level}/1000\n다음 판 좀비 강화 단계: ${state.level-1}단계`);
 }
 function endGame(){
- if(towerMode){running=false;state.towerBestFloor=Math.max(state.towerBestFloor||0,towerRunBest);const earned=towerRunBest>=5?towerRewardPool:0;if(earned){state.towerPendingReward=(Number(state.towerPendingReward)||0)+earned;state.towerPendingFloor=Math.max(Number(state.towerPendingFloor)||0,towerRunBest);}save();refresh();towerMode=false;updateTowerHud();show('towerView');$('towerMessage').textContent='도전 종료! '+towerRunBest+'층까지 도달했어. '+(earned?'누적 '+earned.toLocaleString()+'코인이 준비됐어. [누적 보상 받기]를 눌러 받아!':'5층 이상 도달하지 못해 이번 도전 보상은 없어.');alert('차원의 탑 도전 종료!\n최고 도달: '+towerRunBest+'층\n'+(earned?'누적 보상 '+earned.toLocaleString()+'코인이 준비됐어. 차원의 탑 화면에서 [누적 보상 받기]를 눌러줘.':'5층 이상 도달하지 못해 보상은 지급되지 않았어.')+'\n최고 기록: '+state.towerBestFloor+'층');return;}
+ if(towerMode){running=false;state.towerBestFloor=Math.max(state.towerBestFloor||0,towerRunBest);const earned=towerRunBest>=5?towerRewardPool:0;if(earned){state.towerPendingReward=(Number(state.towerPendingReward)||0)+earned;state.towerPendingFloor=Math.max(Number(state.towerPendingFloor)||0,towerRunBest);}towerRewardPool=0;matchCoins=0;save();refresh();towerMode=false;updateTowerHud();show('towerView');$('towerMessage').textContent='도전 종료! '+towerRunBest+'층까지 도달했어. '+(earned?'누적 '+earned.toLocaleString()+'코인이 준비됐어. [누적 보상 받기]를 눌러 받아!':'5층 이상 도달하지 못해 이번 도전 보상은 없어.');alert('차원의 탑 도전 종료!\n최고 도달: '+towerRunBest+'층\n'+(earned?'누적 보상 '+earned.toLocaleString()+'코인이 준비됐어. 차원의 탑 화면에서 [누적 보상 받기]를 눌러줘.':'5층 이상 도달하지 못해 보상은 지급되지 않았어.')+'\n최고 기록: '+state.towerBestFloor+'층');return;}
  if(coop.role==='host')(coop.conns||[]).forEach((c,slot)=>{if(slot>0)coopSendTo(c,{type:'end',wave,guestCoins:slot===1?coop.remoteCoins:coop.third.coins,hostCoins:matchCoins});});running=false;if(infiniteMode&&wave>=30){let bonus=matchCoins;state.wallet+=bonus;state.infiniteBest=Math.max(state.infiniteBest,wave);say(`무한 생존 종료! ${wave}웨이브 기록 · 코인 ${bonus}개 지급`);}else if(!infiniteMode){say('생존 실패! 이번 판의 인게임 코인은 보상으로 지급되지 않았어.');}state.infiniteBest=Math.max(state.infiniteBest,infiniteMode?wave:0);checkTitles();save();refresh();renderTitles();show('lobby');alert(infiniteMode?`무한 생존 종료!\n도달 웨이브: ${wave}\n최고 기록: ${state.infiniteBest}\n${wave>=30?'30웨이브 이후 보유 코인을 보상으로 받았어.':'30웨이브부터 사망 보상이 지급돼.'}`:'게임 오버! 일반 모드에서는 클리어해야 남은 코인을 보상으로 받아.');
 }
 function gameUpdate(){
