@@ -1411,7 +1411,7 @@ function drawSuperAwakenedWeaponBodyLegacy(n,c,melee){
  }
  ctx.restore();return true;
 }
-function drawSuperAwakenedWeaponBody(n,c,melee){
+function drawSuperAwakenedWeaponBodyBase(n,c,melee){
  if(!melee)return drawSuperAwakenedWeaponBodyLegacy(n,c,false);
  let a=c;
  if(/해커/.test(n))a='#55ff79';else if(/화염|불꽃|용암/.test(n))a='#ff7138';else if(/빙결|얼음|전기|번개/.test(n))a='#70eaff';else if(/차원|블랙홀/.test(n))a='#bd82ff';else if(/적월선|혈월/.test(n))a='#ff526d';else if(/영혼/.test(n))a='#76ffc4';else if(/성운|샤이니스타/.test(n))a='#c19aff';else if(/황금/.test(n))a='#ffd66b';else a='#dce8f0';
@@ -1479,6 +1479,53 @@ function drawSuperAwakenedWeaponBody(n,c,melee){
  ctx.fillStyle='#f7f2df';ctx.beginPath();ctx.arc(18,-7,1.2,0,Math.PI*2);ctx.fill();
  ctx.restore();return true;
 }
+
+function drawSuperAwakenedWeaponBody(n,c,melee){
+ // 해커검은 기존 고유 픽셀 회로 디자인을 그대로 보존
+ if(/해커검/.test(n))return drawSuperAwakenedWeaponBodyBase(n,c,melee);
+ const ok=drawSuperAwakenedWeaponBodyBase(n,c,melee);if(!ok)return false;
+ let a=c;
+ if(/화염|불꽃|용암/.test(n))a='#ff7138';else if(/빙결|얼음|전기|번개/.test(n))a='#70eaff';else if(/차원|블랙홀/.test(n))a='#bd82ff';else if(/적월선|혈월/.test(n))a='#ff526d';else if(/영혼/.test(n))a='#76ffc4';else if(/성운|샤이니스타/.test(n))a='#c19aff';else if(/황금|심판|갓슬레이어/.test(n))a='#ffd66b';
+ ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.shadowColor=a;ctx.shadowBlur=16;
+ const poly=(p,fill,stroke='#fff0c5',lw=1.5)=>{ctx.beginPath();ctx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)ctx.lineTo(p[i][0],p[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
+ if(melee){
+  // 칼날·도끼날·창날 자체를 두꺼운 초진화 합금 구조로 보강
+  if(/낫/.test(n)){
+   poly([[28,-7],[48,-18],[73,-32],[96,-43],[111,-39],[99,-23],[78,-9],[52,1]],'#26313f',a,2.5);
+   ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(36,-8);ctx.quadraticCurveTo(78,-15,103,-36);ctx.stroke();
+  }else if(/도끼/.test(n)){
+   poly([[35,-13],[49,-34],[76,-38],[94,-22],[89,-3],[67,9],[46,1]],'#202c38',a,2.5);
+   poly([[52,-19],[75,-31],[87,-20],[80,-7],[62,-3]],a,'#fff4ce',1.2);
+  }else if(/창/.test(n)){
+   poly([[9,-28],[12,-72],[16,-91],[22,-72],[19,-28]],'#263746',a,2.2);
+   poly([[13,-49],[16,-83],[19,-49]],'#f4fbff','#fff',1);
+  }else if(/방망이/.test(n)){
+   poly([[19,-5],[31,-13],[77,-21],[91,-14],[86,-2],[33,7]],'#263746',a,2.2);
+   for(let k=0;k<4;k++)poly([[39+k*10,-12-k],[45+k*10,-14-k],[48+k*10,-7-k],[42+k*10,-5-k]],a,'#fff',.8);
+  }else{
+   // 검 계열: 칼날의 폭·등날·중앙 홈을 함께 키워 강렬한 대검 실루엣
+   const tip=/심판검|갓슬레이어/.test(n)?-116:-103;
+   poly([[4,-18],[2,-29],[5,tip+14],[12,tip],[19,tip+14],[22,-29],[20,-18],[17,-22],[12,tip+8],[7,-22]],'#18232e',a,2.5);
+   poly([[9,-28],[12,tip+7],[15,-28],[13,-23],[11,-23]],'#fff4cf','#fff',1);
+   ctx.strokeStyle=a;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(4,-34);ctx.lineTo(1,-47);ctx.lineTo(5,-59);ctx.moveTo(20,-34);ctx.lineTo(23,-47);ctx.lineTo(19,-59);ctx.stroke();
+  }
+  // 초진화 문양이 손잡이에서 칼날까지 이어지는 에너지 맥
+  ctx.strokeStyle=a;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(12,-19);ctx.lineTo(9,-31);ctx.lineTo(14,-43);ctx.lineTo(10,-55);ctx.stroke();
+ }else{
+  // 총기류는 총열·몸체·개머리판에 초진화 장갑판과 이중 에너지 레일을 추가
+  poly([[-13,-8],[-3,-15],[18,-17],[29,-13],[53,-16],[69,-9],[67,5],[47,12],[18,10],[-7,5]],'#17232e',a,2.2);
+  poly([[4,-16],[25,-21],[47,-18],[62,-12],[47,-9],[22,-11]],a,'#fff3c7',1.2);
+  ctx.fillStyle='#101820';ctx.fillRect(18,-5,31,4);
+  ctx.fillStyle=a;ctx.shadowBlur=12;ctx.fillRect(21,-4,25,1.8);
+  // 총구와 후방 코어를 빛나는 금속 링으로 강조
+  ctx.strokeStyle='#fff2c9';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(65,-2,4,7,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle=a;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(-7,-2);ctx.lineTo(-14,-2);ctx.moveTo(5,-19);ctx.lineTo(15,-24);ctx.lineTo(29,-21);ctx.stroke();
+ }
+ // 무기 외곽에 짧은 광휘를 더해 슈퍼진화 상태를 확실히 구분
+ ctx.globalAlpha=.8;ctx.strokeStyle=a;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-5,-22);ctx.lineTo(-10,-29);ctx.moveTo(27,-29);ctx.lineTo(33,-36);ctx.stroke();
+ ctx.restore();return true;
+}
+
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  if(n==='수류탄'||n==='오버사이클')return false;
