@@ -145,3 +145,21 @@ grant execute on function public.trade_respond(uuid,boolean) to authenticated;
 grant execute on function public.trade_set_offer(uuid,jsonb) to authenticated;
 grant execute on function public.trade_set_ready(uuid) to authenticated;
 grant execute on function public.trade_finalize(uuid) to authenticated;
+
+
+-- 거래 나가기: 거래 중인 당사자가 거래를 취소할 수 있음
+create or replace function public.trade_leave(p_trade_id uuid)
+returns void language plpgsql security definer set search_path=public as $$
+declare t public.player_trades%rowtype;
+begin
+ select * into t from public.player_trades where id=p_trade_id for update;
+ if not found or auth.uid() not in (t.sender_id,t.recipient_id) or t.status not in ('pending','active') then
+   raise exception '나갈 수 있는 거래가 아니야.';
+ end if;
+ update public.player_trades
+ set status='cancelled',updated_at=now()
+ where id=t.id;
+end $$;
+
+revoke all on function public.trade_leave(uuid) from public;
+grant execute on function public.trade_leave(uuid) to authenticated;
