@@ -443,7 +443,7 @@ function balanceWeapon(w){
  // 강화 1회마다 약 3.5%씩 부드럽게 증가하며 +99에서도 증가량이 갑자기 뛰지 않아.
  const levelScale=Math.pow(1.035,lv);
  // 무기 고유 기본 공격력과 각성 배율을 유지해 무기마다 공격력이 다르게 계산돼.
- const totalDamage=isShinyStar?baseDamage*levelScale:baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened?10:1);
+ const totalDamage=baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened?10:1);
  w.cooldown=cooldown;
  w.damage=Math.min(100000,Math.round(totalDamage*100)/100);
  w.pellets=isShinyStar?10:(isOvercycle?1:(melee?1:Math.min(7,pellets)));
