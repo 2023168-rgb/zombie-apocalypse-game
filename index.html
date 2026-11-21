@@ -141,6 +141,23 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 .museum-meta{margin-top:4px;font-size:11px;color:#35404a;letter-spacing:.3px}
 .museum-transcend{color:#8b1828;text-shadow:0 1px #fff5}
 </style>
+
+<style>
+/* 무기 박물관: 한 줄로 이어지는 복도와 정확히 다섯 개의 전시 케이스 */
+#trophyRoomView>.panel{background:linear-gradient(180deg,#263647 0%,#172433 34%,#0a111b 100%);overflow:hidden}
+#trophyWeaponDisplay{position:relative;display:grid!important;grid-template-columns:repeat(5,minmax(190px,1fr))!important;gap:22px;align-items:end;overflow-x:auto;overflow-y:hidden;padding:38px 24px 48px;margin:20px -4px 0;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;background:linear-gradient(180deg,#26384a 0%,#182839 38%,#111c29 39%,#29394a 40%,#182431 100%);border:1px solid #52677c;border-radius:12px;box-shadow:inset 0 18px 35px #0008,inset 0 -18px 35px #0008}
+#trophyWeaponDisplay:before{content:"";position:absolute;left:0;right:0;top:0;height:28px;background:repeating-linear-gradient(90deg,#d7b87522 0 2px,transparent 2px 90px),linear-gradient(#101923,#34475a);border-bottom:2px solid #a98e5b;pointer-events:none}
+#trophyWeaponDisplay:after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;background:repeating-linear-gradient(90deg,transparent 0 54px,#b7c8d522 55px 57px),linear-gradient(180deg,#33475b,#111923);border-top:2px solid #8192a3;pointer-events:none}
+.museum-case{z-index:1;min-width:0;scroll-snap-align:center;padding:12px 12px 0;border:2px solid #8294a7;border-radius:5px 5px 2px 2px;background:linear-gradient(90deg,#34465a,#172332 12%,#28394c 50%,#14202d 88%,#40546a);box-shadow:0 18px 25px #000b,inset 0 0 0 3px #ffffff12,0 0 18px #9db8d522;transform:translateY(-2px)}
+.museum-case:before{inset:5px 5px 82px;border:1px solid #d9e6f044;border-radius:2px}
+.museum-case-top{font-size:10px;color:#e5d2a5}
+.museum-glass{height:145px;background:linear-gradient(135deg,#d9efff24,#8eb4d51c 48%,#e7f5ff24);border:2px solid #a9c5db88;box-shadow:inset 0 0 30px #b7d8f344,0 0 12px #c5e7ff22}
+.museum-weapon-canvas{height:130px}
+.museum-plaque{min-height:76px;background:linear-gradient(180deg,#e0d5b9,#9e9276);border-top:3px solid #f3e8ca}
+.museum-case-empty{opacity:.72}
+.museum-empty-mark{position:absolute;inset:0;display:grid;place-items:center;color:#d6e2ed66;font-size:52px;font-weight:200}
+@media(max-width:700px){#trophyWeaponDisplay{grid-template-columns:repeat(5,minmax(205px,205px))!important;padding:34px 18px 42px;gap:16px}.museum-case{width:205px}}
+</style>
 </head><body>
 <style>
 #titleScreen{position:fixed;inset:0;z-index:20001;display:none;align-items:center;justify-content:center;overflow:hidden;padding:22px;background:radial-gradient(ellipse at 50% 58%,#792b32aa 0%,transparent 42%),linear-gradient(180deg,#070b16 0%,#17202d 43%,#401d27 76%,#090d14 100%);isolation:isolate}
@@ -476,11 +493,11 @@ function renderTrophyRoom(){
   const rare=remote?(w.rarity||'무기'):(rarity(w.rarity).name);
   const safeName=String(w.name||'이름 없는 무기').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const level=Number(w.upgradeLevel)||0,transcended=!!w.superAwakened;
-  return '<article class="museum-case" style="--case-accent:'+(transcended?'#ff626d':'#b8c9dc')+'"><div class="museum-case-top"><span>COLLECTION No. '+String(i+1).padStart(2,'0')+'</span><span>무기 전시실</span></div><div class="museum-glass"><div class="museum-light"></div><canvas class="museum-weapon-canvas" data-museum-weapon="'+i+'" width="240" height="112"></canvas><div class="museum-stand"></div></div><div class="museum-plaque"><div class="museum-name">'+(transcended?'<span class="museum-transcend">✦ 초월</span> ':'')+safeName+'</div><div class="museum-meta">'+String(rare).replace(/[&<>"']/g,'')+' 등급 · 강화 +'+level+'</div><div class="museum-meta">공격력 '+(Number(w.damage)||0)+'</div></div></article>';
- }).join(''):'<p class="muted">아직 전시할 무기가 없어. 내 전시관 꾸미기에서 무기를 골라줘.</p>';
+  return '<article class="museum-case" style="--case-accent:'+(transcended?'#ff626d':'#b8c9dc')+'"><div class="museum-case-top"><span>전시 케이스 '+String(i+1).padStart(2,'0')+'</span><span>WEAPON GALLERY</span></div><div class="museum-glass"><div class="museum-light"></div><canvas class="museum-weapon-canvas" data-museum-weapon="'+i+'" width="240" height="112"></canvas><div class="museum-stand"></div></div><div class="museum-plaque"><div class="museum-name">'+(transcended?'<span class="museum-transcend">✦ 초월</span> ':'')+safeName+'</div><div class="museum-meta">'+String(rare).replace(/[&<>"']/g,'')+' 등급 · 강화 +'+level+'</div><div class="museum-meta">공격력 '+(Number(w.damage)||0)+'</div></div></article>';
+ }).join('')+Array.from({length:Math.max(0,5-chosen.length)},(_,j)=>'<article class="museum-case museum-case-empty"><div class="museum-case-top"><span>전시 케이스 '+String(chosen.length+j+1).padStart(2,'0')+'</span><span>EMPTY</span></div><div class="museum-glass"><div class="museum-light"></div><div class="museum-empty-mark">＋</div><div class="museum-stand"></div></div><div class="museum-plaque"><div class="museum-name">빈 전시 공간</div><div class="museum-meta">아직 등록된 무기가 없어</div></div></article>').join(''):'<p class="muted">아직 전시할 무기가 없어. 내 전시관 꾸미기에서 무기를 골라줘.</p>';
  // 실제 게임의 무기 렌더러를 전시 케이스 전용 캔버스에 그려 무기별 외형을 그대로 보여준다.
  const oldCtx=ctx;
- try{$('trophyWeaponDisplay').querySelectorAll('canvas[data-museum-weapon]').forEach((canvas,i)=>{const c=canvas.getContext('2d');if(!c)return;ctx=c;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(canvas.width/2,canvas.height/2+3);ctx.scale(1.25,1.25);drawBlockWeapon(chosen[i],{swing:0});ctx.restore();});}finally{ctx=oldCtx;}
+ try{$('trophyWeaponDisplay').querySelectorAll('canvas[data-museum-weapon]').forEach((canvas,i)=>{const c=canvas.getContext('2d');if(!c)return;if(!chosen[i])return;ctx=c;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(canvas.width/2,canvas.height/2+3);ctx.scale(1.25,1.25);drawBlockWeapon(chosen[i],{swing:0});ctx.restore();});}finally{ctx=oldCtx;}
  if(!remote){
   const box=$('trophyWeaponChoices');
   box.innerHTML=inv.map(w=>'<label class="item" style="display:flex;align-items:center;gap:10px"><input type="checkbox" data-trophy-pick="'+String(w.id).replace(/[^0-9A-Za-z_-]/g,'')+'" '+(selected.includes(String(w.id))?'checked':'')+'><span><b>'+String(w.name||'이름 없는 무기').replace(/[&<>"']/g,'')+'</b><small>'+(rarity(w.rarity).name)+' · +'+(Number(w.upgradeLevel)||0)+'강</small></span></label>').join('')||'<p class="muted">보유한 무기가 없어.</p>';
