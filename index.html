@@ -1966,6 +1966,14 @@ window.zombieAdminGrant=(kind)=>{
  if(kind==='weapons'){
   const seen=new Set(stateRef.inventory.map(w=>w.name+'|'+w.rarity));
   Object.entries(pools).forEach(([rarityId,pool])=>pool.forEach(pick=>{const key=pick[0]+'|'+rarityId;if(seen.has(key))return;const melee=pick[3]==='melee';stateRef.inventory.push(balanceWeapon({id:stateRef.nextId++,name:pick[0],rarity:rarityId,damage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(rarityId==='odd'?2:rarityId==='legendary'?2:1),speed:rarityId==='epic'?11:9,melee}));seen.add(key);added++;}));
+  // 비밀 무기 3종도 개발자 전체 무기 지급에 포함
+  secretWeaponDefs.forEach(d=>{
+   if(stateRef.inventory.some(w=>w.name===d.name))return;
+   stateRef.inventory.push({id:stateRef.nextId++,name:d.name,rarity:d.rarity,damage:d.damage,cooldown:d.cooldown,pellets:d.pellets,speed:d.speed,melee:d.melee,upgradeLevel:0,awakened:false});
+   if(!Array.isArray(stateRef.secretWeaponClaims))stateRef.secretWeaponClaims=[];
+   if(!stateRef.secretWeaponClaims.includes(d.name))stateRef.secretWeaponClaims.push(d.name);
+   added++;
+  });
   const strongest=Math.max(1,...stateRef.inventory.filter(w=>!['샤이니스타','적월선','블랙홀 발사기'].includes(w.name)).map(w=>Number(w.damage)||1));
   [['샤이니스타',false],['적월선',true]].forEach(([name,melee])=>{if(!stateRef.inventory.some(w=>w.name===name)){stateRef.inventory.push(balanceWeapon({id:stateRef.nextId++,name,rarity:'godly',damage:strongest*2,cooldown:30,pellets:1,speed:melee?10:12,melee,special:true}));added++;}});
  }else if(kind==='armor'){
@@ -1973,7 +1981,7 @@ window.zombieAdminGrant=(kind)=>{
  }else if(kind==='jobs'){
   const seen=new Set(stateRef.jobInventory.map(j=>j.name));jobDefs.forEach(j=>{if(!seen.has(j.name)){stateRef.jobInventory.push({...j,id:stateRef.nextJobId++});seen.add(j.name);added++;}});
  }else throw new Error('알 수 없는 지급 항목');
- save();refresh();renderInventory();renderJobInventory();renderArmor();
+ save();refresh();renderInventory();renderJobInventory();renderArmor();if(typeof renderSecretWeapons==='function')renderSecretWeapons();
  return added;
 };
 refresh();loop();
