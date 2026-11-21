@@ -436,10 +436,10 @@ function balanceWeapon(w){
  else if(Number.isFinite(Number(w.baseDamage))&&Number(w.baseDamage)>0)baseDamage=Number(w.baseDamage);
  else{const oldScale=Math.pow(1.2,lv)*(w.awakened?1.5:1)*(w.superAwakened?10:1);baseDamage=Math.max(.1,(Number(w.damage)||1)/oldScale);w.baseDamage=baseDamage;}
  w.baseDamage=baseDamage;
- const levelScale=lv>=99?1000:1+149*Math.pow(lv/99,2);
- // +99는 무기 고유 기본 공격력을 기준으로 계산해 무기마다 최종 공격력이 다르게 유지돼.
- // 초월의 기존 10배 배율은 +99에서 중복 적용하지 않아 모든 무기가 같은 상한에 몰리는 일을 막아.
- const totalDamage=baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened&&lv<99?10:1);
+ // 강화 1회마다 약 3.5%씩 부드럽게 증가하며 +99에서도 증가량이 갑자기 뛰지 않아.
+ const levelScale=Math.pow(1.035,lv);
+ // 무기 고유 기본 공격력과 각성 배율을 유지해 무기마다 공격력이 다르게 계산돼.
+ const totalDamage=baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened?10:1);
  w.cooldown=cooldown;
  w.damage=Math.min(100000,Math.round(totalDamage*100)/100);
  w.pellets=isOvercycle?1:(melee?1:Math.min(7,pellets));
