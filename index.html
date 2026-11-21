@@ -1315,7 +1315,7 @@ function drawSuperWeaponFinish(n,melee,c){
  }
  ctx.restore();
 }
-function drawSuperAwakenedWeaponBody(n,c,melee){
+function drawSuperAwakenedWeaponBodyLegacy(n,c,melee){
  // 슈퍼각성 전용 본체 모델: 기존 장식 덧붙이기가 아니라 무기 몸체의 외곽·구조 자체를 다시 그림
  let a=c;
  if(/해커/.test(n))a='#55ff79';else if(/화염|불꽃|용암/.test(n))a='#ff7138';else if(/빙결|얼음|전기|번개/.test(n))a='#70eaff';else if(/차원/.test(n))a='#bd82ff';else if(/적월선|혈월/.test(n))a='#ff526d';else if(/영혼/.test(n))a='#76ffc4';else if(/블랙홀/.test(n))a='#b18aff';else if(/성운|샤이니스타|종말 레일건/.test(n))a='#c19aff';else if(/독성|스프레이/.test(n))a='#83f0a8';else if(/황금/.test(n))a='#ffd66b';else a='#e8d6a5';
@@ -1411,13 +1411,80 @@ function drawSuperAwakenedWeaponBody(n,c,melee){
  }
  ctx.restore();return true;
 }
+function drawSuperAwakenedWeaponBody(n,c,melee){
+ if(!melee)return drawSuperAwakenedWeaponBodyLegacy(n,c,false);
+ let a=c;
+ if(/해커/.test(n))a='#55ff79';else if(/화염|불꽃|용암/.test(n))a='#ff7138';else if(/빙결|얼음|전기|번개/.test(n))a='#70eaff';else if(/차원|블랙홀/.test(n))a='#bd82ff';else if(/적월선|혈월/.test(n))a='#ff526d';else if(/영혼/.test(n))a='#76ffc4';else if(/성운|샤이니스타/.test(n))a='#c19aff';else if(/황금/.test(n))a='#ffd66b';else a='#dce8f0';
+ const poly=(pts,fill,stroke='#17212b',width=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();}};
+ const stroke=(pts,color,width)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();};
+ ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.shadowColor=a;ctx.shadowBlur=8;
+ // 손잡이와 가드: 모든 검의 회전축은 손잡이 아래쪽에 고정
+ const grip=ctx.createLinearGradient(5,0,18,0);grip.addColorStop(0,'#111820');grip.addColorStop(.5,'#72513a');grip.addColorStop(1,'#1c252e');
+ poly([[5,-2],[17,-3],[19,28],[14,37],[7,31]],grip,'#0c1218',2);
+ for(let k=0;k<4;k++)stroke([[8,8+k*5],[16,5+k*5]],'#c3a477',1.3);
+ poly([[5,30],[17,28],[20,34],[15,40],[7,38]],'#27333d','#c4a66c',1.5);
+ // 손잡이와 칼날을 연결하는 묵직한 가드
+ if(/창/.test(n)){
+  poly([[7,-5],[13,-11],[19,-5],[17,3],[10,3]],'#a58a55','#f1d99b',1.5);
+  poly([[13,-7],[22,-12],[91,-9],[105,-4],[91,0],[22,1],[13,-2]],'#344653','#dce8ef',2);
+  poly([[22,-7],[91,-7],[99,-4],[22,-3]],a,'#fff2c9',1.2);
+  stroke([[27,-5],[88,-5]],'#fff',1.4);
+ }else if(/도끼/.test(n)){
+  poly([[12,-7],[22,-12],[39,-12],[48,-26],[66,-29],[83,-19],[79,-4],[62,5],[42,1],[22,2]],'#354451','#dce6ec',2);
+  poly([[45,-13],[65,-24],[78,-18],[73,-7],[59,-2],[44,-4]],a,'#fff0c6',1.5);
+  stroke([[49,-11],[72,-17]],'#fff',1.4);
+ }else if(/낫/.test(n)){
+  // 낫만 고유한 곡선 날을 사용하고, 일반 검은 휘지 않게 유지
+  poly([[11,-5],[21,-11],[49,-13],[71,-24],[91,-37],[105,-35],[91,-21],[74,-10],[52,-1],[24,3]],'#263746','#d8e4eb',2);
+  stroke([[24,-7],[52,-7],[76,-17],[94,-30]],a,5);
+  stroke([[24,-5],[52,-5],[76,-15],[94,-28]],'#fff1c8',1.3);
+ }else if(/방망이/.test(n)){
+  poly([[10,-4],[22,-9],[83,-18],[96,-13],[91,-3],[25,4],[12,2]],'#475661','#e0e7eb',2);
+  poly([[25,-5],[82,-14],[89,-11],[27,0]],a,null);
+  for(let k=0;k<5;k++)stroke([[54+k*6,-11-k*.7],[57+k*6,-4-k*.7]],'#d8e0e5',1);
+ }else{
+  // 곧은 양날 검. 끝으로 갈수록 좁아지는 한 줄 실루엣으로 칼날 꺾임 제거
+  const special=/심판검|갓슬레이어/.test(n);
+  const bladeEnd=special?105:96;
+  poly([[15,-7],[26,-13],[bladeEnd-13,-13],[bladeEnd, -5],[bladeEnd-13,3],[26,3],[15,-2]],special?'#5a4a2d':'#354653','#e6edf1',2.2);
+  const face=ctx.createLinearGradient(20,-12,20,3);
+  face.addColorStop(0,'#f4f7f8');face.addColorStop(.22,a);face.addColorStop(.72,'#354653');face.addColorStop(1,'#18232c');
+  poly([[25,-10],[bladeEnd-15,-10],[bladeEnd-3,-5],[bladeEnd-15,0],[25,0]],face,'#111a22',1);
+  stroke([[28,-8],[bladeEnd-15,-8]],'#fff',1.5);
+  stroke([[30,-2],[bladeEnd-16,-2]],a,1.2);
+  if(/해커/.test(n)){
+   // 픽셀 분할 패턴으로 해커검 정체성 유지
+   for(let k=0;k<5;k++)ctx.fillRect(39+k*9,-6+(k%2)*3,5,2);
+  }else if(/화염|불꽃|용암/.test(n)){
+   poly([[45,-5],[53,-8],[61,-5],[69,-8],[77,-5],[69,-2],[61,-4],[53,-1]],'#ff8b42','#ffe2a1',.8);
+  }else if(/빙결|얼음/.test(n)){
+   stroke([[46,-9],[54,-5],[62,-9],[70,-5],[78,-9]],'#e9ffff',1.8);
+  }else if(/전기|번개/.test(n)){
+   stroke([[48,-10],[56,-3],[62,-9],[70,-2],[77,-8]],'#fff27a',2);
+  }else if(/적월선|혈월/.test(n)){
+   stroke([[36,-5],[bladeEnd-20,-5]],'#ff9aa7',2.4);
+   poly([[48,-10],[57,-12],[65,-9],[57,-6]],'#7d152b','#ff9aa7',1);
+  }else if(special){
+   poly([[42,-9],[53,-12],[64,-9],[75,-12],[86,-8],[75,-5],[64,-7],[53,-4]],'#f5d77e','#fff3bd',1);
+   stroke([[35,1],[85,1]],'#fff1b3',1.2);
+  }else if(/차원|블랙홀/.test(n)){
+   ctx.strokeStyle=a;ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(61,-5,8,3,0,0,Math.PI*2);ctx.stroke();
+  }
+  // 단단한 십자 가드
+  poly([[12,-13],[19,-16],[27,-12],[25,-5],[19,1],[12,-3],[17,-7]],'#9b8458','#f4d99b',1.5);
+ }
+ // 가드 중앙 코어와 금속 리벳
+ ctx.shadowBlur=12;ctx.fillStyle=a;ctx.beginPath();ctx.arc(18,-7,3.2,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ ctx.fillStyle='#f7f2df';ctx.beginPath();ctx.arc(18,-7,1.2,0,Math.PI*2);ctx.fill();
+ ctx.restore();return true;
+}
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
  if(n==='수류탄'||n==='오버사이클')return false;
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d',divine:'#9b70ff'};
  const superForm=!!w.superAwakened,c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선|갓슬레이어/.test(n);
- if(superForm&&drawSuperAwakenedWeaponBody(n,c,melee)){if(melee&&pl.swing>0){ctx.globalAlpha=.22;ctx.strokeStyle=c;ctx.lineWidth=10;ctx.beginPath();ctx.arc(0,0,70,-.9,.9);ctx.stroke();pl.swing--;}ctx.restore();return true;}
+ if(superForm){ctx.save();if(melee&&pl.swing>0){const progress=1-Math.max(0,pl.swing)/24;ctx.translate(12,5);ctx.rotate(-1.3+2.6*progress);ctx.translate(-12,-5);}if(drawSuperAwakenedWeaponBody(n,c,melee)){if(melee&&pl.swing>0){ctx.globalAlpha=.2;ctx.strokeStyle=c;ctx.lineWidth=7;ctx.beginPath();ctx.arc(12,5,67,-1.05,1.05);ctx.stroke();pl.swing=Math.max(0,pl.swing-1);}ctx.restore();return true;}ctx.restore();}
  ctx.save();
  // 손잡이 부근을 회전축으로 잡아 모든 근접무기가 확실히 좌우로 휘둘러지게 한다.
  ctx.translate(12,5);
