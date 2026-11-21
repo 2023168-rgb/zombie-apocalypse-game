@@ -1222,6 +1222,7 @@ function drawRedesignedWeapon(n,c){
 }
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
+ if(n==='수류탄')return false;
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d',divine:'#9b70ff'};
  const c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선|갓슬레이어/.test(n);
