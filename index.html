@@ -545,7 +545,7 @@ let marketAdminAllowed=false;
 window.zombieSetMarketAdmin=allowed=>{marketAdminAllowed=!!allowed;};
 function isMarketAdmin(){return marketAdminAllowed;}
 function blackMarketIsOpen(){if(window.blackMarketOverride==='open')return true;if(window.blackMarketOverride==='closed')return false;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()),h=Number(parts.find(p=>p.type==='hour').value),m=Number(parts.find(p=>p.type==='minute').value),mins=h*60+m;return mins>=750&&mins<760;}
-function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;window.blackMarketOverride=mode;if(broadcast&&onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});marketClockTick();if($('marketAdminSupplyStatus'))$('marketAdminSupplyStatus').textContent='현재 설정: '+(mode==='open'?'강제 오픈':mode==='closed'?'강제 종료':'자동 운영');}
+function setMarketOverride(mode,broadcast=true){if(!isMarketAdmin())return;window.blackMarketOverride=mode;if(broadcast)window.zombieBroadcastMarketOverride?.(mode);marketClockTick();if($('marketAdminSupplyStatus'))$('marketAdminSupplyStatus').textContent='현재 설정: '+(mode==='open'?'강제 오픈':mode==='closed'?'강제 종료':'자동 운영');}
  window.blackMarketControl={get:()=>window.blackMarketOverride,set:mode=>setMarketOverride(mode),apply:mode=>{window.blackMarketOverride=mode;marketClockTick();}};
 function updateMarketAdmin(){const box=$('marketAdminControls');if(box)box.style.display='none';}
 function showBlackMarketClosed(){const el=$('marketLobbyStatus');if(el)el.textContent='지금은 암시장에 들어갈 수 있는 시간이 아니야. 매일 오후 12시 30분부터 12시 40분까지만 열려!';if($('blackMarketView')&&$('blackMarketView').classList.contains('active'))show('lobby');}
@@ -2258,6 +2258,7 @@ function startGamePresence(){
  .on('presence',{event:'sync'},()=>{const st=onlineChannel.presenceState();onlineIds=new Set(Object.keys(st));})
  .subscribe(async status=>{if(status==='SUBSCRIBED'){await onlineChannel.track({nickname:myProfile?.nickname||me||'플레이어'});}});
 }
+window.zombieBroadcastMarketOverride=mode=>{if(onlineChannel)onlineChannel.send({type:'broadcast',event:'market_override',payload:{mode}});};
 function tradeItemName(item,type){return item?.name||({weapon:'무기',armor:'방어구',job:'직업'}[type]||'아이템');}
 function tradeFindItem(save,entry){const key=entry.type==='weapon'?'inventory':entry.type==='armor'?'armorInventory':'jobInventory';return (save?.[key]||[]).find(x=>String(x.id)===String(entry.id));}
 function tradeHideIncoming(){$('tradeIncoming').style.display='none';}
