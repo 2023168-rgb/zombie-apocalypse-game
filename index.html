@@ -1725,15 +1725,55 @@ function wbHostTick(){
    if(p.melee){const reach=58+Math.min(42,p.damage*.35);if(Math.hypot(b.x-p.x,b.y-p.y)<145+reach)b.hp=Math.max(0,b.hp-p.damage*2.4);}
    else{const count=Math.max(1,Math.min(7,Number(p.pellets)||1)),spread=count>1?.13:0;for(let k=0;k<count;k++){const a=p.angle+(k-(count-1)/2)*spread,v=Number(p.speed)||8;b.playerShots.push({x:p.x+Math.cos(a)*20,y:p.y+Math.sin(a)*20,vx:Math.cos(a)*v,vy:Math.sin(a)*v,damage:p.damage,life:90,owner:p.slot});}}
   }
-  const weaponSkillReady=weaponSkillUnlocked({rarity:p.rarity}),weaponSkillCooldown=p.rarity==='divine'?40000:30000;
+  const weaponCfg=skillBook[p.weaponName]||['특수 공격','nova','#fff',250,0];
+  const weaponSkillReady=weaponSkillUnlocked({rarity:p.rarity});
+  const weaponSkillCooldown=p.weaponName==='블랙홀 발사기'?90000:p.weaponName==='샤이니스타'?60000:p.weaponName==='해커검'?40000:(p.rarity==='divine'?40000:30000);
   if(i.skill&&p.equipped&&p.weaponName&&p.weaponName!=='무기 없음'&&p.damage>0&&weaponSkillReady&&now-(p.skillAt||0)>=weaponSkillCooldown){
-   p.skillAt=now;const cfg=skillBook[p.weaponName]||['특수 공격','nova','#fff',250],mult=p.weaponName==='블랙홀 발사기'?1100:p.weaponName==='샤이니스타'?900:cfg[1]==='line'?620:cfg[1]==='rift'?700:cfg[1]==='nova'?760:520;
-   b.hp=Math.max(0,b.hp-p.damage*mult);b.skillFx={kind:'weapon',x:b.x,y:b.y,color:cfg[2]||'#9cecff',until:now+850};
+   p.skillAt=now;
+   const dps=Math.max(1,p.damage)*Math.max(1,p.pellets||1)*60/Math.max(4,(Number(p.cooldown)||17));
+   const hit=Math.max(dps*2.2,p.damage*Math.max(1,p.pellets||1)*2.2);
+   const type=weaponCfg[1],mult=type==='chain'?1.35:type==='lava'||type==='poison'?1.45:type==='rift'?1.7:type==='nova'?2:1;
+   let damage=hit*mult;
+   if(p.weaponName==='적월선')damage=p.damage*2.4;
+   if(p.weaponName==='샤이니스타'){p.boostUntil=now+5000;damage=0;}
+   if(p.weaponName==='블랙홀 발사기'){damage=Math.max(damage,p.damage*1100);b.stunUntil=Math.max(b.stunUntil||0,now+1800);}
+   if(p.weaponName==='해커검'){damage=0;}
+   if(type==='line'&&Math.abs(Math.atan2(Math.sin(p.angle-Math.atan2(b.y-p.y,b.x-p.x)),Math.cos(p.angle-Math.atan2(b.y-p.y,b.x-p.x))))>.35)damage=0;
+   if(type==='cone'&&Math.hypot(b.x-p.x,b.y-p.y)>weaponCfg[3])damage=0;
+   if(type==='chain'&&Math.hypot(b.x-p.x,b.y-p.y)>weaponCfg[3])damage=0;
+   if(p.weaponName==='해커검')b.stunUntil=Math.max(b.stunUntil||0,now+1000);
+   b.hp=Math.max(0,b.hp-damage);
+   b.skillFx={kind:'weapon',x:b.x,y:b.y,color:weaponCfg[2]||'#9cecff',until:now+850};
   }
-  if(i.job&&p.job&&now-(p.jobAt||0)>=(p.job.rarity==='divine'?50000:30000)){
+  if(i.job&&p.job&&now-(p.jobAt||0)>=(p.job.type==='hack'?50000:(p.job.rarity==='divine'?50000:30000))){
    p.jobAt=now;const j=p.job,rank={godly:1.8,mythic:1.6,legendary:1.45,epic:1.3,rare:1.2,odd:1.1,uncommon:1.05,common:1}[j.rarity]||1;
-   const effects={heal:()=>p.hp=Math.min(p.maxHp,p.hp+Math.max(35,p.maxHp*.35)),shield:()=>p.hp=Math.min(p.maxHp,p.hp+Math.max(25,p.maxHp*.25)),dash:()=>{p.x=Math.max(30,Math.min(870,p.x+Math.cos(p.angle)*115));p.y=Math.max(285,Math.min(510,p.y+Math.sin(p.angle)*115));},freeze:()=>{b.stunUntil=Math.max(b.stunUntil||0,now+1800);},hack:()=>{p.hp=Math.min(p.maxHp,p.hp+20);b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*180*rank);},mark:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*260*rank),mine:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*300*rank),fire:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*360*rank),poison:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*320*rank),slash:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*400*rank),snipe:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*440*rank),shock:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*350*rank),rage:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*460*rank),acid:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*330*rank),chain:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*390*rank),ice:()=>{b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*340*rank);b.stunUntil=Math.max(b.stunUntil||0,now+900);},plasma:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*520*rank),rift:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*560*rank),curse:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*410*rank),nova:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*600*rank),abyss:()=>b.hp=Math.max(0,b.hp-Math.max(1,p.damage)*650*rank)};
-   (effects[j.type]||effects.mark)();b.skillFx={kind:'job',x:b.x,y:b.y,color:j.color||'#a9eaff',until:now+850};
+   const dps=Math.max(1,p.damage)*Math.max(1,p.pellets||1)*60/Math.max(4,(Number(p.cooldown)||17));
+   const hit=Math.max(dps*2.2,12)*rank;
+   const jobEffects={
+    heal:()=>p.hp=Math.min(p.maxHp,p.hp+Math.max(20,p.maxHp*.35)),
+    shield:()=>{p.hp=Math.min(p.maxHp,p.hp+Math.max(25,p.maxHp*.25));p.shieldUntil=now+8000;},
+    dash:()=>{p.x=Math.max(20,Math.min(880,p.x+Math.cos(p.angle)*120));p.y=Math.max(285,Math.min(520,p.y+Math.sin(p.angle)*120));},
+    freeze:()=>{b.stunUntil=Math.max(b.stunUntil||0,now+5000);},
+    hack:()=>{b.stunUntil=Math.max(b.stunUntil||0,now+10000);},
+    curse:()=>{b.hp=Math.max(0,b.hp-hit*1.25);b.stunUntil=Math.max(b.stunUntil||0,now+700);},
+    rage:()=>{p.boostUntil=now+5000;},
+    mine:()=>b.hp=Math.max(0,b.hp-hit*1.5),
+    mark:()=>b.hp=Math.max(0,b.hp-hit*1.4),
+    snipe:()=>b.hp=Math.max(0,b.hp-hit*1.4),
+    chain:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    shock:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    slash:()=>b.hp=Math.max(0,b.hp-hit*1.35),
+    fire:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    poison:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    acid:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    ice:()=>{b.hp=Math.max(0,b.hp-hit*1.2);b.stunUntil=Math.max(b.stunUntil||0,now+1200);},
+    plasma:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    rift:()=>b.hp=Math.max(0,b.hp-hit*1.2),
+    nova:()=>b.hp=Math.max(0,b.hp-hit*1.5),
+    abyss:()=>b.hp=Math.max(0,b.hp-hit*1.5)
+   };
+   (jobEffects[j.type]||jobEffects.mark)();
+   b.skillFx={kind:'job',x:b.x,y:b.y,color:j.color||'#a9eaff',until:now+850};
   }
  }
  if(b.hp<=0&&!wb.finished){
