@@ -1902,13 +1902,28 @@ function renderWeaponUpgrades(){
  $('upgradeWeaponList').innerHTML=state.inventory.map(w=>'<div class="item '+(wb.selectedWeapon===w.id?'selected':'')+'" data-upg-id="'+w.id+'"><b>'+w.name+'</b><small>+'+(Number(w.upgradeLevel)||0)+'강 · 공격력 '+w.damage+'</small></div>').join('');
  $('upgradeWeaponList').querySelectorAll('[data-upg-id]').forEach(el=>el.onclick=()=>{wb.selectedWeapon=Number(el.dataset.upgId);renderWeaponUpgrades();});
  const w=state.inventory.find(x=>x.id===wb.selectedWeapon),lv=w?Number(w.upgradeLevel)||0:0,fail=[10,15,20,30,40,50,55,60,65,70][Math.min(lv,9)]||70;
- $('upgradeSelectedInfo').innerHTML=w?'<b>'+(w.awakened?'✨ ':'')+w.name+'</b><br>현재 강화: +'+lv+'강'+(w.awakened?' · 각성 완료':'')+'<br>공격력: '+w.damage+'<br>성공 확률: '+(100-fail)+'% · 실패 확률: '+fail+'%<br>'+(lv>=5?'실패하면 무기가 파괴돼.':'실패해도 무기는 유지돼.'):'무기를 선택해.';
+ $('upgradeSelectedInfo').innerHTML=w?'<b>'+(w.awakened?'✨ ':'')+w.name+'</b><br>현재 강화: +'+lv+'강'+(w.awakened?' · 각성 완료':'')+'<br>공격력: '+w.damage+'<br>성공 확률: '+(100-fail)+'% · 실패 확률: '+fail+'%<br>'+(lv>=5?'강화 실패일 때만 무기가 파괴돼. 성공하면 무기는 유지돼.':'실패해도 무기는 유지돼.'):'무기를 선택해.';
  $('weaponUpgradeBtn').disabled=!w||state.wallet<100;$('weaponUpgradeBtn').textContent=w?'⚒ 100코인으로 강화':'강화할 무기를 선택해';const awaken=$('weaponAwakenBtn');if(awaken){awaken.disabled=!w||w.awakened||(Number(w.upgradeLevel)||0)<10||state.wallet<5000;awaken.textContent=w&&w.awakened?'✨ 각성 완료':'✨ 5,000코인으로 각성';}renderSecretWeapons();
 }
 function upgradeSelectedWeapon(){
  const w=state.inventory.find(x=>x.id===wb.selectedWeapon);if(!w||state.wallet<100)return;
- state.wallet-=100;const lv=Number(w.upgradeLevel)||0,fail=[10,15,20,30,40,50,55,60,65,70][Math.min(lv,9)]||70;
- if(Math.random()*100<fail){if(lv>=5){state.inventory=state.inventory.filter(x=>x.id!==w.id);if(state.equipped===w.id)state.equipped=state.inventory[0]?state.inventory[0].id:null;if(!state.inventory.length){const basic={id:state.nextId++,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3,upgradeLevel:0};state.inventory.push(basic);state.equipped=basic.id;}wb.selectedWeapon=null;$('weaponUpgradeResult').textContent='강화 실패! +'+lv+' '+w.name+'이(가) 파괴됐어.';}else $('weaponUpgradeResult').textContent='강화 실패! '+w.name+'은(는) 유지됐어.';}else{w.upgradeLevel=lv+1;w.damage=Math.round(w.damage*1.2*100)/100;$('weaponUpgradeResult').textContent='강화 성공! '+w.name+' +'+w.upgradeLevel+'강 · 공격력 '+w.damage;}
+ const lv=Math.max(0,Number(w.upgradeLevel)||0),fail=[10,15,20,30,40,50,55,60,65,70][Math.min(lv,9)]??70;
+ state.wallet-=100;
+ const success=Math.random()*100>=fail;
+ if(success){
+  w.upgradeLevel=lv+1;
+  w.damage=Math.round((Number(w.damage)||1)*1.2*100)/100;
+  $('weaponUpgradeResult').textContent='강화 성공! '+w.name+' +'+w.upgradeLevel+'강 · 공격력 '+w.damage+' · 무기 유지';
+ }else if(lv>=5){
+  const removeIndex=state.inventory.findIndex(x=>x.id===w.id);
+  if(removeIndex>=0)state.inventory.splice(removeIndex,1);
+  if(state.equipped===w.id)state.equipped=state.inventory[0]?state.inventory[0].id:null;
+  if(!state.inventory.length){const basic={id:state.nextId++,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3,upgradeLevel:0};state.inventory.push(basic);state.equipped=basic.id;}
+  wb.selectedWeapon=null;
+  $('weaponUpgradeResult').textContent='강화 실패! +'+lv+' '+w.name+'이(가) 파괴됐어.';
+ }else{
+  $('weaponUpgradeResult').textContent='강화 실패! '+w.name+'은(는) 유지됐어.';
+ }
  save();refresh();renderWeaponUpgrades();renderInventory();
 }
 const wb={role:'solo',peer:null,conn:null,code:'',slots:[],players:[],selectedWeapon:null,started:false,finished:false,startMode:'instant',lastTick:0,lastSend:0,boss:{hp:120000,maxHp:120000,x:450,y:205,phase:0,phaseUntil:0,stunUntil:0,attackAt:0},keys:{},mySlot:0,canvas:canvas,ctx:ctx};
