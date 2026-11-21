@@ -1197,20 +1197,23 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
    const isShot=name.includes('샷건'),isSniper=name.includes('저격')||name.includes('레일건'),isPistol=name.includes('권총')||name.includes('리볼버')||name.includes('쌍권총'),isEnergy=/플라즈마|성운|차원|샤이니스타|갓슬레이어|포효/.test(name);
    ctx.translate(5,0);
    if(name==='화염방사기'){
-     // 군용 배낭식 화염방사기: 연료통, 압력 호스, 점화장치가 연결된 긴 분사 랜스
-     ctx.fillStyle='#26352c';ctx.beginPath();ctx.roundRect(-13,-13,18,27,5);ctx.fill();
-     ctx.fillStyle='#526344';ctx.beginPath();ctx.roundRect(-11,-17,14,30,6);ctx.fill();
-     ctx.fillStyle='#8b9a66';ctx.fillRect(-9,-14,3,23);ctx.fillStyle='#202a24';ctx.fillRect(-13,8,19,4);
-     ctx.fillStyle='#9b7845';ctx.fillRect(-4,-19,7,4);ctx.fillStyle='#c0a66a';ctx.fillRect(-3,-21,5,3);
-     ctx.strokeStyle='#252b2b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-2,8);ctx.bezierCurveTo(2,22,16,20,18,8);ctx.bezierCurveTo(19,2,12,1,12,-4);ctx.stroke();
-     ctx.strokeStyle='#b2a16e';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-2,8);ctx.bezierCurveTo(2,22,16,20,18,8);ctx.stroke();
-     ctx.fillStyle='#303b3d';ctx.fillRect(5,-7,29,13);ctx.fillStyle='#667276';ctx.fillRect(8,-10,25,5);
-     ctx.fillStyle='#20282b';ctx.fillRect(29,-5,30,7);ctx.fillStyle='#7e898b';ctx.fillRect(35,-8,22,3);
-     ctx.fillStyle='#20282b';ctx.fillRect(55,-7,10,11);ctx.fillStyle='#a5abad';ctx.fillRect(59,-8,7,13);
-     ctx.fillStyle='#bf6a25';ctx.fillRect(62,-5,5,7);ctx.fillStyle='#e7b24a';ctx.fillRect(64,-3,4,3);
-     ctx.fillStyle='#26312e';ctx.fillRect(14,5,8,13);ctx.fillStyle='#505c58';ctx.fillRect(12,16,13,3);
-     ctx.fillStyle='#c18a42';ctx.fillRect(7,-12,7,3);ctx.fillStyle='#d7c18a';ctx.fillRect(8,-13,4,2);
-     ctx.fillStyle='#202a2c';ctx.fillRect(23,-13,7,4);ctx.fillStyle='#c6d0c9';ctx.fillRect(25,-14,3,2);
+     // 판타지 화염 마도구: 떠 있는 불꽃 수정과 룬 장식의 비현실적 실루엣
+     ctx.save();
+     ctx.shadowColor='#ff6a18';ctx.shadowBlur=12;
+     ctx.fillStyle='#39213f';ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(12,-5);ctx.lineTo(14,5);ctx.lineTo(3,13);ctx.lineTo(-9,7);ctx.lineTo(-10,-5);ctx.closePath();ctx.fill();
+     ctx.shadowBlur=0;ctx.strokeStyle='#d49b55';ctx.lineWidth=2;ctx.stroke();
+     ctx.fillStyle='#f0b84e';ctx.beginPath();ctx.arc(4,0,7,0,Math.PI*2);ctx.fill();
+     ctx.fillStyle='#fff2a0';ctx.beginPath();ctx.moveTo(4,-13);ctx.bezierCurveTo(15,-3,12,7,4,10);ctx.bezierCurveTo(-5,5,-3,-4,4,-13);ctx.fill();
+     ctx.fillStyle='#ff6b20';ctx.beginPath();ctx.moveTo(4,-8);ctx.bezierCurveTo(10,-1,8,5,4,7);ctx.bezierCurveTo(0,3,0,-2,4,-8);ctx.fill();
+     ctx.strokeStyle='#f5c56b';ctx.lineWidth=3;ctx.beginPath();ctx.arc(4,0,17,-1.1,1.1);ctx.stroke();
+     ctx.strokeStyle='#8f5bd1';ctx.lineWidth=2;ctx.beginPath();ctx.arc(4,0,22,-.85,.85);ctx.stroke();
+     ctx.fillStyle='#ffe58a';for(let q=0;q<3;q++){let yy=-12+q*12;ctx.beginPath();ctx.arc(23,yy,2.2,0,Math.PI*2);ctx.fill();}
+     ctx.fillStyle='#6b3f85';ctx.fillRect(20,-4,20,8);ctx.fillStyle='#c28bdf';ctx.fillRect(24,-2,14,3);
+     ctx.fillStyle='#f4b84e';ctx.beginPath();ctx.moveTo(39,-7);ctx.lineTo(52,-4);ctx.lineTo(58,0);ctx.lineTo(52,4);ctx.lineTo(39,7);ctx.closePath();ctx.fill();
+     ctx.fillStyle='#fff3a8';ctx.beginPath();ctx.moveTo(48,-2);ctx.lineTo(68,0);ctx.lineTo(48,2);ctx.closePath();ctx.fill();
+     ctx.strokeStyle='#dca4ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(15,7);ctx.lineTo(21,17);ctx.lineTo(31,19);ctx.stroke();
+     ctx.fillStyle='#ff8a2b';ctx.beginPath();ctx.arc(31,19,3,0,Math.PI*2);ctx.fill();
+     ctx.restore();
    }else if(name==='전술 권총'){
      // 실제 폴리머 프레임 권총처럼 짧은 슬라이드와 뒤로 기울어진 그립을 표현
      ctx.fillStyle='#252d33';ctx.beginPath();ctx.moveTo(3,-8);ctx.lineTo(39,-8);ctx.lineTo(43,-4);ctx.lineTo(41,2);ctx.lineTo(5,2);ctx.lineTo(2,-2);ctx.closePath();ctx.fill();
