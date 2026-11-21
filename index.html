@@ -2559,6 +2559,7 @@ const SUPABASE_KEY='sb_publishable_suWSty_GV9lJQk6KroZa2w_zfxtHAW_';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 window.zombieSupabase=sb;
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+window.esc=esc; // 다른 스크립트에서도 공통 HTML 이스케이프 함수를 사용할 수 있게 공개
 let user=null,me=null,myProfile=null,activeChat=null,saveTimer=null;
 const fallbackAvatar='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="100%" height="100%" fill="#435867"/><text x="50%" y="58%" text-anchor="middle" font-size="34">👤</text></svg>');
 function say(t){$('authMsg').textContent=t}
