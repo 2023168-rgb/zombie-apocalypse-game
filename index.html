@@ -2103,13 +2103,6 @@ async function tradeSearchOnline(){
  box.innerHTML=data.map(p=>'<div class="socialrow"><img class="avatar" src="'+esc(p.avatar_url||fallbackAvatar)+'"><b>'+esc(p.nickname)+(onlineIds.has(p.id)?' · 온라인':' · 오프라인')+'</b><button data-trade-user="'+esc(p.id)+'">거래 신청</button></div>').join('');
  box.querySelectorAll('[data-trade-user]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='신청 중...';try{const {error}=await sb.rpc('trade_request',{p_recipient:b.dataset.tradeUser});if(error)throw error;alert('거래 신청을 보냈어! 상대가 접속하면 요청을 확인할 수 있어.');await tradeRefresh(true);}catch(e){alert(e.message);b.disabled=false;b.textContent='거래 신청';}});
 }
-async function getFriends(){')+'%').neq('id',user.id).limit(20);
- if(error){box.textContent='검색 실패: '+error.message;return;}
- const online=(data||[]).filter(p=>onlineIds.has(p.id));
- if(!online.length){box.innerHTML='<p class="muted">온라인 상태인 플레이어가 없어.</p>';return;}
- box.innerHTML=online.map(p=>'<div class="socialrow"><img class="avatar" src="'+esc(p.avatar_url||fallbackAvatar)+'"><b>'+esc(p.nickname)+' · 온라인</b><button data-trade-user="'+esc(p.id)+'">거래 신청</button></div>').join('');
- box.querySelectorAll('[data-trade-user]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='신청 중...';try{const {error}=await sb.rpc('trade_request',{p_recipient:b.dataset.tradeUser});if(error)throw error;alert('거래 신청을 보냈어!');await tradeRefresh(true);}catch(e){alert(e.message);b.disabled=false;b.textContent='거래 신청';}});
-}
 async function getFriends(){const {data,error}=await sb.from('friend_requests').select('sender_id,recipient_id').eq('status','accepted').or('sender_id.eq.'+user.id+',recipient_id.eq.'+user.id);if(error)throw error;const ids=[...new Set((data||[]).map(x=>x.sender_id===user.id?x.recipient_id:x.sender_id))];if(!ids.length)return[];const {data:profiles,error:e}=await sb.from('profiles').select('id,username,nickname,avatar_url').in('id',ids);if(e)throw e;return profiles||[];}
 function row(p,button,label){return '<div class="socialrow"><img class="avatar" src="'+esc(p.avatar_url||fallbackAvatar)+'"><b'+(p.username==='dnieyeye'?' style="color:#55aaff"':'')+'>'+esc(p.nickname)+(p.username==='dnieyeye'?' <span style="color:#55aaff">(개발자)</span>':'')+'</b><button data-'+button+'="'+esc(p.id)+'">'+label+'</button></div>';}
 function adminGrant(kind){const msg=$('adminGrantMsg');if(me!=='dnieyeye'){if(msg)msg.textContent='개발자 계정에서만 사용할 수 있어.';return;}try{if(typeof window.zombieAdminGrant!=='function')throw new Error('게임 지급 시스템을 불러오지 못했어. 새로고침해줘.');const added=window.zombieAdminGrant(kind);if(msg)msg.textContent=added?'지급 완료! 새로 추가한 항목: '+added+'개 · 게임 저장 완료':'이미 모든 항목을 보유하고 있어!';}catch(e){if(msg)msg.textContent='지급 중 오류: '+e.message;}}
