@@ -2634,7 +2634,7 @@ if(lobbyButtons){
   duelOpenBtn:()=>{duelModal.style.display='flex';$('duelChoices').style.display='block';$('duelCreatePane').style.display='none';$('duelJoinPane').style.display='none';duelStatus('방을 만들거나 친구 코드로 입장해.');},
   miniGameBtn:()=>{miniActive=false;show('miniGameView');miniDailyHud();miniGameDraw();},
   weaponUpgradeOpenBtn:()=>{wb.selectedWeapon=state.equipped;show('weaponUpgradeView');renderWeaponUpgrades();},
-  worldBossOpenBtn:()=>wbOpenView(),
+  worldBossOpenBtn:()=>startGame('finalboss'),
   towerOpenBtn:()=>{show('towerView');updateTowerHud();},
   blackMarketOpenBtn:()=>{if(!blackMarketIsOpen()){showBlackMarketClosed();return;}renderBlackMarket();$('marketSpeech').textContent=marketTalk[Math.floor(Math.random()*marketTalk.length)];show('blackMarketView');},
   rankingOpenBtn:()=>show('rankingView')
