@@ -737,7 +737,28 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
- if(n==='화염방사기'){glow('#ff6a18',15);ctx.shadowColor='#ff6a18';ctx.shadowBlur=18;ctx.fillStyle='#ff7a24';ctx.beginPath();ctx.moveTo(20,-27);ctx.quadraticCurveTo(39,-12,29,2);ctx.quadraticCurveTo(24,13,12,7);ctx.quadraticCurveTo(-2,-1,8,-15);ctx.closePath();ctx.fill();ctx.shadowBlur=0;gem(17,-5,15,'#ffb52e');gem(17,-5,9,'#fff1a1');gem(17,-5,4,'#ffffff');ctx.strokeStyle='#bd79ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(17,-5,22,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#ffe08a';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(17,-5,28,.4,2.5);ctx.stroke();gem(-8,-20,4,'#ffdf75');gem(40,-18,3,'#ff9c45');gem(37,16,3,'#ffdf75');rect(8,13,18,4,'#7b55c8');rect(13,18,8,3,'#f5c96c');return true;}
+ if(n==='화염방사기'){
+  // 카툰풍 화염 장비: 등짐 탱크와 호스, 굵은 분사구를 강조한 비현실적 게임 디자인
+  ctx.save();ctx.lineJoin='round';
+  // 등짐 연료통
+  ctx.fillStyle='#263b48';ctx.strokeStyle='#a9bac2';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(-27,-17,23,36,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#527181';ctx.fillRect(-23,-12,15,25);
+  ctx.fillStyle='#f2a43e';ctx.fillRect(-22,-8,13,4);ctx.fillStyle='#d96b35';ctx.fillRect(-22,5,13,5);
+  ctx.fillStyle='#dce5e8';ctx.fillRect(-22,-1,13,3);
+  // 장식용 연결 호스
+  ctx.strokeStyle='#d28a49';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-5,11);ctx.quadraticCurveTo(5,20,12,10);ctx.quadraticCurveTo(18,4,20,0);ctx.stroke();
+  ctx.strokeStyle='#f6c16d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,11);ctx.quadraticCurveTo(5,20,12,10);ctx.quadraticCurveTo(18,4,20,0);ctx.stroke();
+  // 손잡이형 본체
+  ctx.fillStyle='#35434b';ctx.strokeStyle='#17232a';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(0,-8,31,16,5);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#778991';ctx.fillRect(6,-5,17,4);ctx.fillStyle='#26343b';ctx.fillRect(8,7,9,13);
+  // 넓은 분사구와 불꽃 모양 장식
+  ctx.fillStyle='#d68a38';ctx.beginPath();ctx.moveTo(29,-8);ctx.lineTo(42,-11);ctx.lineTo(51,-7);ctx.lineTo(51,7);ctx.lineTo(42,11);ctx.lineTo(29,8);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffb34c';ctx.beginPath();ctx.ellipse(50,0,3,7,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ff7628';ctx.beginPath();ctx.moveTo(53,-5);ctx.quadraticCurveTo(65,-3,62,-13);ctx.quadraticCurveTo(74,-2,64,6);ctx.quadraticCurveTo(60,11,53,5);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ffe18a';ctx.beginPath();ctx.moveTo(54,-2);ctx.quadraticCurveTo(62,0,57,7);ctx.quadraticCurveTo(55,4,54,-2);ctx.fill();
+  ctx.restore();return true;
+ }
 
  if(['영혼 수확자','차원 파쇄검','종말 레일건'].includes(n)&&drawRealWorldGunSkin(n,c))return true;
  if(!melee&&drawRealWorldGunSkin(n,c))return true;
