@@ -738,25 +738,26 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
  if(n==='화염방사기'){
-  // 카툰풍 화염 장비: 등짐 탱크와 호스, 굵은 분사구를 강조한 비현실적 게임 디자인
+  // 판타지 카툰 장비: 연료통 장식이 무기 본체에 일체형으로 붙은 실루엣
   ctx.save();ctx.lineJoin='round';
-  // 등짐 연료통
+  // 본체 아래쪽에 붙은 통합형 장식 탱크
   ctx.fillStyle='#263b48';ctx.strokeStyle='#a9bac2';ctx.lineWidth=2;
-  ctx.beginPath();ctx.roundRect(-27,-17,23,36,7);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#527181';ctx.fillRect(-23,-12,15,25);
-  ctx.fillStyle='#f2a43e';ctx.fillRect(-22,-8,13,4);ctx.fillStyle='#d96b35';ctx.fillRect(-22,5,13,5);
-  ctx.fillStyle='#dce5e8';ctx.fillRect(-22,-1,13,3);
-  // 장식용 연결 호스
-  ctx.strokeStyle='#d28a49';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-5,11);ctx.quadraticCurveTo(5,20,12,10);ctx.quadraticCurveTo(18,4,20,0);ctx.stroke();
-  ctx.strokeStyle='#f6c16d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,11);ctx.quadraticCurveTo(5,20,12,10);ctx.quadraticCurveTo(18,4,20,0);ctx.stroke();
-  // 손잡이형 본체
-  ctx.fillStyle='#35434b';ctx.strokeStyle='#17232a';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(0,-8,31,16,5);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#778991';ctx.fillRect(6,-5,17,4);ctx.fillStyle='#26343b';ctx.fillRect(8,7,9,13);
-  // 넓은 분사구와 불꽃 모양 장식
-  ctx.fillStyle='#d68a38';ctx.beginPath();ctx.moveTo(29,-8);ctx.lineTo(42,-11);ctx.lineTo(51,-7);ctx.lineTo(51,7);ctx.lineTo(42,11);ctx.lineTo(29,8);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.fillStyle='#ffb34c';ctx.beginPath();ctx.ellipse(50,0,3,7,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#ff7628';ctx.beginPath();ctx.moveTo(53,-5);ctx.quadraticCurveTo(65,-3,62,-13);ctx.quadraticCurveTo(74,-2,64,6);ctx.quadraticCurveTo(60,11,53,5);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#ffe18a';ctx.beginPath();ctx.moveTo(54,-2);ctx.quadraticCurveTo(62,0,57,7);ctx.quadraticCurveTo(55,4,54,-2);ctx.fill();
+  ctx.beginPath();ctx.roundRect(7,5,29,18,6);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#527181';ctx.beginPath();ctx.roundRect(11,8,21,12,4);ctx.fill();
+  ctx.fillStyle='#f2a43e';ctx.fillRect(14,10,15,3);
+  ctx.fillStyle='#d96b35';ctx.fillRect(14,16,15,3);
+  ctx.fillStyle='#dce5e8';ctx.fillRect(17,13,9,2);
+  // 탱크와 한 몸처럼 이어지는 장갑형 본체
+  ctx.fillStyle='#35434b';ctx.strokeStyle='#17232a';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(-5,-8,43,17,5);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#778991';ctx.fillRect(2,-5,24,4);
+  ctx.fillStyle='#26343b';ctx.beginPath();ctx.moveTo(5,8);ctx.lineTo(17,8);ctx.lineTo(21,22);ctx.lineTo(11,22);ctx.closePath();ctx.fill();
+  // 넓은 앞쪽 장식 노즐(비현실적인 게임 실루엣)
+  ctx.fillStyle='#d68a38';ctx.beginPath();ctx.moveTo(36,-8);ctx.lineTo(49,-11);ctx.lineTo(57,-7);ctx.lineTo(57,7);ctx.lineTo(49,11);ctx.lineTo(36,8);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffb34c';ctx.beginPath();ctx.ellipse(56,0,3,7,0,0,Math.PI*2);ctx.fill();
+  // 작은 불꽃 문양
+  ctx.fillStyle='#ff7628';ctx.beginPath();ctx.moveTo(59,-5);ctx.quadraticCurveTo(70,-3,67,-13);ctx.quadraticCurveTo(79,-2,69,6);ctx.quadraticCurveTo(65,11,59,5);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ffe18a';ctx.beginPath();ctx.moveTo(60,-2);ctx.quadraticCurveTo(68,0,63,7);ctx.quadraticCurveTo(61,4,60,-2);ctx.fill();
   ctx.restore();return true;
  }
 
