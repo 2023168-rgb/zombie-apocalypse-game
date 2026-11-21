@@ -736,6 +736,7 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
 
+ if(['영혼 수확자','차원 파쇄검','종말 레일건'].includes(n)&&drawRealWorldGunSkin(n,c))return true;
  if(!melee&&drawRealWorldGunSkin(n,c))return true;
  if(melee){
   if(n==='낡은 야구방망이'){rect(8,-3,8,42,'#98633d');rect(6,-13,12,15,'#c18a53');rect(7,-12,10,3,'#e4c18b');rect(9,29,6,10,'#493326');for(let i=0;i<3;i++)rect(5,-8+i*5,14,2,'#68452f');}
