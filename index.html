@@ -435,8 +435,11 @@ function balanceWeapon(w){
  else if(baseDef)baseDamage=Number(baseDef[1])*Math.pow(1.5,fusionCount);
  else if(Number.isFinite(Number(w.baseDamage))&&Number(w.baseDamage)>0)baseDamage=Number(w.baseDamage);
  else{const oldScale=Math.pow(1.2,lv)*(w.awakened?1.5:1)*(w.superAwakened?10:1);baseDamage=Math.max(.1,(Number(w.damage)||1)/oldScale);w.baseDamage=baseDamage;}
- const levelScale=1+149*Math.pow(lv/99,2);
- const totalDamage=baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened?10:1);
+ w.baseDamage=baseDamage;
+ const levelScale=lv>=99?1000:1+149*Math.pow(lv/99,2);
+ // +99는 무기 고유 기본 공격력을 기준으로 계산해 무기마다 최종 공격력이 다르게 유지돼.
+ // 초월의 기존 10배 배율은 +99에서 중복 적용하지 않아 모든 무기가 같은 상한에 몰리는 일을 막아.
+ const totalDamage=baseDamage*levelScale*(w.awakened?1.5:1)*(w.superAwakened&&lv<99?10:1);
  w.cooldown=cooldown;
  w.damage=Math.min(100000,Math.round(totalDamage*100)/100);
  w.pellets=isOvercycle?1:(melee?1:Math.min(7,pellets));
@@ -445,7 +448,7 @@ function balanceWeapon(w){
 }
 function makeWeapon(r){
  const pool=pools[r.id],pick=pool[Math.floor(Math.random()*pool.length)],melee=pick[3]==='melee';
- const weapon={id:state.nextId++,name:pick[0],rarity:r.id,damage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(r.id==='odd'?2:r.id==='legendary'?2:1),speed:r.id==='epic'?11:9,melee};
+ const weapon={id:state.nextId++,name:pick[0],rarity:r.id,damage:pick[1],baseDamage:pick[1],cooldown:pick[2],pellets:melee?1:pick[0]==='폭발 샷건'?7:(r.id==='odd'?2:r.id==='legendary'?2:1),speed:r.id==='epic'?11:9,melee};
  return balanceWeapon(weapon);
 }
 const jobDefs=[
