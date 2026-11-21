@@ -332,11 +332,14 @@ function renderInventory(){
 }
 function isGodslayerWeapon(w){return !!(w&&/^갓슬레이어\+*$/.test(w.name||''));}
 function balanceWeapon(w){
- const targets={common:.025,uncommon:.04,odd:.065,rare:.12,epic:.22,legendary:.24,mythic:.48,godly:.78,divine:1.35};
  const melee=isMeleeWeapon(w),pellets=melee?3:Math.max(1,Number(w.pellets)||1);
  const cooldown=Math.max(7,Math.min(38,Number(w.cooldown)||17));
- const dps=targets[w.rarity]||targets.common;
- w.cooldown=cooldown;w.damage=w.name==='성운 레일건'?5:(isGodslayerWeapon(w)?1:Math.max(.1,Math.round(dps*cooldown/pellets*100)/100));
+ const baseName=String(w.name||'').replace(/\++$/,'');
+ const baseDef=Object.values(pools).flat().find(item=>item[0]===baseName);
+ const fusionCount=(String(w.name||'').match(/\+/g)||[]).length;
+ const baseDamage=baseDef?Number(baseDef[1]):Math.max(.1,Number(w.damage)||1);
+ w.cooldown=cooldown;
+ w.damage=w.name==='성운 레일건'?5:(isGodslayerWeapon(w)?1:Math.max(.1,Math.round(baseDamage*Math.pow(1.5,fusionCount)*100)/100));
  w.pellets=melee?1:Math.min(7,pellets);
  return w;
 }
