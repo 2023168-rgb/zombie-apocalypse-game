@@ -2465,7 +2465,7 @@ window.addEventListener('keydown',wbKeyDown);window.addEventListener('keyup',wbK
 $('wbMobileControls').id='wbMobileControls';$('wbDesktopControls').id='wbDesktopControls';
 $('weaponUpgradeOpenBtn').onclick=()=>{wb.selectedWeapon=state.equipped;show('weaponUpgradeView');renderWeaponUpgrades();};$('weaponUpgradeBtn').onclick=upgradeSelectedWeapon;$('weaponAwakenBtn').onclick=awakenSelectedWeapon;
 $('worldBossOpenBtn').onclick=wbOpenView;$('wbStartBtn').onclick=wbStart;
-$('wbCopyBtn').onclick=()=>{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(wb.code).then(()=>wbStatus('방 코드를 복사했어!')).catch(()=>wbStatus('코드를 직접 복사해줘.'));else wbStatus('코드를 직접 복사해줘.');};
+
 $('worldBossBackBtn').onclick=()=>{if(wb.started&&!wb.finished){wbStatus('레이드 도중 나가면 보상을 받을 수 없어.');return;}wbCleanup();show('lobby');};$('wbLeaveBtn').onclick=()=>{wbCleanup();show('lobby');};
 function wbSyncHostInput(){if(wb.role==='host'&&wb.players[0])wb.players[0].input={w:!!(wb.keys.w||wb.keys.ArrowUp),a:!!(wb.keys.a||wb.keys.ArrowLeft),s:!!(wb.keys.s||wb.keys.ArrowDown),d:!!(wb.keys.d||wb.keys.ArrowRight),attack:!!wb.keys[' '],skill:!!wb.keys.p,job:!!wb.keys.jobPulse};}
 document.querySelectorAll('.wb-desktop-controls [data-wb-move]').forEach(btn=>{const dir=btn.dataset.wbMove;btn.addEventListener('pointerdown',e=>{e.preventDefault();wb.keys[dir]=true;wbSyncHostInput();});['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,()=>{wb.keys[dir]=false;wbSyncHostInput();}));});
