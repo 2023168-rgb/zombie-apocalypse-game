@@ -510,26 +510,33 @@ const worldRestoreMilestones=[
 function drawWorldRestoreSatellite(){
  const canvas=$('worldRestoreSatellite');if(!canvas)return;const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height,stage=Math.max(0,Math.min(4,Number(state.worldRestoreStage)||0));
  let seed=9173;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- c.clearRect(0,0,w,h);c.fillStyle=stage===0?'#343a32':'#34443a';c.fillRect(0,0,w,h);
- for(let i=0;i<9500;i++){const x=rnd()*w,y=rnd()*h,v=Math.floor(rnd()*35),base=stage===0?48:stage>=3?70:57;c.fillStyle='rgba('+(base+v)+','+(base+v+8)+','+(base+v-5)+','+(.12+rnd()*.18)+')';c.fillRect(x,y,1+rnd()*3,1+rnd()*3);}
- c.strokeStyle=stage===4?'#9b9d8b':'#77796c';c.lineWidth=stage===0?34:stage===4?30:27;c.beginPath();c.moveTo(-20,425);c.lineTo(230,340);c.lineTo(480,360);c.lineTo(690,210);c.lineTo(930,150);c.stroke();c.strokeStyle='#a5a18d';c.lineWidth=2;c.stroke();
- c.strokeStyle=stage===4?'#858d7c':'#686f65';c.lineWidth=stage===0?22:stage===4?19:17;c.beginPath();c.moveTo(130,-20);c.lineTo(210,160);c.lineTo(390,270);c.lineTo(420,580);c.moveTo(570,-20);c.lineTo(550,160);c.lineTo(680,320);c.lineTo(730,580);c.moveTo(-20,185);c.lineTo(920,260);c.stroke();
- for(let row=0;row<7;row++)for(let col=0;col<10;col++){
-  const x=24+col*88+(row%2)*17,y=22+row*76;if(x>w-65||y>h-55)continue;
-  const ruined=stage===0,construction=stage===3&&rnd()<.35,green=stage===4?rnd()<.46:stage>=2&&rnd()<.24;
-  if(green){c.fillStyle=stage===4?'#3e6843':'#405b3e';c.fillRect(x-7,y-5,65,48);for(let k=0;k<12;k++){c.fillStyle=k%2?'#55774a':'#294b35';c.beginPath();c.arc(x+rnd()*60,y+rnd()*42,3+rnd()*6,0,Math.PI*2);c.fill();}continue;}
-  c.fillStyle=stage===4?'rgba(0,0,0,.16)':'rgba(0,0,0,.3)';c.fillRect(x+4,y+5,54,39);
-  c.fillStyle=ruined?(rnd()<.5?'#514d43':'#62584c'):construction?'#77766b':stage===4?['#a6ad9a','#b8b7a3','#9eaa9b','#c0bba7'][Math.floor(rnd()*4)]:'#666b65';c.fillRect(x,y,54,39);
-  c.fillStyle=ruined?'#3e3e37':construction?'#b2a27c':stage===4?['#d5d2bd','#c9d3c0','#d9d4c4','#c2d0c3'][Math.floor(rnd()*4)]:'#898b7d';c.fillRect(x+4,y+4,46,30);
-  if(ruined){c.fillStyle='#34352f';c.beginPath();c.moveTo(x+4,y+4);c.lineTo(x+30,y+12);c.lineTo(x+18,y+30);c.lineTo(x+4,y+25);c.fill();for(let k=0;k<5;k++){c.fillStyle='#292c28';c.fillRect(x+rnd()*48,y+rnd()*32,4+rnd()*8,3+rnd()*7);}}
-  else{c.fillStyle=stage===4?'#b6b9a4':'#a3a391';for(let k=0;k<4;k++)c.fillRect(x+8+k*10,y+8,5,4);if(construction){c.strokeStyle='#c6a65e';c.lineWidth=2;c.beginPath();c.moveTo(x+10,y+5);c.lineTo(x+44,y+31);c.stroke();}}
+ const restored=stage===4,damage=stage===0;
+ const sky=c.createLinearGradient(0,0,0,h);sky.addColorStop(0,restored?'#397ca2':damage?'#333d45':'#526b76');sky.addColorStop(.58,restored?'#f0a36d':'#87918c');sky.addColorStop(1,'#d7a17a');c.fillStyle=sky;c.fillRect(0,0,w,h);
+ c.fillStyle=restored?'#f6c58b':'#a8aaa0';c.beginPath();c.arc(450,145,restored?52:30,0,Math.PI*2);c.fill();
+ // distant skyline
+ for(let i=0;i<19;i++){const x=i*51-12,bw=30+rnd()*42,bh=90+rnd()*170,y=310-bh;c.fillStyle=damage?'#3e4648':['#405568','#526779','#354b60'][i%3];c.fillRect(x,y,bw,bh);c.fillStyle=restored?'#8eb0bb':'#77858a';for(let yy=y+12;yy<300;yy+=19)for(let xx=x+7;xx<x+bw-4;xx+=13){c.fillStyle=restored?'#f9d58c':'#9da8a5';c.fillRect(xx,yy,6,9);}}
+ // giant buildings framing the avenue
+ for(const side of ['left','right']){const left=side==='left',x=left?0:650,bw=left?245:250;c.fillStyle=damage?'#373d40':left?'#344c60':'#3c4d5b';c.beginPath();if(left){c.moveTo(0,0);c.lineTo(235,25);c.lineTo(320,365);c.lineTo(0,390);}else{c.moveTo(665,30);c.lineTo(900,0);c.lineTo(900,390);c.lineTo(580,365);}c.closePath();c.fill();
+  for(let row=0;row<9;row++)for(let col=0;col<5;col++){const xx=left?12+col*43+row*2:675+col*43-row*9,yy=22+row*37,ww=25+(row*2);c.fillStyle=damage?'#59605b':(restored&&rnd()<.3?'#ffd16e':'#83b5c4');c.fillRect(xx,yy,ww,23);c.strokeStyle='rgba(12,24,32,.65)';c.lineWidth=3;c.strokeRect(xx,yy,ww,23);}
  }
- if(stage>=1){c.strokeStyle='#d6c99a';c.lineWidth=3;c.setLineDash([10,8]);c.beginPath();c.moveTo(80,430);c.lineTo(250,360);c.lineTo(440,370);c.lineTo(680,215);c.stroke();c.setLineDash([]);}
- if(stage===0){for(let i=0;i<35;i++){const x=rnd()*w,y=rnd()*h;c.fillStyle='rgba(22,20,17,.45)';c.beginPath();c.arc(x,y,5+rnd()*18,0,Math.PI*2);c.fill();}}
- if(stage>=2){for(let i=0;i<(stage===4?85:26);i++){const x=rnd()*w,y=rnd()*h;c.fillStyle=stage===4?['#527f49','#679354','#3f7043'][Math.floor(rnd()*3)]:'#405f3d';c.beginPath();c.arc(x,y,4+rnd()*(stage===4?10:8),0,Math.PI*2);c.fill();}}
- if(stage===3){c.strokeStyle='#d8ad62';c.lineWidth=3;c.beginPath();c.moveTo(620,90);c.lineTo(760,90);c.lineTo(760,155);c.stroke();}
- c.fillStyle=stage===4?'rgba(5,10,9,.04)':'rgba(5,10,9,.2)';c.fillRect(0,0,w,h);c.fillStyle='#e2e8dc';c.font='bold 17px monospace';c.fillText(['RUINED DISTRICT','POWER RESTORED','SETTLEMENT ZONE','RECONSTRUCTION','RESTORED CITY'][stage],22,h-22);
- const names=['폐허가 된 도시','전력이 복구된 도시','생존자 거주 구역','재건 공사가 진행 중인 도시','녹지와 주거 구역이 복구된 평화로운 도시'];$('worldRestoreMapStage').textContent='복구 단계 '+stage+'/4 · 최종보스 처치 '+(Number(state.finalBossKills)||0)+'회';$('worldRestoreMapDescription').textContent=names[stage]+'의 위성사진 스타일 조사 화면이야. 복구 단계를 올리면 건물과 도로, 녹지 상태가 바뀌어.';
+ // bright giant billboards on both sides
+ const signs=[{x:35,y:180,w:145,h:90,color:'#ed3155',txt:'CITY'},{x:185,y:95,w:95,h:115,color:'#13b9d2',txt:'LIVE'},{x:690,y:155,w:155,h:105,color:'#f4a62e',txt:'NOVA'},{x:765,y:45,w:100,h:92,color:'#db3c91',txt:'NOW'},{x:320,y:185,w:75,h:65,color:'#f6d34d',txt:'24H'}];
+ for(const q of signs){c.fillStyle=damage?'#45494a':q.color;c.fillRect(q.x,q.y,q.w,q.h);c.strokeStyle=restored?'#fff1c7':'#777';c.lineWidth=4;c.strokeRect(q.x,q.y,q.w,q.h);if(!damage){c.fillStyle='#fff';c.font='bold '+Math.floor(q.h*.28)+'px sans-serif';c.textAlign='center';c.fillText(q.txt,q.x+q.w/2,q.y+q.h*.58);c.fillStyle='rgba(255,255,255,.45)';c.fillRect(q.x+10,q.y+10,q.w-20,4);}else{c.fillStyle='#252b2c';c.fillRect(q.x+12,q.y+12,q.w-24,q.h-24);}}
+ c.textAlign='left';
+ // avenue perspective and sidewalks
+ c.fillStyle=damage?'#3c4140':'#555b5a';c.beginPath();c.moveTo(325,330);c.lineTo(575,330);c.lineTo(900,560);c.lineTo(0,560);c.closePath();c.fill();
+ c.fillStyle=restored?'#b5a995':'#77766d';c.beginPath();c.moveTo(285,330);c.lineTo(325,330);c.lineTo(160,560);c.lineTo(0,560);c.closePath();c.fill();c.beginPath();c.moveTo(575,330);c.lineTo(615,330);c.lineTo(900,560);c.lineTo(760,560);c.closePath();c.fill();
+ c.strokeStyle=restored?'#f8df9b':'#b8b09a';c.lineWidth=3;c.setLineDash([18,16]);c.beginPath();c.moveTo(450,345);c.lineTo(450,560);c.stroke();c.setLineDash([]);
+ // crosswalk
+ for(let i=0;i<9;i++){c.fillStyle=restored?'#eee9d9':'#a5a49a';c.beginPath();c.moveTo(340+i*25,405);c.lineTo(355+i*25,405);c.lineTo(370+i*25,425);c.lineTo(325+i*25,425);c.closePath();c.fill();}
+ // cars and taxis
+ for(let i=0;i<(restored?18:stage>=2?10:4);i++){const y=365+rnd()*180,t=(y-330)/230,x=450+(rnd()-.5)*(55+t*360),ww=12+t*27,hh=8+t*15;c.fillStyle=['#f2c542','#e9e9e2','#d94b42','#3476a7'][i%4];c.beginPath();c.roundRect(x-ww/2,y-hh/2,ww,hh,3);c.fill();c.fillStyle='#243746';c.fillRect(x-ww*.28,y-hh*.35,ww*.56,hh*.35);c.fillStyle='#f9e8a7';c.fillRect(x-ww*.42,y,3,2);}
+ // crowds along sidewalks, more as the city is restored
+ for(let i=0;i<(restored?170:stage>=2?75:damage?12:35);i++){const side=rnd()<.5?-1:1,y=350+rnd()*190,x=450+side*(55+rnd()*390),scale=.35+(y-350)/170;c.fillStyle=damage?'#383a37':['#172b3b','#7c3541','#d4b77a','#315b78','#dedbd0'][i%5];c.beginPath();c.ellipse(x,y,3*scale,5*scale,0,0,Math.PI*2);c.fill();c.strokeStyle=c.fillStyle;c.lineWidth=2*scale;c.beginPath();c.moveTo(x,y+4*scale);c.lineTo(x,y+12*scale);c.stroke();}
+ // warm street lights
+ if(restored||stage>=2){for(const x of [290,610]){c.strokeStyle='#333b3e';c.lineWidth=5;c.beginPath();c.moveTo(x,260);c.lineTo(x,385);c.stroke();c.fillStyle='#ffe3a0';c.beginPath();c.arc(x,260,9,0,Math.PI*2);c.fill();}}
+ c.fillStyle='rgba(3,10,15,.38)';c.fillRect(0,0,w,34);c.fillStyle='#fff';c.font='bold 17px monospace';c.fillText(['RUINED CITY','POWER RESTORED','SURVIVOR DISTRICT','CITY REBUILDING','RESTORED MEGACITY'][stage],18,24);
+ const names=['폐허가 된 도시','전력이 복구된 도시','생존자들이 모여 사는 도시','초고층 빌딩과 거리가 재건되는 도시','초고층 빌딩과 전광판, 자동차와 사람들이 가득한 화려한 대도시'];$('worldRestoreMapStage').textContent='복구 단계 '+stage+'/4 · 최종보스 처치 '+(Number(state.finalBossKills)||0)+'회';$('worldRestoreMapDescription').textContent=names[stage]+'의 도심 거리 풍경이야. 복구 단계를 올리면 건물과 전광판, 도로와 시민들이 점점 돌아와.';
 }
 function renderWorldRestoration(){
  const status=$('worldRestoreStatus'),bar=$('worldRestoreBar'),steps=$('worldRestoreSteps'),scene=$('worldRestoreScene');if(!status||!bar||!steps)return;
