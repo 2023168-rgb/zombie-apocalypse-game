@@ -1636,6 +1636,42 @@ function drawSuperAwakenedWeaponBodyBase(n,c,melee){
 }
 
 function drawSuperAwakenedWeaponBody(n,c,melee){
+  if(String(n||'').replace(/\++$/,'')==='오버사이클'){
+   ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
+   const poly=(pts,fill,stroke='#0a111b',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
+   const line=(pts,color,width=2)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
+   // 미래형 각진 본체와 분리형 총열
+   ctx.shadowColor='#22eaff';ctx.shadowBlur=17;
+   poly([[-30,-10],[-18,-19],[23,-18],[42,-13],[58,-10],[76,-7],[82,-2],[82,4],[63,9],[42,14],[12,16],[-22,10],[-31,3]],'#111a27','#4d6a7b',2.5);
+   poly([[-18,-8],[18,-13],[45,-9],[65,-5],[65,4],[42,9],[12,11],[-18,5]],'#263647','#0b1119',2);
+   poly([[34,-8],[70,-9],[91,-5],[91,3],[70,7],[34,6]],'#0b121b','#7c9eae',2);
+   poly([[73,-6],[96,-5],[103,-2],[103,2],[96,5],[73,6]],'#283b4c','#20eaff',1.8);
+   // 네온 에너지 레일
+   line([[-16,-12],[18,-15],[39,-11]],'#21eaff',2.8);
+   line([[-16,8],[13,12],[34,9]],'#ff3f9d',2.5);
+   line([[48,-7],[82,-4]],'#6ffaff',2.4);
+   ctx.shadowColor='#ff36a6';ctx.shadowBlur=15;
+   // 중앙 에너지 코어
+   const core=ctx.createRadialGradient(20,0,2,20,0,13);core.addColorStop(0,'#f4ffff');core.addColorStop(.28,'#47f4ff');core.addColorStop(.7,'#167eaa');core.addColorStop(1,'#142b48');
+   ctx.fillStyle=core;ctx.beginPath();ctx.arc(20,0,12,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#a9ffff';ctx.lineWidth=1.5;ctx.stroke();
+   ctx.shadowBlur=0;
+   // 상단 홀로 조준기와 측면 모듈
+   poly([[-5,-20],[9,-27],[27,-25],[32,-19],[17,-16]],'#172635','#7c9eae',1.5);
+   ctx.fillStyle='#ff3f9d';ctx.fillRect(7,-24,13,3);ctx.fillStyle='#b8ffff';ctx.fillRect(11,-23,5,2);
+   poly([[38,11],[57,13],[64,20],[44,19]],'#192b3b','#53788c',1.5);
+   ctx.fillStyle='#21eaff';ctx.fillRect(45,14,12,2);
+   // 손잡이와 방아쇠 가드
+   poly([[-18,7],[-3,9],[1,28],[-12,32],[-23,17]],'#182433','#6b8290',2);
+   line([[-4,13],[5,18],[3,27]],'#a4bdc8',2);
+   ctx.strokeStyle='#ff3f9d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-1,12);ctx.quadraticCurveTo(10,24,1,29);ctx.stroke();
+   // 후방 냉각 핀과 빛나는 패널
+   for(let k=0;k<4;k++){poly([[-25+k*7,-12],[-20+k*7,-17],[-17+k*7,-13],[-22+k*7,-8]],'#354b5d','#8aa9b8',1);}
+   ctx.fillStyle='#ff3f9d';ctx.shadowColor='#ff3f9d';ctx.shadowBlur=9;ctx.fillRect(-25,-2,8,3);ctx.shadowBlur=0;
+   // 총구 에너지 링
+   ctx.strokeStyle='#25edff';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(98,0,4,7,0,0,Math.PI*2);ctx.stroke();
+   ctx.shadowColor='#21eaff';ctx.shadowBlur=19;ctx.fillStyle='#cfffff';ctx.beginPath();ctx.arc(103,0,2.5,0,Math.PI*2);ctx.fill();
+   ctx.shadowBlur=0;ctx.restore();return true;
+  }
   if(n==='화염방사기'){
    ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
    const poly=(pts,fill,stroke='#171b1e',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
@@ -1747,7 +1783,7 @@ function drawSuperAwakenedWeaponBody(n,c,melee){
 
 function drawDistinctWeapon(w,pl){
  const n=w.name||'',rar=w.rarity||'common';
- if(n==='수류탄'||n==='오버사이클')return false;
+ if(n==='수류탄')return false;
  const colors={common:'#9aa5aa',uncommon:'#55d99a',odd:'#55d7ee',rare:'#7197ff',epic:'#c17aff',legendary:'#ffb347',mythic:'#ff72c5',godly:'#ffe66d',divine:'#9b70ff'};
  const superForm=!!w.superAwakened,c=colors[rar]||'#9aa5aa',dark='#202b34',metal='#647783',wood='#805536';
  const melee=!!w.melee||/대검|단검|방망이|창|도끼|낫|심판검|적월선|갓슬레이어/.test(n);
