@@ -163,7 +163,22 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 .museum-empty-mark{position:absolute;inset:0;display:grid;place-items:center;color:#d6e2ed66;font-size:52px;font-weight:200}
 @media(max-width:700px){#trophyWeaponDisplay{grid-template-columns:repeat(5,minmax(205px,205px))!important;padding:34px 18px 42px;gap:16px}.museum-case{width:205px}}
 </style>
-</head><body>
+<style id="labTankOverride">
+#labObservationChamber.lab-observation{max-width:420px!important;padding:14px 12px 18px!important;background:linear-gradient(135deg,#202a30,#0b1116 48%,#26343a)!important;border:1px solid #64737a!important;border-radius:8px!important;box-shadow:inset 0 1px 0 #ffffff22,0 16px 32px #000b!important}
+#labObservationChamber .lab-chamber-header{color:#a6b7bd!important;letter-spacing:1.5px!important}
+#labObservationChamber .lab-chamber-header b{color:#e2ecee!important}
+#labObservationChamber .lab-chamber-header i{color:#73c9a5!important}
+#labObservationChamber .lab-chamber-lid{height:62px!important;width:92%!important;border:8px solid #68777d!important;border-bottom:5px solid #293940!important;border-radius:48% 48% 8% 8% / 34% 34% 8% 8%!important;background:linear-gradient(180deg,#c1cdd0 0%,#65777e 18%,#26363d 38%,#111a20 72%,#75858a 100%)!important;box-shadow:inset 0 4px 8px #fff7,0 7px 12px #000c!important}
+#labObservationChamber .lab-chamber-lid:before{left:20%!important;right:20%!important;top:-18px!important;height:31px!important;border:5px solid #9eafb2!important;border-bottom:0!important;background:linear-gradient(#35464d,#101a20)!important;box-shadow:0 0 0 3px #1a272d!important}
+#labObservationChamber .lab-chamber-lid:after{right:9%!important;top:-23px!important;width:55px!important;height:53px!important;border:4px solid #9caaad!important;border-bottom:0!important;opacity:1!important}
+#labObservationChamber .lab-chamber-glass{height:300px!important;width:72%!important;margin:-4px auto 0!important;border:8px solid #65777e!important;border-top:3px solid #b6c4c6!important;border-bottom:9px solid #3e5056!important;border-radius:46% 46% 14% 14% / 8% 8% 5% 5%!important;background:linear-gradient(90deg,#06151b 0%,#0b3b50 10%,#08749a 24%,#07516e 50%,#08749a 76%,#0b3b50 90%,#06151b 100%)!important;box-shadow:inset 15px 0 20px #0009,inset -15px 0 20px #0009,inset 0 0 38px #45c6ef44,0 9px 18px #000b!important}
+#labObservationChamber .lab-chamber-glow{background:linear-gradient(90deg,#e7fcff30,transparent 13%,transparent 84%,#e7fcff25),linear-gradient(180deg,#e7fcff16,transparent 25%,#39b9e51c)!important}
+#labObservationChamber .lab-chamber-base{height:62px!important;width:96%!important;border-top:6px solid #9aadb1!important;background:linear-gradient(180deg,#9caaad 0%,#4a5c62 20%,#202e34 58%,#0c1419 100%)!important;box-shadow:0 8px 14px #000c!important}
+#labObservationChamber .lab-chamber-base span{background:linear-gradient(90deg,#d0dcde,#4b5e64)!important}
+#labObservationChamber .lab-chamber-name{color:#e9f1f2!important}
+#labObservationChamber .lab-chamber-status{color:#b3c3c6!important}
+@media(max-width:420px){#labObservationChamber .lab-chamber-glass{width:76%!important;height:280px!important}}
+</style></head><body>
 <style>
 #titleScreen{position:fixed;inset:0;z-index:20001;display:none;align-items:center;justify-content:center;overflow:hidden;padding:22px;background:radial-gradient(ellipse at 50% 58%,#792b32aa 0%,transparent 42%),linear-gradient(180deg,#070b16 0%,#17202d 43%,#401d27 76%,#090d14 100%);isolation:isolate}
 #titleScreen:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 0 42%,#0b111bd9 76%,#070b12 100%),repeating-linear-gradient(90deg,transparent 0 7%,#090e18 7.2% 8.5%,transparent 8.7% 14%),linear-gradient(165deg,transparent 45%,#1a202b 45.2% 48%,transparent 48.2%);clip-path:polygon(0 37%,8% 37%,8% 24%,12% 24%,12% 42%,19% 42%,19% 16%,27% 16%,27% 38%,35% 38%,35% 27%,42% 27%,42% 44%,51% 44%,51% 20%,59% 20%,59% 39%,68% 39%,68% 12%,77% 12%,77% 40%,86% 40%,86% 25%,93% 25%,93% 42%,100% 42%,100% 100%,0 100%)}
