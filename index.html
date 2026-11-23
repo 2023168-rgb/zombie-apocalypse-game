@@ -319,6 +319,7 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 let coop={role:'solo',peer:null,conn:null,extraConn:null,conns:[],code:null,playerCount:2,readyCount:0,slot:0,bossRaid:false,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteNick:'플레이어 2',remoteDeveloper:false,hostNick:'플레이어 1',hostDeveloper:false,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false,third:{input:{},player:null,nick:'플레이어 3',developer:false,health:100,maxHealth:100,coins:0,weapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},job:null,defense:0,coinMultiplier:1,lastShot:0,damageBoost:0,fireBoost:0}};
 
 (()=>{
+let labSelectedStage=1; // 연구소 UI 초기 렌더보다 먼저 초기화
 const $=id=>document.getElementById(id),canvas=$('game');let ctx=canvas.getContext('2d');const W=900,H=540,fogCanvas=document.createElement('canvas'),fogCtx=fogCanvas.getContext('2d');fogCanvas.width=W;fogCanvas.height=H;
 const rarityInfo=[
  {id:'common',name:'일반',chance:50,cls:'common'},
@@ -2913,7 +2914,6 @@ refresh();loop();
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 (()=>{'use strict';
-let labSelectedStage=1; // 연구소 UI 초기 렌더보다 먼저 초기화
 
 const SUPABASE_URL='https://fdfwrpxywlccyjcbfffq.supabase.co';
 const SUPABASE_KEY='sb_publishable_suWSty_GV9lJQk6KroZa2w_zfxtHAW_';
