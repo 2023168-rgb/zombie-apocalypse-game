@@ -299,6 +299,23 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 </section>
 </main>
 <script>
+/* 게임 초기화 오류를 화면에 표시해 버튼 무반응 원인을 확인 */
+(()=>{
+ const report=(label,error)=>{
+  const msg=String(error&&error.message||error||'알 수 없는 오류');
+  console.error('[게임 초기화 진단]',label,error);
+  const show=()=>{
+   let box=document.getElementById('gameRuntimeError');
+   if(!box){box=document.createElement('div');box.id='gameRuntimeError';box.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:100000;background:#5b1720;color:#fff;border:2px solid #ff7b7b;border-radius:10px;padding:12px;font:14px system-ui;white-space:pre-wrap;overflow-wrap:anywhere;max-height:35vh;overflow:auto';document.body.appendChild(box);}
+   box.textContent='게임 스크립트 오류 ('+label+')\\n'+msg;
+  };
+  if(document.body)show();else document.addEventListener('DOMContentLoaded',show,{once:true});
+ };
+ window.addEventListener('error',e=>report('JavaScript',e.error||e.message));
+ window.addEventListener('unhandledrejection',e=>report('비동기 작업',e.reason));
+})();
+</script>
+<script>
 (()=>{
 const $=id=>document.getElementById(id),canvas=$('game');let ctx=canvas.getContext('2d');const W=900,H=540,fogCanvas=document.createElement('canvas'),fogCtx=fogCanvas.getContext('2d');fogCanvas.width=W;fogCanvas.height=H;
 const rarityInfo=[
