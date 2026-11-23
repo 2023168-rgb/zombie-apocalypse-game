@@ -2141,7 +2141,7 @@ function drawBlockWeapon(w,pl){if(drawDistinctWeapon(w,pl))return;
  ctx.restore();
  ctx.restore();
 }
-function drawMapZombieDetails(z,targetCtx=targetCtx){
+function drawMapZombieDetails(z,targetCtx=ctx){
  const boss=!!(z.boss||z.midBoss),type=z.type||'normal',sc=Math.max(.8,Math.min(2.2,z.r/13));
  let skin='#879080',shirt='#455247',pants='#343a35',hair='#34352f',glow='#d7c66c';
  if(type==='fast'){skin='#a0a17b';shirt='#526044';pants='#393b30';hair='#514b3d';}
