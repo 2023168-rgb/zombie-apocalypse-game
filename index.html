@@ -418,6 +418,8 @@ function getWeapon(){return state.inventory.find(w=>w&&w.id===state.equipped)||s
 function isMeleeWeapon(w){return !!(w&&(w.melee||/대검|단검|방망이|창|도끼|낫|심판검|갓슬레이어|검|칼/.test(w.name||'')));}
 function renderLabPanel(){if(!$('labResearchLabel'))return;$('labResearchLabel').textContent='연구 데이터 '+(Number(state.labResearchPoints)||0);$('labClearLabel').textContent='연구소 클리어 '+(Number(state.labClears)||0)+'회';const unlocked=Number(state.finalBossKills)>=1;$('labStartBtn').disabled=!unlocked||coop.role!=='solo';$('labStartBtn').textContent=!unlocked?'🔒 최종 보스 1회 처치 필요':coop.role!=='solo'?'혼자서만 입장 가능':'🧬 연구소 탐사 시작';}
 function show(view){if(view==='blackMarketView'&&!blackMarketIsOpen()){showBlackMarketClosed();return;}if(view==='labView')renderLabPanel();if(view==='rankingView'){if(window.zombieRankLoad)window.zombieRankLoad();}if(mobileControls){const touchUI=window.matchMedia('(max-width:900px), (pointer:coarse)').matches;mobileControls.style.display=view==='gameView'&&touchUI&&mobileControlsOn?'flex':'none';}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(view).classList.add('active');if(view==='equip'){renderInventory();renderJobInventory();renderArmor();}if(view==='titles')renderTitles();if(view==='trophyRoomView')renderTrophyRoom();refresh();}
+window.show=show; // 로그인/소셜 스크립트에서도 화면 전환 함수를 사용하도록 공개
+
 function refresh(){
  $('levelLabel').textContent=`스테이지 레벨 ${state.level} / 1000`;$('walletLabel').textContent=`보유 코인: ${state.wallet}`;$('equippedLabel').textContent='장착 무기: '+getWeapon().name;
  $('xpBar').style.width=(state.level/1000*100)+'%';$('xpLabel').textContent=state.level>=1000?'최고 스테이지 레벨 달성!':`현재 스테이지 레벨 ${state.level} / 1000 · 선택한 모드 완주 시 +1`;
