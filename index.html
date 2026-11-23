@@ -811,7 +811,7 @@ function fire(){
 function useWeaponSkill(){
  if(coop.role==='guest'){coopSend({type:'action',action:'skill'});return;}
  if(!running||paused||!player)return;const w=getWeapon();if(String(w.name||'').replace(/\++$/,'')==='오버사이클'){if(!w.superAwakened){say('오버사이클 초월 후 사용할 수 있는 스킬이야!');return;}if(overcycleUsed){say('오버사이클 초월 스킬은 전투 중 한 번만 사용할 수 있어!');return;}overcycleUsed=true;overcyclePowerUntil=Date.now()+10000;skillFx.push({x:player.x,y:player.y,angle:0,type:'nova',color:'#21eaff',radius:420,variant:29,age:0,duration:100,targets:zombies.map(z=>({x:z.x,y:z.y}))});updateGameHud();addQuestProgress('skills',1);say('⚡ 오버사이클 초월 발동! 10초 동안 공격력·공격속도·이동속도·방어력이 10배!');return;}if(!weaponSkillUnlocked(w)){say(`${rarity(w.rarity).name} 등급 무기는 스킬을 사용할 수 없어! 에픽 등급부터 가능해.`);updateGameHud();return;}let now=Date.now();if(now<skillReadyAt){say(`스킬 쿨타임 ${Math.ceil((skillReadyAt-now)/1000)}초 남음!`);return;}
-if(String(w.name||'').replace(/\++$/,'')==='차원의 낫'){
+if(String(w.name||'').replace(/\++$/,'').replace(/\s/g,'')==='차원낫'){
   const spirits=alliedZombies.filter(a=>a.spirit).length;
   if(spirits>=3){say('👻 영혼은 최대 3마리까지만 소유할 수 있어!');return;}
   const target=zombies.filter(z=>z.hp>0&&!z.boss&&!z.midBoss&&!z.infecting&&!z.converted&&!z.soulDrained).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
@@ -1647,7 +1647,7 @@ function drawSuperAwakenedWeaponBodyBase(n,c,melee){
 }
 
 function drawSuperAwakenedWeaponBody(n,c,melee){
-  if(String(n||'').replace(/\++$/,'')==='차원의 낫'){
+  if(String(n||'').replace(/\++$/,'').replace(/\s/g,'')==='차원낫'){
    ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
    const p=(pts,fill,stroke='#171323',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
    const l=(pts,col,w=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();};
