@@ -694,7 +694,7 @@ function towerDifficulty(f){return f<=5?'매우 쉬움':f<=10?'쉬움':f<=30?'�
 function towerDailyAttempts(){const today=localQuestDay();if(state.towerAttemptDay!==today){state.towerAttemptDay=today;state.towerAttempts=0;}return Math.max(0,10-(Number(state.towerAttempts)||0));}
 function towerCoinPerFloor(f){return f<=5?1:f<=10?10:f<=30?10:f<=50?50:f<=100?100:500;}
 function updateTowerHud(){if(!$('towerFloorLabel'))return;$('towerFloorLabel').textContent='현재 층: '+towerFloor+'층 · '+towerDifficulty(towerFloor);$('towerRewardLabel').textContent='누적 보상: '+towerRewardPool.toLocaleString()+'코인';$('towerBestLabel').textContent='최고 기록: '+Math.max(state.towerBestFloor||0,towerRunBest)+'층';const left=towerDailyAttempts();if($('towerAttemptsLabel'))$('towerAttemptsLabel').textContent='오늘 남은 도전: '+left+'/10';$('towerStart').disabled=left<=0;if($('towerClaim')){$('towerClaim').disabled=!(Number(state.towerPendingReward)>0);$('towerClaim').textContent='🎁 누적 보상 받기 ('+(Number(state.towerPendingReward)||0).toLocaleString()+'코인)';}}
-let fogMode=false,infiniteMode=false,beginnerMode=false,labMode=false,labStage=1,labSelectedStage=1,labEscapeTriggered=false;let keys={},player=null,remotePlayer=null,remotePlayer3=null,remoteHealth=100,remoteMaxHealth=100,remoteCoins=0,zombies=[],alliedZombies=[],bullets=[],enemyBullets=[],particles=[],explosions=[],explodersThisBlock=0,wave=1,spawnLeft=0,matchCoins=0,health=100,maxHealth=100,score=0,frame=0,lastShot=0,damageBoost=0,fireBoost=0,running=false,paused=false,bossSpawned=false,chest=null,feverWave=0,feverActive=false,waveDelay=0,hardMode=false,insaneMode=false,modeName='normal',maxWaves=30,midBossSpawned=false,dmgCost=20,hpCost=15,rateCost=25,roundScale=1,doubleSpeedOn=false,tickAccumulator=0;
+let fogMode=false,infiniteMode=false,beginnerMode=false,labMode=false,labStage=1,labEscapeTriggered=false;let keys={},player=null,remotePlayer=null,remotePlayer3=null,remoteHealth=100,remoteMaxHealth=100,remoteCoins=0,zombies=[],alliedZombies=[],bullets=[],enemyBullets=[],particles=[],explosions=[],explodersThisBlock=0,wave=1,spawnLeft=0,matchCoins=0,health=100,maxHealth=100,score=0,frame=0,lastShot=0,damageBoost=0,fireBoost=0,running=false,paused=false,bossSpawned=false,chest=null,feverWave=0,feverActive=false,waveDelay=0,hardMode=false,insaneMode=false,modeName='normal',maxWaves=30,midBossSpawned=false,dmgCost=20,hpCost=15,rateCost=25,roundScale=1,doubleSpeedOn=false,tickAccumulator=0;
 const mapDefs=[
  {name:'기본 생존 구역',ground:'#18251e',line:'rgba(160,190,160,.10)',edge:'#647b62',obstacle:'잔해',accent:'#8b9b78'},
  {name:'폐가',ground:'#30271f',line:'rgba(205,160,105,.12)',edge:'#8b6845',obstacle:'부서진 가구',accent:'#b28a5d'},
@@ -2913,6 +2913,8 @@ refresh();loop();
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 (()=>{'use strict';
+let labSelectedStage=1; // 연구소 UI 초기 렌더보다 먼저 초기화
+
 const SUPABASE_URL='https://fdfwrpxywlccyjcbfffq.supabase.co';
 const SUPABASE_KEY='sb_publishable_suWSty_GV9lJQk6KroZa2w_zfxtHAW_';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
