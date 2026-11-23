@@ -316,6 +316,8 @@ button.secondary{background:#354653}button.gold{background:#a9791e}button.danger
 })();
 </script>
 <script>
+let coop={role:'solo',peer:null,conn:null,extraConn:null,conns:[],code:null,playerCount:2,readyCount:0,slot:0,bossRaid:false,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteNick:'플레이어 2',remoteDeveloper:false,hostNick:'플레이어 1',hostDeveloper:false,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false,third:{input:{},player:null,nick:'플레이어 3',developer:false,health:100,maxHealth:100,coins:0,weapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},job:null,defense:0,coinMultiplier:1,lastShot:0,damageBoost:0,fireBoost:0}};
+
 (()=>{
 const $=id=>document.getElementById(id),canvas=$('game');let ctx=canvas.getContext('2d');const W=900,H=540,fogCanvas=document.createElement('canvas'),fogCtx=fogCanvas.getContext('2d');fogCanvas.width=W;fogCanvas.height=H;
 const rarityInfo=[
@@ -666,7 +668,7 @@ const skillBook={
  '용암 기관총':['용암 분출','lava','#ff6a2e',220,0], '화염방사기':['화염의 진','flame','#ff6a1a',360,0], '번개 저격총':['연쇄 낙뢰','chain','#a98cff',330,0], '황금 자동 샷건':['황금 탄막','cone','#ffd65c',285,0],
  '낡은 야구방망이':['홈런 스윙','spin','#d5a36b',170,0], '전투 단검':['연속 찌르기','cross','#d5e5ff',190,0], '철제 대검':['강철 회전베기','spin','#b8c5d2',220,0], '전기 창':['번개 찌르기','line','#8cecff',360,0], '화염 대검':['화염 회전참','lava','#ff7547',260,0], '빙결 전투도끼':['빙결 강타','wave','#8beaff',320,0], '차원 낫':['차원 수확','rift','#c18cff',400,0], '신의 심판검':['천상의 참격','nova','#fff27a',480,0], '성운 레일건':['성운 직선포','line','#d28cff',600,0], '차원 분쇄기':['차원 균열','rift','#bd7cff',260,0], '갓슬레이어':['신벌의 심판','nova','#fff27a',340,0], '해커검':['좀비 감염','hack','#39ff55',260,0], '종말의 포효':['종말의 파동','wave','#ff5478',390,0], '종말 레일건':['종말','nova','#ff3b32',430,0]};
 let skillReadyAt=0,skillFx=[],jobSkillReadyAt=0,shinyBoostUntil=0,mobileControlsOn=true,chargeCooldown=0,blackHoleActive=null,abyssClone=null,abyssBurstEvents=[],finalBossCutscene=false;
-let coop={role:'solo',peer:null,conn:null,extraConn:null,conns:[],code:null,playerCount:2,readyCount:0,slot:0,bossRaid:false,lastSnapshot:0,lastInput:0,remoteInput:{},remotePlayer:null,remoteNick:'플레이어 2',remoteDeveloper:false,hostNick:'플레이어 1',hostDeveloper:false,remoteHealth:100,remoteMaxHealth:100,remoteCoins:0,remoteWeapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},remoteJob:null,remoteDamageBoost:0,remoteFireBoost:0,remoteDefense:0,remoteCoinMultiplier:1,remoteLastShot:0,remoteJobReadyAt:0,remoteDead:false,third:{input:{},player:null,nick:'플레이어 3',developer:false,health:100,maxHealth:100,coins:0,weapon:{name:'친구 무기',damage:1,cooldown:16,pellets:1,speed:8.3,rarity:'common'},job:null,defense:0,coinMultiplier:1,lastShot:0,damageBoost:0,fireBoost:0}};
+
 function coopLocalProfile(){try{const id=localStorage.getItem('zombieLocalSessionV1'),db=JSON.parse(localStorage.getItem('zombieLocalSocialV1')||'{}'),u=db.users&&db.users[id];return {nick:(u&&u.nick)||id||'플레이어',developer:id==='dnieyeye'};}catch(e){return {nick:'플레이어',developer:false};}}
 function coopSend(data){try{if(coop.conn&&coop.conn.open)coop.conn.send(data);}catch(e){}}
 function coopStatus(t){const el=document.getElementById('coopStatus');if(el)el.textContent=t;}
