@@ -3020,6 +3020,8 @@ window.zombieAdminGrant=(kind)=>{
   if(!stateRef.inventory.some(w=>w.name==='오버사이클')){stateRef.inventory.push(balanceWeapon({id:stateRef.nextId++,name:'오버사이클',rarity:'special',damage:10,cooldown:90,pellets:1,speed:10,melee:false,special:true}));added++;}
   // 연구실 탈출 이벤트 특별 무기
   if(!stateRef.inventory.some(w=>w.name==='플라즈마 오리지널')){stateRef.inventory.push({id:stateRef.nextId++,name:'플라즈마 오리지널',rarity:'mythic',damage:10,baseDamage:10,cooldown:36,upgradeBaseCooldown:36,pellets:1,speed:9,upgradeLevel:0,awakened:false,superAwakened:false});added++;}
+  // 시간 균열 최종 보스 보상 무기도 전체 무기 지급에 포함
+  if(!stateRef.inventory.some(w=>w.name==='크로노스 시계추')){stateRef.inventory.push({id:stateRef.nextId++,name:'크로노스 시계추',rarity:'godly',damage:20,baseDamage:20,cooldown:48,upgradeBaseCooldown:48,pellets:1,speed:9,melee:false,upgradeLevel:0,awakened:false,superAwakened:false});added++;}
  }else if(kind==='armor'){
   const seen=new Set(stateRef.armorInventory.map(a=>a.name));armorDefs.forEach(d=>{if(!seen.has(d[0])){stateRef.armorInventory.push({id:stateRef.nextArmorId++,name:d[0],slot:d[1],rarity:d[2],defense:d[3]});seen.add(d[0]);added++;}});
   // 연구실 탈출 이벤트 특별 방어구
