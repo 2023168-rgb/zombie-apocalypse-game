@@ -395,7 +395,7 @@ function load(){
   }
   if(!state.inventory.some(w=>w.id===state.equipped))state.equipped=state.inventory[0].id;
   state.nextId=Math.max(Number(state.nextId)||1,...state.inventory.map(w=>Number(w.id)||0))+1;
-  state.armorInventory=Array.isArray(state.armorInventory)?state.armorInventory:[];state.labEscapeRewardClaimed=!!state.labEscapeRewardClaimed;state.timeArchiveRecords=Array.isArray(state.timeArchiveRecords)?[...new Set(state.timeArchiveRecords.filter(x=>Number.isInteger(x)&&x>=0&&x<25))]:[];state.timeArchiveEra=Math.max(1,Math.min(5,Number(state.timeArchiveEra)||1));state.timeArchiveRewardClaimed=!!state.timeArchiveRewardClaimed;
+  state.armorInventory=Array.isArray(state.armorInventory)?state.armorInventory:[];state.labEscapeRewardClaimed=!!state.labEscapeRewardClaimed;state.timeArchiveRecords=Array.isArray(state.timeArchiveRecords)?[...new Set(state.timeArchiveRecords.filter(x=>Number.isInteger(x)&&x>=0&&x<25))]:[];state.timeArchiveEra=Math.max(1,Math.min(5,Number(state.timeArchiveEra)||1));state.timeArchiveRewardClaimed=!!state.timeArchiveRewardClaimed;state.timeArchiveEraRewards=Array.isArray(state.timeArchiveEraRewards)?[...new Set(state.timeArchiveEraRewards.filter(x=>Number.isInteger(x)&&x>=0&&x<5))]:[];
   const godlyArmorDefense={'신의 투구':27,'신의 갑옷':30,'신의 건틀릿':24};
   state.armorInventory=state.armorInventory.filter(a=>a&&typeof a==='object').map(a=>godlyArmorDefense[a.name]?{...a,defense:godlyArmorDefense[a.name]}:a);
   state.equippedArmor=state.equippedArmor&&typeof state.equippedArmor==='object'?state.equippedArmor:{helmet:null,vest:null,gloves:null};state.secretWeaponClaims=Array.isArray(state.secretWeaponClaims)?state.secretWeaponClaims:[];
@@ -445,14 +445,21 @@ function renderTimeArchiveEra(n){
 function showTimeArchivePuzzle(id){
  const eraIndex=Math.floor(id/5),local=id%5,p=timeArchivePuzzles[id],name=timeArchiveEras[eraIndex].records[local],box=$('timeArchivePuzzle');
  if(!box||state.timeArchiveRecords.includes(id))return;
- box.innerHTML='<b>📂 '+name+'</b><p class="muted">'+p[0]+'</p><div class="grid">'+[p[1],p[2],p[3]].map((v,i)=>'<button type="button" data-time-answer="'+i+'" class="'+(i===0?'secondary':'secondary')+'">'+String.fromCharCode(65+i)+'. '+v+'</button>').join('')+'</div><p id="timeArchiveFeedback" class="muted">증거를 비교해 가장 타당한 결론을 선택해.</p>';
- box.querySelectorAll('[data-time-answer]').forEach(b=>b.onclick=()=>{
-  const answer=Number(b.dataset.timeAnswer),feedback=$('timeArchiveFeedback');
-  if(answer===0){
-   state.timeArchiveRecords.push(id);state.timeArchiveRecords.sort((a,b)=>a-b);save();
-   feedback.textContent='✓ 분석 성공! '+p[4];renderTimeArchive();
-   if(state.timeArchiveRecords.length%5===0&&state.timeArchiveRecords.length<25){state.timeArchiveEra=Math.min(5,eraIndex+2);save();renderTimeArchive();}
-  }else{feedback.textContent='분석 실패. '+p[4]+' 다시 증거를 비교해 봐.';}
+ const choices=[{text:p[1],correct:true},{text:p[2],correct:false},{text:p[3],correct:false}].sort(()=>Math.random()-.5);
+ box.innerHTML='<b>📂 '+name+'</b><p class="muted">'+p[0]+'</p><div class="grid">'+choices.map((v,i)=>'<button type="button" data-time-correct="'+(v.correct?'1':'0')+'" class="secondary">'+String.fromCharCode(65+i)+'. '+v.text+'</button>').join('')+'</div><p id="timeArchiveFeedback" class="muted">증거를 비교해 가장 타당한 결론을 선택해.</p>';
+ box.querySelectorAll('[data-time-correct]').forEach(b=>b.onclick=()=>{
+  const correct=b.dataset.timeCorrect==='1',feedback=$('timeArchiveFeedback');
+  if(correct){
+   state.timeArchiveRecords.push(id);state.timeArchiveRecords.sort((a,b)=>a-b);
+   const eraCount=state.timeArchiveRecords.filter(x=>Math.floor(x/5)===eraIndex).length;
+   let eraReward='';
+   if(eraCount===5&&!state.timeArchiveEraRewards.includes(eraIndex)){
+    state.timeArchiveEraRewards.push(eraIndex);state.wallet=(Number(state.wallet)||0)+1500;state.labResearchPoints=(Number(state.labResearchPoints)||0)+100;
+    eraReward=' · 시대 보상 +1,500코인 · 연구 데이터 100';
+   }
+   save();refresh();feedback.textContent='✓ 분석 성공! '+p[4]+eraReward;renderTimeArchive();
+   if(eraCount===5&&state.timeArchiveRecords.length<25){state.timeArchiveEra=Math.min(5,eraIndex+2);save();renderTimeArchive();}
+  }else{feedback.textContent='분석 실패. '+p[4]+' 증거를 다시 비교해 봐.';}
  });
 }
 $('timeArchiveOpenBtn').onclick=()=>{state.timeArchiveEra=Math.max(1,Math.min(5,1+Math.floor(state.timeArchiveRecords.length/5)));show('timeArchiveView');renderTimeArchive();};
