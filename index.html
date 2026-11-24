@@ -1214,7 +1214,23 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const line=(a,b,c,d,e,f)=>{ctx.beginPath();if(Array.isArray(a)){ctx.strokeStyle=b;ctx.lineWidth=c??2;ctx.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)ctx.lineTo(a[i][0],a[i][1]);}else{ctx.strokeStyle=e??'#d3dfe4';ctx.lineWidth=f??2;ctx.moveTo(a,b);ctx.lineTo(c,d);}ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
- if(n==='크로노스 시계추'){ctx.save();ctx.lineJoin='round';ctx.lineCap='round';glow('#d9b66d',13);path([[-13,-7],[1,-12],[31,-10],[45,-5],[49,0],[45,5],[31,10],[1,12],[-13,7]],'#d9c19a','#6d5735',2.5);path([[2,-7],[29,-7],[39,-3],[41,0],[39,3],[29,7],[2,7]],'#f0dfbd','#a88a55',1.5);path([[5,-10],[14,-17],[25,-16],[31,-10]],'#ead3a6','#80663f',1.5);path([[5,8],[17,8],[20,24],[10,27],[3,16]],'#987d52','#57452e',2);ctx.shadowColor='#ffe7a8';ctx.shadowBlur=16;ctx.fillStyle='#f4d58d';ctx.beginPath();ctx.arc(29,0,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff2c9';ctx.lineWidth=2;ctx.beginPath();ctx.arc(29,0,10,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='#745b36';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(29,0);ctx.lineTo(29,-5);ctx.moveTo(29,0);ctx.lineTo(34,2);ctx.stroke();line(45,-2,60,-2,'#e7c77f',3);line(45,2,57,2,'#fff0c7',1.5);for(let k=0;k<3;k++){ctx.fillStyle='#f8dfaa';ctx.fillRect(5+k*7,-2,3,3);}ctx.restore();return true;}
+ if(n==='크로노스 시계추'){
+  // 고풍스러운 시계추 발사 장치: 원형 문자판, 노출 톱니, 매달린 추
+  ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
+  path([[-8,-5],[2,-10],[12,-8],[17,-4],[17,4],[12,8],[2,10],[-8,5]],'#765936','#382b1d',2);
+  path([[9,-7],[42,-7],[49,-3],[49,3],[42,7],[9,7]],'#b08a50','#594326',2);
+  path([[14,-4],[42,-4],[44,0],[42,4],[14,4]],'#e0c18a','#80613a',1.2);
+  ctx.shadowColor='#e6c47e';ctx.shadowBlur=8;ctx.fillStyle='#4b3927';ctx.beginPath();ctx.arc(18,0,15,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#e8d7ae';ctx.beginPath();ctx.arc(18,0,11.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8a693d';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(18,0,13,0,Math.PI*2);ctx.stroke();
+  for(let k=0;k<12;k++){const q=k*Math.PI/6;ctx.strokeStyle='#76572f';ctx.lineWidth=k%3===0?1.8:1;ctx.beginPath();ctx.moveTo(18+Math.cos(q)*8.5,Math.sin(q)*8.5);ctx.lineTo(18+Math.cos(q)*10.2,Math.sin(q)*10.2);ctx.stroke();}
+  ctx.strokeStyle='#654a2b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(18,-7);ctx.moveTo(18,0);ctx.lineTo(24,3);ctx.stroke();ctx.fillStyle='#9b743e';ctx.beginPath();ctx.arc(18,0,2,0,Math.PI*2);ctx.fill();
+  for(const [gx,gy,gr] of [[37,-9,5],[43,8,4]]){ctx.fillStyle='#7a5a32';ctx.beginPath();ctx.arc(gx,gy,gr,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f0d49a';ctx.lineWidth=1.6;ctx.stroke();for(let q=0;q<8;q++){const z=q*Math.PI/4;ctx.beginPath();ctx.moveTo(gx+Math.cos(z)*(gr-1),gy+Math.sin(z)*(gr-1));ctx.lineTo(gx+Math.cos(z)*(gr+2),gy+Math.sin(z)*(gr+2));ctx.stroke();}ctx.fillStyle='#e8d5ac';ctx.beginPath();ctx.arc(gx,gy,1.5,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle='#e8c77c';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(29,8);ctx.lineTo(34,19);ctx.lineTo(34,27);ctx.stroke();ctx.fillStyle='#9a7542';ctx.beginPath();ctx.arc(34,31,6.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f2d99f';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#f5e2b6';ctx.beginPath();ctx.arc(34,31,2,0,Math.PI*2);ctx.fill();
+  path([[48,-5],[55,-7],[62,-5],[65,0],[62,5],[55,7],[48,5]],'#80613a','#49351f',1.8);path([[56,-4],[63,-3],[65,0],[63,3],[56,4]],'#e5c98f','#8a6839',1.2);
+  ctx.strokeStyle='#fff0c8';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(61,-2);ctx.lineTo(67,0);ctx.lineTo(61,2);ctx.stroke();
+  ctx.fillStyle='#76572f';ctx.font='bold 5px serif';ctx.textAlign='center';ctx.fillText('XII',18,-5);ctx.fillText('VI',18,8);
+  ctx.restore();return true;
+ }
  if(n==='플라즈마 오리지널'){
   ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
   path([[-10,-8],[2,-13],[30,-12],[43,-7],[49,0],[43,7],[30,12],[2,10],[-10,5]],'#263b4a','#101e2a',2);
