@@ -1147,6 +1147,7 @@ function drawRealWorldGunSkin(n,c){
  return false;
 }
 function drawWeaponSignature(n,c,metal,dark,wood){
+ const path=(pts,fill,stroke='#111a20',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
  const rect=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
  const glow=(col,blur)=>{ctx.shadowColor=col;ctx.shadowBlur=blur;};
  const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
