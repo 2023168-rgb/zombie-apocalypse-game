@@ -2193,6 +2193,19 @@ function drawMapZombieDetails(z,targetCtx=ctx){
  targetCtx.save();targetCtx.translate(z.x,z.y);targetCtx.scale(z.bossType==='worldboss'?2.15:sc,z.bossType==='worldboss'?2.15:sc);
  const ell=(x,y,rx,ry,c,a=0)=>{targetCtx.fillStyle=c;targetCtx.beginPath();targetCtx.ellipse(x,y,rx,ry,a,0,Math.PI*2);targetCtx.fill();};
  const path=(pts,c)=>{targetCtx.fillStyle=c;targetCtx.beginPath();targetCtx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)targetCtx.lineTo(pts[i][0],pts[i][1]);targetCtx.closePath();targetCtx.fill();};
+ // 최종 보스는 기존의 왕관 달린 중장갑 외형을 유지한다.
+ if(z.bossType==='worldboss'){
+  targetCtx.shadowColor='#0009';targetCtx.shadowBlur=6;targetCtx.shadowOffsetY=3;
+  targetCtx.fillStyle='#3b4544';targetCtx.fillRect(-16,-4,32,9);targetCtx.fillRect(-14,5,28,12);
+  targetCtx.fillStyle='#d4ae54';targetCtx.fillRect(-17,-7,34,5);
+  ell(0,-16,12,10,'#777d70');
+  targetCtx.fillStyle='#f4d36a';path([[-9,-22],[-5,-31],[0,-24],[5,-31],[10,-22]],'#f4d36a');
+  targetCtx.strokeStyle='#ffe89a';targetCtx.lineWidth=2;targetCtx.strokeRect(-19,-25,38,43);
+  targetCtx.fillStyle='#ffdf78';targetCtx.beginPath();targetCtx.arc(-4,-15,2.2,0,Math.PI*2);targetCtx.arc(4,-15,2.2,0,Math.PI*2);targetCtx.fill();
+  targetCtx.fillStyle='#252322';targetCtx.fillRect(-4,-9,8,2);
+  targetCtx.strokeStyle='#ffe17a';targetCtx.lineWidth=2;targetCtx.beginPath();targetCtx.arc(0,0,23,0,Math.PI*2);targetCtx.stroke();
+  targetCtx.restore();return;
+ }
  targetCtx.shadowColor='#0009';targetCtx.shadowBlur=5;targetCtx.shadowOffsetY=3;
  // 늘어진 바지와 비틀린 다리
  targetCtx.lineCap='round';targetCtx.lineJoin='round';targetCtx.strokeStyle=pants;targetCtx.lineWidth=7;
