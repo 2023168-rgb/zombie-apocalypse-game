@@ -1150,7 +1150,7 @@ function drawWeaponSignature(n,c,metal,dark,wood){
  const path=(pts,fill,stroke='#111a20',lw=2)=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}};
  const rect=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
  const glow=(col,blur)=>{ctx.shadowColor=col;ctx.shadowBlur=blur;};
- const line=(pts,col,width=2)=>{ctx.strokeStyle=col;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();};
+ const line=(a,b,c,d,e,f)=>{ctx.beginPath();if(Array.isArray(a)){ctx.strokeStyle=b;ctx.lineWidth=c??2;ctx.moveTo(a[0][0],a[0][1]);for(let i=1;i<a.length;i++)ctx.lineTo(a[i][0],a[i][1]);}else{ctx.strokeStyle=e??'#d3dfe4';ctx.lineWidth=f??2;ctx.moveTo(a,b);ctx.lineTo(c,d);}ctx.stroke();};
  const gem=(x,y,r,col)=>{ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();ctx.fill();};
  const melee=/방망이|단검|대검|창|도끼|낫|검|적월선|갓슬레이어/.test(n);
  if(n==='플라즈마 오리지널'){
