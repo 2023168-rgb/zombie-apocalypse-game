@@ -358,7 +358,7 @@ const pools={
  epic:[['플라즈마 라이플',3.1,7],['폭발 샷건',3.5,32],['관통 저격총',5.5,30],['화염 대검',5.0,34,'melee']],
  legendary:[['용암 기관총',3.8,5],['번개 저격총',6.5,23],['황금 자동 샷건',4.0,30],['빙결 전투도끼',7.5,38,'melee'],['화염방사기',1,6]],
  mythic:[['성운 레일건',9,25],['차원 분쇄기',6.8,12],['차원 낫',10,32,'melee']],
- godly:[['갓슬레이어',1,7],['종말의 포효',10,16],['신의 심판검',16,30,'melee']],
+ godly:[['갓슬레이어',5,7],['종말의 포효',10,16],['신의 심판검',16,30,'melee']],
  divine:[['블랙홀 발사기',65,38],['해커검',48,24,'melee']]
 };
 let flameStreamUntil=0,radialFlameSkillUntil=0,radialFlameLastTick=0,starfallEvents=[],grenadeSkillEvents=[],overcycleUsed=false,overcycleDebuffUntil=0,overcyclePowerUntil=0;
@@ -388,7 +388,7 @@ function load(){
   }catch(e){}
   state.inventory=(Array.isArray(state.inventory)?state.inventory:[])
     .filter(w=>w&&typeof w==='object'&&Number.isFinite(Number(w.id))&&typeof w.name==='string')
-    .map(w=>{const item={...w,pellets:w.name==='폭발 샷건'?7:(w.pellets||1),upgradeLevel:Math.max(0,Number(w.upgradeLevel)||0),awakened:!!w.awakened};item.superAwakened=!!item.superAwakened||item.upgradeLevel>=99;try{if(String(item.name||'').replace(/\++$/,'')==='황금 자동 샷건')item.upgradeBaseCooldown=30;balanceWeapon(item);if(item.superAwakened){item.superBaseSpeed=Math.max(.1,Number(item.superBaseSpeed)||((Number(item.speed)||10)/10));item.speed=item.superBaseSpeed*10;item.pellets=Math.max(1,Number(item.pellets)||1)*10;}return item;}catch(e){if(item.name==='갓슬레이어')item.damage=1*(item.superAwakened?10:1);return item;}});
+    .map(w=>{const item={...w,pellets:w.name==='폭발 샷건'?7:(w.pellets||1),upgradeLevel:Math.max(0,Number(w.upgradeLevel)||0),awakened:!!w.awakened};item.superAwakened=!!item.superAwakened||item.upgradeLevel>=99;try{if(String(item.name||'').replace(/\++$/,'')==='황금 자동 샷건')item.upgradeBaseCooldown=30;balanceWeapon(item);if(item.superAwakened){item.superBaseSpeed=Math.max(.1,Number(item.superBaseSpeed)||((Number(item.speed)||10)/10));item.speed=item.superBaseSpeed*10;item.pellets=Math.max(1,Number(item.pellets)||1)*10;}return item;}catch(e){if(item.name==='갓슬레이어')item.damage=5*(item.superAwakened?10:1);return item;}});
   if(!state.inventory.length){
     state.inventory=[{id:1,name:'기본 권총',rarity:'common',damage:1,cooldown:17,pellets:1,speed:8.3}];
     state.equipped=1;
@@ -562,7 +562,7 @@ function balanceWeapon(w){
  let baseDamage;
  if(isShinyStar)baseDamage=58;
  else if(isOvercycle)baseDamage=10;
- else if(isGodslayerWeapon(w))baseDamage=1;
+ else if(isGodslayerWeapon(w))baseDamage=5;
  else if(baseName==='적월선')baseDamage=55;
  else if(baseName==='성운 레일건')baseDamage=5;
  else if(baseDef)baseDamage=Number(baseDef[1])*Math.pow(1.5,fusionCount);
