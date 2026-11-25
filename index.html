@@ -1874,7 +1874,7 @@ function drawSuperAwakenedWeaponBodyBase(n,c,melee){
 }
 
 function drawSuperAwakenedWeaponBody(n,c,melee){
-  if(String(n||'').replace(/\\++$/,'')==='갓슬레이어'){
+  if(String(n||'').replace(/\++$/,'')==='갓슬레이어'){
    ctx.save();ctx.lineJoin='round';ctx.lineCap='round';
    const poly=(p,f,st='#17121f',w=2)=>{ctx.beginPath();ctx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)ctx.lineTo(p[i][0],p[i][1]);ctx.closePath();ctx.fillStyle=f;ctx.fill();if(st){ctx.strokeStyle=st;ctx.lineWidth=w;ctx.stroke();}};
    const line=(p,col,w=2)=>{ctx.beginPath();ctx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)ctx.lineTo(p[i][0],p[i][1]);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();};
